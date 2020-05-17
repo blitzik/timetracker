@@ -31,7 +31,14 @@ class MainScreenModel with ChangeNotifier {
   }
 
 
-  void refresh() {
+  void refreshWorkedHours() {
+    _workedHours = _calculateWorkedHours();
+    notifyListeners();
+  }
+
+
+  void deleteLastRecord() {
+    _procedureRecords.removeAt(0);
     _workedHours = _calculateWorkedHours();
     notifyListeners();
   }

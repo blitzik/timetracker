@@ -112,7 +112,7 @@ class ProcedureRecordItemWidget extends StatelessWidget {
             }
           case 2:
             {
-              // todo
+              await _deleteProcedureRecordDialog(context);
               break;
             }
           default:
@@ -196,7 +196,7 @@ class ProcedureRecordItemWidget extends StatelessWidget {
                           model.closeRecord(finish, quantity);
 
                           var mainModel = Provider.of<MainScreenModel>(_context, listen: false);
-                          mainModel.refresh();
+                          mainModel.refreshWorkedHours();
 
                           Navigator.pop(context);
                         },
@@ -210,7 +210,7 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   }
 
 
-  Future<void> _openProcedureRecordDialog(BuildContext _context) async {
+  Future<void> _openProcedureRecordDialog(BuildContext _context) async{
     return await showDialog(
         context: _context,
         builder: (BuildContext context) => AlertDialog(
@@ -226,13 +226,37 @@ class ProcedureRecordItemWidget extends StatelessWidget {
                     model.openRecord();
 
                     var mainModel = Provider.of<MainScreenModel>(_context, listen: false);
-                    mainModel.refresh();
+                    mainModel.refreshWorkedHours();
 
                     Navigator.pop(_context);
                   },
                 ),
               ],
         )
+    );
+  }
+
+
+  Future<void> _deleteProcedureRecordDialog(BuildContext _context) async{
+    return await showDialog(
+      context: _context,
+      builder: (BuildContext context) => AlertDialog(
+        contentPadding: EdgeInsets.all(25),
+        content: SingleChildScrollView(
+          child: Text('Skutečně chcete odstranit záznam?'),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Ano'),
+            onPressed: () {
+              var mainModel = Provider.of<MainScreenModel>(_context, listen: false);
+              mainModel.deleteLastRecord();
+
+              Navigator.pop(_context);
+            },
+          ),
+        ],
+      )
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_model.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
-import 'package:app/domain/procedure_record.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
