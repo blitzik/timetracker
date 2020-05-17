@@ -5,7 +5,7 @@ extension DateTimeExtension on DateTime {
 
     int week = 1 + (monday.difference(first).inDays / 7).floor();
 
-    if (week == 53 && DateTime(monday.year, 12, 31).weekday < 4)
+    if (week == 53 && DateTime.utc(monday.year, 12, 31).weekday < 4)
       week = 1;
 
     return week;
@@ -14,7 +14,6 @@ extension DateTimeExtension on DateTime {
 
   DateTime weekStart() {
     var date = this;
-    // This is ugly, but to avoid problems with daylight saving
     DateTime monday = DateTime.utc(date.year, date.month, date.day);
     monday = monday.subtract(Duration(days: monday.weekday - 1));
 
@@ -24,10 +23,8 @@ extension DateTimeExtension on DateTime {
 
   DateTime weekEnd() {
     var date = this;
-    // This is ugly, but to avoid problems with daylight saving
-    // Set the last microsecond to really be the end of the week
-    DateTime sunday = DateTime.utc(date.year, date.month, date.day, 23, 59, 59, 999, 999999);
-    sunday = sunday.add(Duration(days: 7 - sunday.weekday));
+    DateTime monday = date.weekStart();
+    DateTime sunday = monday.add(Duration(days: 6));
 
     return sunday;
   }

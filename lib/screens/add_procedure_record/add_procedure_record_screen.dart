@@ -1,10 +1,11 @@
-import 'package:app/domain/procedure.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_model.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
+import 'package:app/domain/procedure.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'dart:math';
 
 
 class AddProcedureRecordScreen extends StatelessWidget {
@@ -105,6 +106,7 @@ class AddProcedureRecordScreen extends StatelessWidget {
                         height: 150,
                         decoration: BoxDecoration(border: Border.all(width: 1, color: Colors.black)),
                         child: TimePickerSpinner(
+                          time: _setDefaultTime(),
                           isShowSeconds: false,
                           is24HourMode: true,
                           isForce2Digits: true,
@@ -143,6 +145,23 @@ class AddProcedureRecordScreen extends StatelessWidget {
       )
     );
   }
+
+
+  DateTime _setDefaultTime() {
+    DateTime now = DateTime.now();
+    int hour = now.hour;
+    int minutes;
+    if (now.minute >= 45) {
+      hour++;
+      minutes = 0;
+
+    } else {
+      minutes = (now.minute / 15).round() * 15;
+    }
+
+    return DateTime(now.year, now.month, now.day, hour, minutes, 0, 0, 0);
+  }
+
 
   Widget _getQuantityTextField(AddProcedureRecordScreenModel model) {
     if (!model.isLastProcedureSet) {
@@ -206,46 +225,3 @@ class LastRecordWidget extends StatelessWidget {
     );
   }
 }
-
-
-/*
-
-
-Container(
-  height: 150,
-  decoration: BoxDecoration(border: Border.all(width: 1, color: Colors.black)),
-  child: TimePickerSpinner(
-    isShowSeconds: false,
-    is24HourMode: true,
-    isForce2Digits: true,
-    minutesInterval: 15,
-    spacing: 75,
-    itemHeight: 50,
-    onTimeChange: (time) {
-      _formDTO.start = time;
-    },
-  )
-),
-
-
-final p = Provider.of<AddProcedureRecordScreenModel>(_, listen: false);
-var newRecord = await p.startProcedureRecord();
-Navigator.pop(context, newRecord);
-
-
-Consumer<AddProcedureRecordScreenModel>(
-  builder: (context, model, _) => DropdownButton(
-    isExpanded: true,
-    value: model.selectedProcedure,
-    hint: Text('Zvolte akci', style: TextStyle(fontSize: 20)),
-    items: model.procedures.map((f) {
-      return DropdownMenuItem(value: f.id, child: Text(f.name, style: TextStyle(fontSize: 20)));
-    }).toList(),
-    onChanged: (v) {
-      model.selectedProcedure = v;
-    },
-  ),
-),
-
-
-*/

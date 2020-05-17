@@ -1,6 +1,7 @@
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:app/routing/RouteGenerator.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:app/app_state.dart';
 import 'package:intl/intl.dart';
@@ -31,7 +32,7 @@ class App extends StatelessWidget{
     return ChangeNotifierProvider.value(
       value:  _appState,
       child: MaterialApp(
-        title: 'App',
+        title: 'TimeTracker',
         theme: ThemeData(
           primaryColor: Color(0xff34495e),
         ),

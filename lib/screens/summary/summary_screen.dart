@@ -26,12 +26,14 @@ class SummaryScreen extends StatelessWidget {
             Container(
                 decoration: BoxDecoration(color: Color(0xfff0f0f0), border: Border(bottom: BorderSide(width: 1, color: Color(0xffcccccc)))),
                 padding: EdgeInsets.symmetric(vertical: 15),
-                child: ListTile(
-                    title: Text(
-                      '${DateFormat('EEEE d. MMMM yyyy').format(appState.date).toString().capitalizeFirst()}',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text('${appState.date.getWeek()}. týden')
+                child: InkWell(
+                  child: Consumer<SummaryScreenModel>(
+                    builder: (context, model, _) => createTitle(model)
+                  ),
+                  onTap: () {
+                    var model = Provider.of<SummaryScreenModel>(context, listen: false);
+                    model.toggleType();
+                  },
                 )
             ),
 
@@ -85,6 +87,26 @@ class SummaryScreen extends StatelessWidget {
             )
           ],
         )
+    );
+  }
+
+  Widget createTitle(SummaryScreenModel model) {
+    if (model.currentType == SummaryType.day) {
+      return ListTile(
+        title: Text(
+          '${DateFormat('EEEE d. MMMM yyyy').format(model.date).toString().capitalizeFirst()}',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text('${model.date.getWeek()}. týden'),
+      );
+    }
+
+    return ListTile(
+      title: Text(
+        '${model.date.getWeek()}. týden',
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+      subtitle: Text('${DateFormat('d. MMMM yyyy').format(model.date.weekStart()).toString()} - ${DateFormat('d. MMMM yyyy').format(model.date.weekEnd()).toString()}'),
     );
   }
 }

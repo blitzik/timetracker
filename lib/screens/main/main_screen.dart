@@ -1,7 +1,8 @@
-import 'package:app/screens/summary/summary_screen.dart';
 import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_widget_model.dart';
 import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_widget.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
+import 'package:app/screens/actions_overview/actions_overview_screen.dart';
+import 'package:app/screens/summary/summary_screen.dart';
 import 'package:app/screens/main/main_screen_model.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/extensions/string_extension.dart';
@@ -22,6 +23,7 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = Provider.of<AppState>(context, listen: false);
+    var screenModel = Provider.of<MainScreenModel>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
@@ -38,13 +40,13 @@ class MainScreen extends StatelessWidget {
               ),
             ),
 
-            /*ListTile(
+            ListTile(
                 title: Text('Přehled akcí'),
                 onTap: () {
-
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, ActionsOverviewScreen.routeName);
                 },
-              ),*/
-
+            ),
 
             ListTile(
               title: Text('Souhrn záznamů'),
@@ -53,13 +55,6 @@ class MainScreen extends StatelessWidget {
                 Navigator.pushNamed(context, SummaryScreen.routeName);
               },
             ),
-
-            /*ListTile(
-                title: Text('Týdenní přehled'),
-                onTap: () {
-
-                },
-              )*/
           ],
         ),
       ),

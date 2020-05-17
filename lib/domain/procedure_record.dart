@@ -33,9 +33,9 @@ class ProcedureRecord {
   int get quantity => _quantity;
 
   int _start;
-  DateTime get start => DateTime.fromMillisecondsSinceEpoch(_start);
+  DateTime get start => DateTime.fromMillisecondsSinceEpoch(_start).toUtc();
   set __start(DateTime start) {
-    _start = _getCleanDateTime(start).millisecondsSinceEpoch;
+    _start = _getCleanDateTimeUTC(start).millisecondsSinceEpoch;
     _year = start.year;
     _month = start.month;
     _day = start.day;
@@ -43,12 +43,12 @@ class ProcedureRecord {
   }
 
   int _finish;
-  DateTime get finish => _finish == null ? null : DateTime.fromMillisecondsSinceEpoch(_finish);
+  DateTime get finish => _finish == null ? null : DateTime.fromMillisecondsSinceEpoch(_finish).toUtc();
   set __finish(DateTime finish) {
     if (finish == null) {
       return;
     }
-    _finish = _getCleanDateTime(finish).millisecondsSinceEpoch;
+    _finish = _getCleanDateTimeUTC(finish).millisecondsSinceEpoch;
     _timeSpent = (_finish - _start) ~/ 1000;
   }
 
@@ -96,8 +96,8 @@ class ProcedureRecord {
   }
 
 
-  DateTime _getCleanDateTime(DateTime d) {
-    return DateTime(d.year, d.month, d.day, d.hour, d.minute, 0, 0, 0);
+  DateTime _getCleanDateTimeUTC(DateTime d) {
+    return DateTime.utc(d.year, d.month, d.day, d.hour, d.minute, 0, 0, 0);
   }
 
 

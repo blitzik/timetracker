@@ -1,10 +1,19 @@
+import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:app/domain/procedure_summary.dart';
 import 'package:flutter/foundation.dart';
+import 'package:app/app_state.dart';
 
-class SummaryScreenModel with ChangeNotifier
-{
-  final DateTime _date;
+
+enum SummaryType {
+  day, week
+}
+
+
+class SummaryScreenModel with ChangeNotifier {
+  AppState _appState;
+
+  DateTime get date => _appState.date;
 
   List<ProcedureSummary> _summary = List();
 
@@ -15,17 +24,45 @@ class SummaryScreenModel with ChangeNotifier
   double get workedHours => _workedHours;
 
 
-  SummaryScreenModel(this._date) {
-    loadSummary();
+  SummaryType currentType;
+
+
+  SummaryScreenModel(this._appState) {
+    currentType = SummaryType.day;
+    loadSummary(currentType);
   }
 
 
-  void loadSummary() async{
-    _summary = await SQLiteDbProvider.db.getDaySummary(_date)..toList(growable: false);
+  void loadSummary(SummaryType type) async{
+    List<ProcedureSummary> summary;
+    if (type == SummaryType.day) {
+      summary = await SQLiteDbProvider.db.getDaySummary(
+        date.year,
+        date.month,
+        date.day
+      );
+    } else {
+      summary = await SQLiteDbProvider.db.getWeekSummary(
+        date.year,
+        date.getWeek()
+      );
+    }
+    _workedHours = 0;
+    _summary = summary.toList(growable: false);
     _summary.forEach((f) {
       _workedHours += f.timeSpent;
     });
     notifyListeners();
+  }
+
+
+  void toggleType() {
+    if (currentType == SummaryType.day) {
+      currentType = SummaryType.week;
+    } else {
+      currentType = SummaryType.day;
+    }
+    loadSummary(currentType);
   }
 
 

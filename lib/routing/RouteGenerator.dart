@@ -1,10 +1,12 @@
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_model.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
-import 'package:app/domain/procedure_record.dart';
-import 'package:app/screens/main/main_screen_model.dart';
-import 'package:app/screens/main/main_screen.dart';
-import 'package:app/screens/summary/summary_screen.dart';
+import 'package:app/screens/actions_overview/actions_overview_screen_model.dart';
+import 'package:app/screens/actions_overview/actions_overview_screen.dart';
 import 'package:app/screens/summary/summary_screen_model.dart';
+import 'package:app/screens/main/main_screen_model.dart';
+import 'package:app/screens/summary/summary_screen.dart';
+import 'package:app/screens/main/main_screen.dart';
+import 'package:app/domain/procedure_record.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:app/app_state.dart';
@@ -22,7 +24,7 @@ class RouteGenerator {
     switch (settings.name) {
       case MainScreen.routeName: return MaterialPageRoute(
           builder: (_) => ChangeNotifierProvider(
-            create: (context) => MainScreenModel(_appState.date),
+            create: (context) => MainScreenModel(_appState),
             child: MainScreen()
           )
       );
@@ -36,9 +38,16 @@ class RouteGenerator {
 
       case SummaryScreen.routeName: return MaterialPageRoute(
         builder: (_) => ChangeNotifierProvider(
-          create: (context) => SummaryScreenModel(_appState.date),
+          create: (context) => SummaryScreenModel(_appState),
           child: SummaryScreen(),
         )
+      );
+
+      case ActionsOverviewScreen.routeName: return MaterialPageRoute(
+          builder: (_) => ChangeNotifierProvider(
+            create: (context) => ActionsOverviewScreeModel(_appState),
+            child: ActionsOverviewScreen(),
+          )
       );
 
       default:

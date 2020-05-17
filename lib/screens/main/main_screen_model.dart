@@ -2,10 +2,13 @@ import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:app/domain/procedure_record.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:app/app_state.dart';
 
 
 class MainScreenModel with ChangeNotifier {
-  DateTime _date;
+  AppState _appState;
+
+  DateTime get _date => _appState.date;
 
   List<ProcedureRecord> _procedureRecords = List();
   int get procedureRecordsCount => _procedureRecords.length;
@@ -18,14 +21,14 @@ class MainScreenModel with ChangeNotifier {
   double get workedHours => _workedHours;
 
 
-  MainScreenModel(this._date) {
+  MainScreenModel(this._appState) {
     _loadProcedureRecords();
   }
 
 
   void _loadProcedureRecords() async{
     var records = await SQLiteDbProvider.db.findAllProcedureRecords(_date.year, _date.month, _date.day);
-    _procedureRecords = records.reversed.toList();
+    _procedureRecords = records;
     _workedHours = _calculateWorkedHours();
     notifyListeners();
   }

@@ -2,11 +2,11 @@ import 'package:app/exceptions/entity_identity_exception.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/domain/procedure_summary.dart';
 import 'package:app/domain/procedure_record.dart';
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:app/domain/procedure.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:intl/intl.dart';
 import 'dart:io';
 
 
@@ -65,32 +65,36 @@ class SQLiteDbProvider {
             await db.execute('''
               CREATE INDEX year_month_day ON procedure_record (year, month, day)
             ''');
+            await db.execute('''
+              CREATE INDEX year_week ON procedure_record (year, week)
+            ''');
 
             await db.execute('''
               INSERT INTO procedure(name, type) VALUES ('Přestávka', 0)
             ''');
 
-            await db.execute('''
+            /*await db.execute('''
               INSERT INTO procedure(name) VALUES
                 ('Příprava vláken'), ('Příprava kabelů'), ('Rezání vlákna ruční'),
                 ('Řezání vlákna automat'), ('Zabrušování PC'), ('Zabrušování APC'),
                 ('Lepení ker.'), ('Focení čela MT ferule'), ('Měření nestandart'),
                 ('Měření standart'), ('Balení kabelů'), ('Balení couplerů')
-            ''');
+            ''');*/
 
             /*var today = DateTime.now();
             var week = today.getWeek();
             await db.execute('''
               INSERT INTO procedure_record(procedure, year, month, day, week, quantity, start, finish, time_spent)
-              VALUES (3, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 6, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 6, 30, 0).millisecondsSinceEpoch}, 1800),
-              (2, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 6, 30, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 7, 0, 0).millisecondsSinceEpoch}, 1800),
-              (7, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 7, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 7, 30, 0).millisecondsSinceEpoch}, 1800),
-              (3, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 7, 30, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 8, 0, 0).millisecondsSinceEpoch}, 1800),
-              (1, ${today.year}, ${today.month}, ${today.day}, $week, NULL, ${DateTime(today.year, today.month, today.day, 8, 30, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 9, 0, 0).millisecondsSinceEpoch}, 1800),
-              (5, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 9, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 10, 0, 0).millisecondsSinceEpoch}, 3600),
-              (6, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 10, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 11, 45, 0).millisecondsSinceEpoch}, 6300),
-              (7, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 11, 45, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 12, 0, 0).millisecondsSinceEpoch}, 900),
-              (8, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 12, 0, 0).millisecondsSinceEpoch}, NULL, NULL)
+              VALUES
+              (3, ${today.year}, ${today.month}, 15, $week, 10, ${DateTime(today.year, today.month, 15, 6, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, 15, 7, 0, 0).millisecondsSinceEpoch}, 3600),
+              (2, ${today.year}, ${today.month}, 15, $week, 10, ${DateTime(today.year, today.month, 15, 7, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, 15, 8, 0, 0).millisecondsSinceEpoch}, 3600),
+              (7, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 8, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 9, 0, 0).millisecondsSinceEpoch}, 3600),
+              (3, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 9, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 10, 0, 0).millisecondsSinceEpoch}, 3600),
+              (1, ${today.year}, ${today.month}, ${today.day}, $week, NULL, ${DateTime(today.year, today.month, today.day, 10, 00, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 10, 30, 0).millisecondsSinceEpoch}, 1800),
+              (5, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 10, 30, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 11, 30, 0).millisecondsSinceEpoch}, 3600),
+              (6, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 11, 30, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 12, 30, 0).millisecondsSinceEpoch}, 3600),
+              (7, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 12, 30, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 13, 30, 0).millisecondsSinceEpoch}, 3600),
+              (8, ${today.year}, ${today.month}, ${today.day}, $week, NULL, ${DateTime(today.year, today.month, today.day, 13, 30, 0).millisecondsSinceEpoch}, NULL, NULL)
             ''');*/
 
         }
@@ -98,11 +102,26 @@ class SQLiteDbProvider {
   }
 
 
+  Future<Procedure> insertProcedure(Procedure procedure) async{
+    if (procedure.id != null) throw ArgumentError('Argument must be newly created!');
+    final db = await database;
+    int id = await db.insert('procedure', procedure.toMap());
+    procedure.id = id;
+    return Future.value(procedure);
+  }
+
+
+  void updateProcedure(Procedure procedure) async{
+    final db = await database;
+    _checkProcedureIdentity(procedure);
+
+    await db.update('procedure', procedure.toMap(), where: 'id = ?', whereArgs: [procedure.id]);
+  }
+
+
   Future<ProcedureRecord> insertProcedureRecord(Procedure procedure, DateTime start, [Transaction tx]) async{
     final db = tx != null ? tx : await database;
-    if (procedure.id == null) {
-      throw EntityIdentityException('Procedure argument needs to have set an identifier');
-    }
+    _checkProcedureIdentity(procedure);
 
     ProcedureRecord newRecord = ProcedureRecord(procedure, start);
     int newId = await db.insert('procedure_record', newRecord.toMap());
@@ -127,7 +146,11 @@ class SQLiteDbProvider {
     final db = await database;
 
     List<Procedure> procedures = List<Procedure>();
-    var futureResults = db.rawQuery('SELECT id as procedure_id, name as procedure_name, type as procedure_type FROM procedure');
+    var futureResults = db.rawQuery('''
+      SELECT id as procedure_id, name as procedure_name, type as procedure_type 
+      FROM procedure
+      ORDER BY id DESC
+    ''');
     var results = await futureResults;
     results.forEach((f) {
       procedures.add(Procedure.fromMap(f));
@@ -138,16 +161,15 @@ class SQLiteDbProvider {
 
 
   Future<List<ProcedureRecord>> findAllProcedureRecords(int year, int month, int day) async{
-    print('===== findAllProcedureRecords called =====');
     final db = await database;
-//SELECT pr.id, pr.year, pr.month, pr.day, pr.week, pr.quantity, pr.start, pr.finish, pr.time_spent,
-//       p.id as procedure_id, p.name as procedure_name
+
     List<ProcedureRecord> procedures = List<ProcedureRecord>();
     var futureResult = db.rawQuery(
         '''SELECT pr.*, p.id as procedure_id, p.name as procedure_name, p.type as procedure_type
            FROM procedure_record pr
            LEFT JOIN procedure p ON (p.id = pr.procedure)
-           WHERE pr.year = ? AND pr.month = ? and pr.day = ?''',
+           WHERE pr.year = ? AND pr.month = ? and pr.day = ?
+           ORDER BY pr.id DESC''',
         [year, month, day]
     );
     var result = await futureResult;
@@ -236,7 +258,7 @@ class SQLiteDbProvider {
   }
 
 
-  Future<List<ProcedureSummary>> getDaySummary(DateTime day) async{
+  Future<List<ProcedureSummary>> getDaySummary(int year, int month, int day) async{
     final db = await database;
     var futureResult = db.rawQuery('''
       SELECT p.id, p.name, SUM(pr.quantity) AS quantity, SUM(pr.time_spent) AS time_spent
@@ -244,7 +266,7 @@ class SQLiteDbProvider {
       LEFT JOIN procedure p ON (p.id = pr.procedure)
       WHERE pr.year = ? AND pr.month = ? AND pr.day = ?
       GROUP BY p.id
-    ''', [day.year, day.month, day.day]);
+    ''', [year, month, day]);
     var result = await futureResult;
 
     List<ProcedureSummary> summary = List<ProcedureSummary>();
@@ -254,5 +276,36 @@ class SQLiteDbProvider {
     });
 
     return Future.value(summary);
+  }
+
+
+  Future<List<ProcedureSummary>> getWeekSummary(int year, int week) async{
+    final db = await database;
+    var futureResult = db.rawQuery('''
+      SELECT p.id, p.name, SUM(pr.quantity) AS quantity, SUM(pr.time_spent) AS time_spent
+      FROM procedure_record pr
+      LEFT JOIN procedure p ON (p.id = pr.procedure)
+      WHERE pr.year = ? AND pr.week = ?
+      GROUP BY p.id
+    ''', [year, week]);
+    var result = await futureResult;
+
+    List<ProcedureSummary> summary = List<ProcedureSummary>();
+    result.forEach((f) {
+      if (f['time_spent'] == null || f['quantity'] == null) return;
+      summary.add(ProcedureSummary.fromMap(f));
+    });
+
+    return Future.value(summary);
+  }
+
+
+  // -----
+
+
+  void _checkProcedureIdentity(Procedure procedure) {
+    if (procedure.id == null) {
+      throw ArgumentError('Procedure argument needs to have set an identifier');
+    }
   }
 }
