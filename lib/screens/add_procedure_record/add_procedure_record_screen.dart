@@ -1,3 +1,4 @@
+import 'package:app/domain/procedure.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_model.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:provider/provider.dart';
@@ -148,7 +149,7 @@ class AddProcedureRecordScreen extends StatelessWidget {
       return null;
     }
 
-    if (model.isLunchBreak) {
+    if (model.procedureType == ProcedureType.BREAK) {
       return null;
     }
 

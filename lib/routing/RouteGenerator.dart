@@ -3,6 +3,8 @@ import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dar
 import 'package:app/domain/procedure_record.dart';
 import 'package:app/screens/main/main_screen_model.dart';
 import 'package:app/screens/main/main_screen.dart';
+import 'package:app/screens/summary/summary_screen.dart';
+import 'package:app/screens/summary/summary_screen_model.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:app/app_state.dart';
@@ -29,6 +31,13 @@ class RouteGenerator {
         builder: (_) => ChangeNotifierProvider(
           create: (context) => AddProcedureRecordScreenModel(args as ProcedureRecord, _appState),
           child: AddProcedureRecordScreen(),
+        )
+      );
+
+      case SummaryScreen.routeName: return MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider(
+          create: (context) => SummaryScreenModel(_appState.date),
+          child: SummaryScreen(),
         )
       );
 

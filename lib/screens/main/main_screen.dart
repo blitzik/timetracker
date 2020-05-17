@@ -1,3 +1,4 @@
+import 'package:app/screens/summary/summary_screen.dart';
 import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_widget_model.dart';
 import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_widget.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
@@ -46,10 +47,10 @@ class MainScreen extends StatelessWidget {
 
 
             ListTile(
-              title: Text('Denní přehled'),
+              title: Text('Souhrn záznamů'),
               onTap: () {
                 Navigator.pop(context);
-                //Navigator.pushNamed(context, DayOverviewScreen.routeName, arguments: DateTime.now());
+                Navigator.pushNamed(context, SummaryScreen.routeName);
               },
             ),
 
@@ -85,7 +86,6 @@ class MainScreen extends StatelessWidget {
               child: Selector<MainScreenModel, int>(
                   selector: (context, model) => model.procedureRecordsCount,
                   builder: (context, recordsCount, _) {
-                    print('ENTIRE LIST REBUILT');
                     var model = Provider.of<MainScreenModel>(context, listen: false);
                     if (model.isProcedureRecordsEmpty) {
                       return Padding(
@@ -94,8 +94,9 @@ class MainScreen extends StatelessWidget {
                       );
                     }
 
-                    return ListView.builder(
+                    return ListView.separated(
                       itemCount: model.procedureRecordsCount,
+                      separatorBuilder: (BuildContext context, int index) => Divider(height: 1),
                       itemBuilder: (BuildContext context, int index) {
                         var record = model.getProcedureRecordAt(index);
                         return ChangeNotifierProvider(

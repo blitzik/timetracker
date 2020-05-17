@@ -1,6 +1,8 @@
+import 'package:app/exceptions/entity_identity_exception.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/domain/procedure_summary.dart';
 import 'package:app/domain/procedure_record.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:app/domain/procedure.dart';
 import 'package:sqflite/sqflite.dart';
@@ -15,7 +17,7 @@ class SQLiteDbProvider {
   static Database _database;
 
 
-  Future<Database> get database async {
+  Future<Database> get database async{
     if (_database != null) {
       return _database;
     }
@@ -24,9 +26,9 @@ class SQLiteDbProvider {
   }
 
 
-  initDB() async {
+  initDB() async{
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, "tracy.db");
+    String path = join(documentsDirectory.path, "app.db");
     return await openDatabase(
         path,
         version: 1,
@@ -36,8 +38,10 @@ class SQLiteDbProvider {
 
             await db.execute('''
               CREATE TABLE procedure (
-                  id   INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                  name TEXT NOT NULL UNIQUE
+                  id   INTEGER PRIMARY KEY AUTOINCREMENT
+                               NOT NULL,
+                  name TEXT    NOT NULL UNIQUE,
+                  type INTEGER NOT NULL DEFAULT 1
               )
             ''');
 
@@ -63,7 +67,7 @@ class SQLiteDbProvider {
             ''');
 
             await db.execute('''
-              INSERT INTO procedure(name) VALUES ('Přestávka')
+              INSERT INTO procedure(name, type) VALUES ('Přestávka', 0)
             ''');
 
             await db.execute('''
@@ -78,15 +82,15 @@ class SQLiteDbProvider {
             var week = today.getWeek();
             await db.execute('''
               INSERT INTO procedure_record(procedure, year, month, day, week, quantity, start, finish, time_spent)
-              VALUES (1, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 6, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 6, 30, 0).millisecondsSinceEpoch}, 1800),
+              VALUES (3, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 6, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 6, 30, 0).millisecondsSinceEpoch}, 1800),
               (2, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 6, 30, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 7, 0, 0).millisecondsSinceEpoch}, 1800),
               (7, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 7, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 7, 30, 0).millisecondsSinceEpoch}, 1800),
               (3, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 7, 30, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 8, 0, 0).millisecondsSinceEpoch}, 1800),
-              (4, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 8, 30, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 9, 0, 0).millisecondsSinceEpoch}, 1800),
+              (1, ${today.year}, ${today.month}, ${today.day}, $week, NULL, ${DateTime(today.year, today.month, today.day, 8, 30, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 9, 0, 0).millisecondsSinceEpoch}, 1800),
               (5, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 9, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 10, 0, 0).millisecondsSinceEpoch}, 3600),
               (6, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 10, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 11, 45, 0).millisecondsSinceEpoch}, 6300),
               (7, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 11, 45, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 12, 0, 0).millisecondsSinceEpoch}, 900),
-              (8, ${today.year}, ${today.month}, ${today.day}, $week, NULL, ${DateTime(today.year, today.month, today.day, 12, 0, 0).millisecondsSinceEpoch}, NULL, NULL)
+              (8, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 12, 0, 0).millisecondsSinceEpoch}, NULL, NULL)
             ''');*/
 
         }
@@ -94,11 +98,36 @@ class SQLiteDbProvider {
   }
 
 
+  Future<ProcedureRecord> insertProcedureRecord(Procedure procedure, DateTime start, [Transaction tx]) async{
+    final db = tx != null ? tx : await database;
+    if (procedure.id == null) {
+      throw EntityIdentityException('Procedure argument needs to have set an identifier');
+    }
+
+    ProcedureRecord newRecord = ProcedureRecord(procedure, start);
+    int newId = await db.insert('procedure_record', newRecord.toMap());
+    newRecord.id = newId;
+    return Future.value(newRecord);
+  }
+
+
+  void updateProcedureRecord(ProcedureRecord record, [Transaction tx]) async{
+    final db = tx != null ? tx : await database;
+    db.update('procedure_record', record.toMap(), where: 'id = ?', whereArgs: [record.id]);
+  }
+
+
+  void deleteProcedureRecord(ProcedureRecord record, [Transaction tx]) async{
+    final db = tx != null ? tx : await database;
+    db.delete('procedure_record', where: 'id = ?', whereArgs: [record.id]);
+  }
+
+
   Future<List<Procedure>> findAllProcedures() async{
     final db = await database;
 
     List<Procedure> procedures = List<Procedure>();
-    var futureResults = db.rawQuery('SELECT id, name FROM procedure');
+    var futureResults = db.rawQuery('SELECT id as procedure_id, name as procedure_name, type as procedure_type FROM procedure');
     var results = await futureResults;
     results.forEach((f) {
       procedures.add(Procedure.fromMap(f));
@@ -115,7 +144,7 @@ class SQLiteDbProvider {
 //       p.id as procedure_id, p.name as procedure_name
     List<ProcedureRecord> procedures = List<ProcedureRecord>();
     var futureResult = db.rawQuery(
-        '''SELECT pr.*, p.id as procedure_id, p.name as procedure_name
+        '''SELECT pr.*, p.id as procedure_id, p.name as procedure_name, p.type as procedure_type
            FROM procedure_record pr
            LEFT JOIN procedure p ON (p.id = pr.procedure)
            WHERE pr.year = ? AND pr.month = ? and pr.day = ?''',
@@ -134,7 +163,7 @@ class SQLiteDbProvider {
     final db = await database;
 
     var futureResult = db.rawQuery('''
-      SELECT pr.*, p.id as procedure_id, p.name as procedure_name
+      SELECT pr.*, p.id as procedure_id, p.name as procedure_name, p.type as procedure_type
       FROM procedure_record pr
       LEFT JOIN procedure p ON (p.id = pr.procedure)
       WHERE pr.id = ?
@@ -150,7 +179,7 @@ class SQLiteDbProvider {
     final db = tx != null ? tx : await database;
 
     var futureResult = db.rawQuery(
-        '''SELECT pr.*, p.id as procedure_id, p.name as procedure_name
+        '''SELECT pr.*, p.id as procedure_id, p.name as procedure_name, p.type as procedure_type
             FROM procedure_record pr
             LEFT JOIN procedure p ON (p.id = pr.procedure)
             WHERE pr.year = ? AND pr.month = ? and pr.day = ?
@@ -196,17 +225,11 @@ class SQLiteDbProvider {
     var newRecord = await db.transaction<ProcedureRecord>((txn) async{
       if (lastRecord != null) {
         lastRecord.closeRecord(start, lastProcedureQuantity);
-        await txn.update('procedure_record', lastRecord.toMap(), where: 'id = ?', whereArgs: [lastRecord.id]);
+        await updateProcedureRecord(lastRecord, txn);
       }
 
-      var newRecord = ProcedureRecord(procedure, start);
-      var newRecordMap = newRecord.toMap();
-      int newRecordId = await txn.insert('procedure_record', newRecordMap);
-
-      newRecordMap['id'] = newRecordId;
-      newRecordMap['procedure_id'] = procedure.id;
-      newRecordMap['procedure_name'] = procedure.name;
-      return Future.value(ProcedureRecord.fromMap(newRecordMap));
+      ProcedureRecord newRecord = await insertProcedureRecord(procedure, start, txn);
+      return Future.value(newRecord);
     });
 
     return Future.value(newRecord);
@@ -233,27 +256,3 @@ class SQLiteDbProvider {
     return Future.value(summary);
   }
 }
-
-/*
-Future<ProcedureRecord> startProcedureRecord(ProcedureRecord lastProcedureRecord, int lastProcedureQuantity, Procedure procedure, DateTime start) async{
-    final db = await database;
-    var newRecord = await db.transaction<ProcedureRecord>((txn) async{
-      var lastRecord = await getLastProcedureRecord(start.year, start.month, start.day, txn);
-      if (lastRecord != null) {
-        lastRecord.closeRecord(start, lastProcedureQuantity);
-        await txn.update('procedure_record', lastRecord.toMap(), where: 'id = ?', whereArgs: [lastRecord.id]);
-      }
-
-      var newRecord = ProcedureRecord(procedure, start);
-      var newRecordMap = newRecord.toMap();
-      int newRecordId = await txn.insert('procedure_record', newRecordMap);
-
-      newRecordMap['id'] = newRecordId;
-      newRecordMap['procedure_id'] = procedure.id;
-      newRecordMap['procedure_name'] = procedure.name;
-      return Future.value(ProcedureRecord.fromMap(newRecordMap));
-    });
-
-    return Future.value(newRecord);
-  }
-*/

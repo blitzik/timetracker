@@ -2,6 +2,7 @@ import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_w
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:app/screens/main/main_screen_model.dart';
 import 'package:app/domain/procedure_record.dart';
+import 'package:app/domain/procedure.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,6 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ProcedureRecordItemWidgetModel>(
         builder: (context, record, _) {
-          print('===== ITEM ${record.id} REBUILT =====');
           return ListTile(
           contentPadding: _padding,
           title: Text(record.procedureName,
@@ -64,8 +64,7 @@ class ProcedureRecordItemWidget extends StatelessWidget {
 
 
   String _getQuantityString(ProcedureRecordItemWidgetModel record) {
-    if (record.procedureId == 1) {
-      // break
+    if (record.procedureType == ProcedureType.BREAK) {
       return '';
     }
 

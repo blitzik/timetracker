@@ -1,3 +1,4 @@
+import 'package:app/exceptions/entity_identity_exception.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/domain/procedure.dart';
 
@@ -10,6 +11,11 @@ enum ProcedureRecordState {
 class ProcedureRecord {
   int _id;
   int get id => _id;
+  set id(int id) {
+    if (_id != null)
+      throw EntityIdentityException('You cannot set ID to existing Entity');
+    _id = id;
+  }
 
   Procedure _procedure;
   Procedure get procedure => _procedure;
@@ -98,7 +104,7 @@ class ProcedureRecord {
   factory ProcedureRecord.fromMap(Map<String, dynamic> map) {
      return ProcedureRecord._(
         map['id'],
-        Procedure.withId(map['procedure_id'], map['procedure_name']),
+        Procedure.fromMap(map),
         map['year'],
         map['month'],
         map['day'],
