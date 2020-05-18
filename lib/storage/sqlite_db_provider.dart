@@ -2,6 +2,7 @@ import 'package:app/exceptions/entity_identity_exception.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/domain/procedure_summary.dart';
 import 'package:app/domain/procedure_record.dart';
+import 'package:app/utils/result_object/result_object.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:app/domain/procedure.dart';
 import 'package:sqflite/sqflite.dart';
@@ -73,6 +74,13 @@ class SQLiteDbProvider {
               INSERT INTO procedure(name, type) VALUES ('Přestávka', 0)
             ''');
 
+            await db.execute('''
+              INSERT INTO procedure(name) VALUES
+                ('Ladění tunex'), ('Řezání vlákna ruční'), ('Focení čela ker. ferule'),
+                ('Lepení keramika vlákno'), ('Lepení keramika kabel'), ('Příprava konců kabel'),
+                ('Protahování vláken do tubingů do 3,1m')
+            ''');
+
             /*await db.execute('''
               INSERT INTO procedure(name) VALUES
                 ('Příprava vláken'), ('Příprava kabelů'), ('Rezání vlákna ruční'),
@@ -102,20 +110,46 @@ class SQLiteDbProvider {
   }
 
 
-  Future<Procedure> insertProcedure(Procedure procedure) async{
+  Future<ResultObject<Procedure>> insertProcedure(Procedure procedure) async{
     if (procedure.id != null) throw ArgumentError('Argument must be newly created!');
     final db = await database;
-    int id = await db.insert('procedure', procedure.toMap());
-    procedure.id = id;
-    return Future.value(procedure);
+    ResultObject<Procedure> result = ResultObject();
+    try {
+      int id = await db.insert('procedure', procedure.toMap());
+      procedure.id = id;
+      result = ResultObject(procedure);
+
+    } on DatabaseException catch(e) {
+      if (e.isUniqueConstraintError())
+        result.addErrorMessage('Akce již existuje');
+      else
+        result.addErrorMessage('Při ukládání došlo k chybě');
+    } catch (e) {
+      result.addErrorMessage('Požadavek nelze dokončit');
+    }
+
+    return Future.value(result);
   }
 
 
-  void updateProcedure(Procedure procedure) async{
+  Future<ResultObject<Procedure>> updateProcedure(Procedure procedure) async{
     final db = await database;
     _checkProcedureIdentity(procedure);
 
-    await db.update('procedure', procedure.toMap(), where: 'id = ?', whereArgs: [procedure.id]);
+    ResultObject<Procedure> result = ResultObject(procedure);
+    try {
+      await db.update('procedure', procedure.toMap(), where: 'id = ?', whereArgs: [procedure.id]);
+
+    } on DatabaseException catch(e) {
+      if (e.isUniqueConstraintError())
+        result.addErrorMessage('Akce již existuje');
+      else
+        result.addErrorMessage('Při ukládání došlo k chybě');
+    } catch (e) {
+      result.addErrorMessage('Požadavek nelze dokončit');
+    }
+
+    return Future.value(result);
   }
 
 
@@ -149,7 +183,7 @@ class SQLiteDbProvider {
     var futureResults = db.rawQuery('''
       SELECT id as procedure_id, name as procedure_name, type as procedure_type 
       FROM procedure
-      ORDER BY id DESC
+      ORDER BY name
     ''');
     var results = await futureResults;
     results.forEach((f) {

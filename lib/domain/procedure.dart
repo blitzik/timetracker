@@ -14,16 +14,20 @@ class Procedure {
     _id = id;
   }
 
-  String name;
+  String _name;
+  String get name => _name;
+  set name(String name) {
+    _name = name?.trim();
+  }
 
   int _type;
   ProcedureType get type => ProcedureType.values[_type];
 
 
-  Procedure(this.name) {
+  Procedure(this._name) {
     _type = ProcedureType.WORK.index;
   }
-  Procedure._(this._id, this.name, this._type);
+  Procedure._(this._id, this._name, this._type);
 
 
   factory Procedure.fromMap(Map<String, dynamic> map) {

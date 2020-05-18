@@ -1,7 +1,11 @@
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_model.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen_model.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget.dart';
+import 'package:app/screens/actions_overview/action_form_model.dart';
+import 'package:app/screens/actions_overview/action_form.dart';
+import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/domain/procedure.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +13,7 @@ import 'package:flutter/material.dart';
 
 class ActionsOverviewScreen extends StatelessWidget {
   static const routeName = '/actionsOverview';
+
 
   ActionsOverviewScreen();
 
@@ -49,9 +54,6 @@ class ActionsOverviewScreen extends StatelessWidget {
 
 
   void _openProcedureCreationDialog(BuildContext _context) async{
-    var nameController = TextEditingController();
-    GlobalKey<FormState> _formKey = GlobalKey();
-
     return await showDialog(
         context: _context,
         builder: (BuildContext context) {
@@ -60,35 +62,20 @@ class ActionsOverviewScreen extends StatelessWidget {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(25),
-                child: Form(
-                  key: _formKey,
-                  autovalidate: true,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      TextFormField(
-                        controller: nameController,
-                        decoration: InputDecoration(
-                            labelText: 'Název akce'
-                        ),
-                        validator: (value) {
-                          if (value.isEmpty) return 'Zadejte název akce';
-                          return null;
-                        }
-                      ),
+                child: ChangeNotifierProvider(
+                  create: (context) => ActionFormModel(),
+                  child: ActionForm(
+                    _context,
+                    (context, formModel) async{
+                      var parentModel = Provider.of<ActionsOverviewScreeModel>(_context, listen: false);
 
-                      SizedBox(height: 15),
-
-                      RaisedButton(
-                        child: const Text('uložit'),
-                        onPressed: () {
-                          if (!_formKey.currentState.validate()) return;
-                          var model = Provider.of<ActionsOverviewScreeModel>(_context, listen: false);
-                          model.save(nameController.text);
-                          Navigator.pop(context);
-                        },
-                      )
-                    ],
+                      ResultObject<Procedure> result = await parentModel.save(formModel.procedureName);
+                      if (!result.isSuccess) {
+                        formModel.procedureNameErrorText = result.lastMessage;
+                        return;
+                      }
+                      Navigator.pop(context);
+                    }
                   ),
                 ),
               )
