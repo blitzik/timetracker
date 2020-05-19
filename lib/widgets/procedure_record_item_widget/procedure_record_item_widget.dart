@@ -25,40 +25,45 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<ProcedureRecordItemWidgetModel>(
-        builder: (context, record, _) {
-          return ListTile(
-          contentPadding: _padding,
-          title: Text(record.procedureName,
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-          subtitle: Row(
-            children: <Widget>[
-              Expanded(
-                flex: 2,
-                child: Text(
-                    '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
-                    style: TextStyle(fontSize: _fontSize),
+      builder: (context, record, _) {
+        return InkWell(
+          child: ListTile(
+            contentPadding: _padding,
+            title: Text(record.procedureName,
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+            subtitle: Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                      '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
+                      style: TextStyle(fontSize: _fontSize),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Text(
-                    record.timeSpent == null
-                        ? '-'
-                        : '${record.timeSpent.toString()}h',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: _fontSize),
+                Expanded(
+                  child: Text(
+                      record.timeSpent == null
+                          ? '-'
+                          : '${record.timeSpent.toString()}h',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: _fontSize),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Text(_getQuantityString(record),
-                    textAlign: TextAlign.right,
-                    style: TextStyle(fontSize: _fontSize),
+                Expanded(
+                  child: Text(_getQuantityString(record),
+                      textAlign: TextAlign.right,
+                      style: TextStyle(fontSize: _fontSize),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+            trailing: _displayMenu(context, record)
           ),
-          trailing: _displayMenu(context, record)
+          onTap: () {
+
+          },
         );
-        }
+      }
     );
   }
 

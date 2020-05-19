@@ -76,9 +76,36 @@ class SQLiteDbProvider {
 
             await db.execute('''
               INSERT INTO procedure(name) VALUES
-                ('Ladění tunex'), ('Řezání vlákna ruční'), ('Focení čela ker. ferule'),
-                ('Lepení keramika vlákno'), ('Lepení keramika kabel'), ('Příprava konců kabel'),
-                ('Protahování vláken do tubingů do 3,1m')
+                ('Střih vláken, kabelů a tubingů'), ('Střih vláken v primární izolaci'),
+                ('Střih kabelů s velkým průměrem'), ('Střih vláken a tubingů dp 0,5m'),
+                ('Protahování vláken do tubingů do 1,1m'), ('Protahování vláken do tubingů do 3,1m'),
+                ('Protahování vláken do tubingů do 6,1m'), ('Rozdělení konců duplex'),
+                ('Zakracování délky'), ('Příprava kabelů leoni'), ('Příprava vícevláknových kabelů'),
+                ('Příprava konců vlákno'), ('Příprava konců kabel'), ('Příprava konců ribon'),
+                ('Příprava konců kabel + ribonizace'), ('Lepení keramika vlákno'),
+                ('Lepení keramika kabel'), ('Lepení kapilára'), ('Lepení diamond + 1. středění'),
+                ('Lepení kov'), ('Lepení MT 12'), ('Lepení MT 24'), ('Lepení HP'), ('Krimpování diamond'),
+                ('Řezání vlákna ruční'), ('Řezání vlákna automat'), ('Zabroušení před laděním'),
+                ('Řezání diamond'), ('Řezání F3000'), ('Řezání MT'), ('Ladění tunex'), ('Montáž vlákno FC, SC, MU'),
+                ('Montáž vlákno a kabel E2000'), ('Montáž kabel FC, SC, MU'), ('Montážvlákno a kabel LC, ST'),
+                ('Montáž MTP vlákno'), ('Montáž MTP kabel'), ('Montáž splitrů do RX'), ('Montáž splitrů do LGX'),
+                ('Montáž splitrů do LGX - 1/32'), ('Montáž splitrů do LGX - 1/64'), ('Výroba FO-BOX - 6'),
+                ('Výroba FO-BOX - 12'), ('Výroba cylindr'), ('Výroba FO-board'), ('Rozribonování do 0,5m'),
+                ('Rozribonování do 1m'), ('Rozribonování do 2m'), ('Rozribonování do 3m'), ('Lepení čárových kódů + načítání'),
+                ('Navíjení krátkých cívek do 100m'), ('Navíjení PVL nad 100m'), ('Montáž kazety PVL'), ('Konečná montáž PVL'),
+                ('2. Středění diamond'), ('2. středění diamond 0,1dB'), ('Měření numerické apertury HP'),
+                ('Měření úhlu HP'), ('Zabrušování kermika PC'), ('Zabrušování keramika LC, E2000 APC'),
+                ('Zabrušování SC, FC APC'), ('Zabrušování kapilár'), ('Zabrušování MT'), ('Zabrušování KOV'),
+                ('Broušení kapilár 0,5mm'), ('Broušení kapilár jednochodka'), ('Broušení kapilár excentr'),
+                ('Broušení keramika KAR.'), ('Broušení diamond KAR.'), ('Broušení MT/APC KAR.'), ('Broušení MT/PC excentr'),
+                ('Broušení ker. ručně'), ('Broušení KOV ručně'), ('Broušení SMA/APC/PC'), ('Optická kontrola MOK, KOK'),
+                ('Optická kontrola MT'), ('Montáž diamond'), ('Měření GEO'), ('Měření GEO MT'), ('Měření GEO + report'),
+                ('Měření standart'), ('Měření nestandart vln. délky'), ('Měření MAP'), ('Měření MAP MTP 12'), ('Měření MAP MTP 24'),
+                ('Měření MAP SM 12'), ('Měření MAP SM 24'), ('Focení čela ker. ferule'), ('Focení čela ferule/MT'), ('Balení'),
+                ('Balení UHV'), ('Balení splitr'), ('Balení coupler'), ('Balení ribon radiall + opt. kontrola'), ('Příprava a zakrácení couplerů'),
+                ('Navlékání couplerů do metal tubingu'), ('Montáž FC na metal tubing'), ('Zakládání do boxů na nápar'), ('Vyndávání z boxů po náparu'),
+                ('Měření a zakracování luna'), ('Broušení AFC 2 plochy'), ('Broušení AFC 4 plochy'), ('Měření GEO AFC'),
+                ('Optická kontrola pro planární tech.')
             ''');
 
             /*await db.execute('''
