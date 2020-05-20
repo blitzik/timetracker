@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 
-class ActionFormModel with ChangeNotifier {
+class ProcedureFormModel with ChangeNotifier {
   String _procedureName;
   String get procedureName => _procedureName;
   set procedureName(String name) {
@@ -18,7 +18,7 @@ class ActionFormModel with ChangeNotifier {
   }
 
 
-  ActionFormModel([String procedureName]) {
+  ProcedureFormModel([String procedureName]) {
     this.procedureName = procedureName;
   }
 }

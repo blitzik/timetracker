@@ -1,8 +1,8 @@
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_model.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen_model.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget.dart';
-import 'package:app/screens/actions_overview/action_form_model.dart';
-import 'package:app/screens/actions_overview/action_form.dart';
+import 'package:app/widgets/procedure_form/procedure_form_model.dart';
+import 'package:app/widgets/procedure_form/procedure_form.dart';
 import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/domain/procedure.dart';
 import 'package:flutter/foundation.dart';
@@ -63,8 +63,8 @@ class ActionsOverviewScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(25),
                 child: ChangeNotifierProvider(
-                  create: (context) => ActionFormModel(),
-                  child: ActionForm(
+                  create: (context) => ProcedureFormModel(),
+                  child: ProcedureForm(
                     (context, formModel) async{
                       var parentModel = Provider.of<ActionsOverviewScreeModel>(_context, listen: false);
 

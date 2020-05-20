@@ -1,17 +1,18 @@
-import 'package:app/screens/actions_overview/action_form_model.dart';
+import 'package:app/widgets/procedure_form/procedure_form_model.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 
-class ActionForm extends StatelessWidget {
-  final Function(BuildContext context, ActionFormModel formModel) _onSaveClicked;
+class ProcedureForm extends StatelessWidget {
+  final Function(BuildContext context, ProcedureFormModel formModel) _onSaveClicked;
 
-  ActionForm(this._onSaveClicked);
+  ProcedureForm(this._onSaveClicked);
+
 
   @override
   Widget build(BuildContext context) {
     GlobalKey<FormState> _formKey = GlobalKey();
-    var model = Provider.of<ActionFormModel>(context, listen: false);
+    var model = Provider.of<ProcedureFormModel>(context, listen: false);
 
     return Form(
       key: _formKey,
@@ -23,9 +24,10 @@ class ActionForm extends StatelessWidget {
     );
   }
 
-  List<Widget> _getWidgets(BuildContext context, ActionFormModel model, GlobalKey<FormState> _formKey) {
+
+  List<Widget> _getWidgets(BuildContext context, ProcedureFormModel model, GlobalKey<FormState> _formKey) {
     List<Widget> body = List();
-    body.add(Consumer<ActionFormModel>(
+    body.add(Consumer<ProcedureFormModel>(
       builder: (context, model, _) => TextFormField(
         initialValue: model.procedureName,
         decoration: InputDecoration(

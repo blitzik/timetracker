@@ -105,7 +105,7 @@ class SQLiteDbProvider {
                 ('Balení UHV'), ('Balení splitr'), ('Balení coupler'), ('Balení ribon radiall + opt. kontrola'), ('Příprava a zakrácení couplerů'),
                 ('Navlékání couplerů do metal tubingu'), ('Montáž FC na metal tubing'), ('Zakládání do boxů na nápar'), ('Vyndávání z boxů po náparu'),
                 ('Měření a zakracování luna'), ('Broušení AFC 2 plochy'), ('Broušení AFC 4 plochy'), ('Měření GEO AFC'),
-                ('Optická kontrola pro planární tech.')
+                ('Optická kontrola pro planární tech.'), ('Měření mechanické délky FORJ'), ('Čístění v IPA')
             ''');
 
             /*var today = DateTime.now();

@@ -1,6 +1,6 @@
+import 'package:app/widgets/procedure_form/procedure_form.dart';
+import 'package:app/widgets/procedure_form/procedure_form_model.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_model.dart';
-import 'package:app/screens/actions_overview/action_form_model.dart';
-import 'package:app/screens/actions_overview/action_form.dart';
 import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/domain/procedure.dart';
 import 'package:provider/provider.dart';
@@ -51,8 +51,8 @@ class ProcedureItemWidget extends StatelessWidget{
             Padding(
               padding: const EdgeInsets.all(25),
               child: ChangeNotifierProvider(
-                create: (context) => ActionFormModel(procedureModel.name),
-                child: ActionForm(
+                create: (context) => ProcedureFormModel(procedureModel.name),
+                child: ProcedureForm(
                   (context, formModel) async{
                     if (formModel.procedureName == procedureModel.name) {
                       Navigator.pop(context);
