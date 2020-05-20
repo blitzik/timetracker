@@ -1,16 +1,12 @@
-import 'package:app/screens/actions_overview/actions_overview_screen_model.dart';
 import 'package:app/screens/actions_overview/action_form_model.dart';
-import 'package:app/utils/result_object/result_object.dart';
-import 'package:app/domain/procedure.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
-class ActionForm extends StatelessWidget {
-  final BuildContext _context;
-  final Function(BuildContext context, ActionFormModel formModel)
-      _onSaveClicked;
 
-  ActionForm(this._context, this._onSaveClicked);
+class ActionForm extends StatelessWidget {
+  final Function(BuildContext context, ActionFormModel formModel) _onSaveClicked;
+
+  ActionForm(this._onSaveClicked);
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +47,7 @@ class ActionForm extends StatelessWidget {
     body.add(SizedBox(height: 15));
     body.add(RaisedButton(
       child: const Text('uložit'),
-      onPressed: () async {
+      onPressed: () {
         if (!_formKey.currentState.validate()) return;
 
         _onSaveClicked(context, model);

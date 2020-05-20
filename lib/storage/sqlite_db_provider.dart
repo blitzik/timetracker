@@ -108,14 +108,6 @@ class SQLiteDbProvider {
                 ('Optická kontrola pro planární tech.')
             ''');
 
-            /*await db.execute('''
-              INSERT INTO procedure(name) VALUES
-                ('Příprava vláken'), ('Příprava kabelů'), ('Rezání vlákna ruční'),
-                ('Řezání vlákna automat'), ('Zabrušování PC'), ('Zabrušování APC'),
-                ('Lepení ker.'), ('Focení čela MT ferule'), ('Měření nestandart'),
-                ('Měření standart'), ('Balení kabelů'), ('Balení couplerů')
-            ''');*/
-
             /*var today = DateTime.now();
             var week = today.getWeek();
             await db.execute('''

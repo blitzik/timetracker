@@ -65,7 +65,6 @@ class ActionsOverviewScreen extends StatelessWidget {
                 child: ChangeNotifierProvider(
                   create: (context) => ActionFormModel(),
                   child: ActionForm(
-                    _context,
                     (context, formModel) async{
                       var parentModel = Provider.of<ActionsOverviewScreeModel>(_context, listen: false);
 
