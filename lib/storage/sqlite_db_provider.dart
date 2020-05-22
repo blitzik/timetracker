@@ -1,8 +1,8 @@
 import 'package:app/exceptions/entity_identity_exception.dart';
+import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/domain/procedure_summary.dart';
 import 'package:app/domain/procedure_record.dart';
-import 'package:app/utils/result_object/result_object.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:app/domain/procedure.dart';
 import 'package:sqflite/sqflite.dart';
@@ -28,8 +28,9 @@ class SQLiteDbProvider {
 
 
   initDB() async{
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, "app.db");
+    //Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    Directory documentsDirectory = await getExternalStorageDirectory();
+    String path = join(documentsDirectory.path, "time_tracker.db");
     return await openDatabase(
         path,
         version: 1,

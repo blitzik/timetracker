@@ -109,23 +109,16 @@ class MainScreen extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: Consumer<MainScreenModel>(
-          builder: (_, model, child) {
-            if (model.lastProcedureRecord != null && model.lastProcedureRecord.state == ProcedureRecordState.closed) {
-              return Container(width: 0, height: 0);
-            }
-            return FloatingActionButton(
-              child: Icon(Icons.add),
-              backgroundColor: Color(0xff34495e),
-              onPressed: () async {
-                var newProcedureRecord = await Navigator.pushNamed(context, AddProcedureRecordScreen.routeName, arguments: model.lastProcedureRecord);
-                if (newProcedureRecord != null) {
-                  model.addProcedureRecord(newProcedureRecord);
-                }
-              },
-            );
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        backgroundColor: Color(0xff34495e),
+        onPressed: () async {
+          var newProcedureRecord = await Navigator.pushNamed(context, AddProcedureRecordScreen.routeName, arguments: screenModel.lastProcedureRecord);
+          if (newProcedureRecord != null) {
+            screenModel.addProcedureRecord(newProcedureRecord);
           }
-      ),
+        },
+      )
     );
   }
 }

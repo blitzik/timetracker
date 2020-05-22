@@ -1,18 +1,18 @@
-import 'package:app/domain/procedure.dart';
-import 'package:app/domain/procedure_record.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
+import 'package:app/domain/procedure_record.dart';
 import 'package:flutter/foundation.dart';
 
 
 class ProcedureRecordItemWidgetModel with ChangeNotifier {
 
   final ProcedureRecord _procedureRecord;
-  int get id => _procedureRecord.id;
+  ProcedureRecord get procedureRecord => _procedureRecord;
+
 
   final bool _isLast;
   bool get isLast => _isLast;
+  bool get isBreak => _procedureRecord.isBreak;
 
-  ProcedureType get procedureType => _procedureRecord.procedure.type;
   String get procedureName => _procedureRecord.procedure.name;
   DateTime get start => _procedureRecord.start;
   DateTime get finish => _procedureRecord.finish;
@@ -33,6 +33,13 @@ class ProcedureRecordItemWidgetModel with ChangeNotifier {
 
   void openRecord() async{
     _procedureRecord.openRecord();
+    SQLiteDbProvider.db.updateProcedureRecord(_procedureRecord);
+    notifyListeners();
+  }
+
+
+  void changeQuantity(int quantity) {
+    _procedureRecord.quantity = quantity;
     SQLiteDbProvider.db.updateProcedureRecord(_procedureRecord);
     notifyListeners();
   }

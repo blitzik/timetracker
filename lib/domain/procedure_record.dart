@@ -20,6 +20,8 @@ class ProcedureRecord {
   Procedure _procedure;
   Procedure get procedure => _procedure;
 
+  bool get isBreak => _procedure.type == ProcedureType.BREAK;
+
   int _year;
   int get year => _year;
   int _month;
@@ -31,6 +33,10 @@ class ProcedureRecord {
 
   int _quantity;
   int get quantity => _quantity;
+  set quantity(int quantity) {
+    if (quantity < 0) throw ArgumentError('Only numbers higher than 0 can be passed');
+    _quantity = quantity;
+  }
 
   int _start;
   DateTime get start => DateTime.fromMillisecondsSinceEpoch(_start).toUtc();

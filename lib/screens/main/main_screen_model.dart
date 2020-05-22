@@ -3,6 +3,7 @@ import 'package:app/domain/procedure_record.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:app/app_state.dart';
+import 'dart:async';
 
 
 class MainScreenModel with ChangeNotifier {
@@ -20,8 +21,18 @@ class MainScreenModel with ChangeNotifier {
   double _workedHours = 0;
   double get workedHours => _workedHours;
 
+  Duration _duration;
+  Timer _timer;
 
   MainScreenModel(this._appState) {
+    /*_duration = Duration(seconds: 5);
+    Timer.periodic(Duration(seconds: 5), (timer) {
+      print('5 seconds duration DONE!');
+      timer.cancel();
+      _timer = Timer.periodic(Duration(seconds: 10), (timer) {
+        print('10 seconds duration DONE!');
+      });
+    });*/
     _loadProcedureRecords();
   }
 

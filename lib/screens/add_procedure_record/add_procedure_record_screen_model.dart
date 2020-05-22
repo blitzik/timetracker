@@ -1,20 +1,20 @@
-import 'package:app/extensions/datetime_extension.dart';
+import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:app/domain/procedure_record.dart';
 import 'package:app/domain/procedure.dart';
-import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:app/app_state.dart';
 import 'dart:collection';
 
 
 class AddProcedureRecordScreenModel with ChangeNotifier {
-
   final AppState _appState;
 
   final ProcedureRecord _lastRecord;
   bool get isLastProcedureSet => _lastRecord != null;
   String get procedureName => _lastRecord?.procedure?.name;
   DateTime get start => _lastRecord?.start;
+  DateTime get finish => _lastRecord?.finish;
+  int get quantity => _lastRecord?.quantity;
 
   ProcedureType get procedureType => _lastRecord?.procedure?.type;
 

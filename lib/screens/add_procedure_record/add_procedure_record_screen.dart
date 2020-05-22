@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'dart:math';
 
 
 class AddProcedureRecordScreen extends StatelessWidget {
@@ -53,8 +52,7 @@ class AddProcedureRecordScreen extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 10),
                             child: !model.isLastProcedureSet ?
                               Text('Nebyl nalezen žádný předchozí záznam.') :
-                              LastRecordWidget(model.procedureName, model.start)
-                            ,
+                              LastRecordWidget(model.procedureName, model.start, model.finish)
                           ),
                         ),
                         SizedBox(
@@ -106,7 +104,7 @@ class AddProcedureRecordScreen extends StatelessWidget {
                         height: 150,
                         decoration: BoxDecoration(border: Border.all(width: 1, color: Colors.black)),
                         child: TimePickerSpinner(
-                          time: _setDefaultTime(),
+                          time: _setDefaultTime(model),
                           isShowSeconds: false,
                           is24HourMode: true,
                           isForce2Digits: true,
@@ -147,7 +145,12 @@ class AddProcedureRecordScreen extends StatelessWidget {
   }
 
 
-  DateTime _setDefaultTime() {
+  DateTime _setDefaultTime(AddProcedureRecordScreenModel model) {
+    if (model.isLastProcedureSet) {
+      if (model.finish != null) {
+        return model.finish;
+      }
+    }
     DateTime now = DateTime.now();
     int hour = now.hour;
     int minutes;
@@ -164,10 +167,6 @@ class AddProcedureRecordScreen extends StatelessWidget {
 
 
   Widget _getQuantityTextField(AddProcedureRecordScreenModel model) {
-    if (!model.isLastProcedureSet) {
-      return null;
-    }
-
     if (model.procedureType == ProcedureType.BREAK) {
       return null;
     }
@@ -181,6 +180,7 @@ class AddProcedureRecordScreen extends StatelessWidget {
       decoration: InputDecoration(
         labelText: 'počet',
       ),
+      initialValue: model?.quantity?.toString(),
       validator: (s) {
         if (s.isEmpty) {
           return 'Zadejte počet';
@@ -199,11 +199,13 @@ class LastRecordWidget extends StatelessWidget {
 
   final String _procedureName;
   final DateTime _start;
+  final DateTime _finish;
 
 
   LastRecordWidget(
       this._procedureName,
       this._start,
+      this._finish
   );
 
   @override
@@ -211,17 +213,15 @@ class LastRecordWidget extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.all(5),
       title: Text(_procedureName, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-      subtitle: Row(
-        children: <Widget>[
-          Expanded(
-            flex: 2,
-            child: Text(
-              '${DateFormat('Hm').format(_start)} -',
-              style: TextStyle(fontSize: 15),
-            ),
-          ),
-        ],
-      ),
+      subtitle: RichText(
+        text: TextSpan(
+          style: TextStyle(color: Colors.black54),
+          children: <TextSpan>[
+            TextSpan(text: '${DateFormat('Hm').format(_start)} - '),
+            _finish != null ? TextSpan(text: '${DateFormat('Hm').format(_finish)}') : TextSpan(text: '')
+          ]
+        ),
+      )
     );
   }
 }

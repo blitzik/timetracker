@@ -2,7 +2,6 @@ import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_w
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:app/screens/main/main_screen_model.dart';
 import 'package:app/domain/procedure_record.dart';
-import 'package:app/domain/procedure.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -59,17 +58,23 @@ class ProcedureRecordItemWidget extends StatelessWidget {
             ),
             trailing: _displayMenu(context, record)
           ),
-          onTap: () {
-
-          },
+          onTap: _decideClickability(context, record)
         );
       }
     );
   }
 
 
+  Function() _decideClickability(BuildContext context, ProcedureRecordItemWidgetModel record) {
+    if (record.isLast || record.isBreak) return null;
+    return () async{
+      await _displayEditDialog(context, record);
+    };
+  }
+
+
   String _getQuantityString(ProcedureRecordItemWidgetModel record) {
-    if (record.procedureType == ProcedureType.BREAK) {
+    if (record.isBreak) {
       return '';
     }
 
@@ -261,6 +266,71 @@ class ProcedureRecordItemWidget extends StatelessWidget {
           ),
         ],
       )
+    );
+  }
+
+
+  Future<void> _displayEditDialog(BuildContext _context, ProcedureRecordItemWidgetModel record) async{
+    return await showDialog(
+        context: _context,
+        builder: (BuildContext context) {
+          GlobalKey<FormState> _formKey = GlobalKey();
+          int quantity;
+
+          return SimpleDialog(
+            contentPadding: EdgeInsets.all(25),
+            title: Text(record.procedureName),
+            children: <Widget>[
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    TextFormField(
+                      initialValue: record.quantity.toString(),
+                      style: TextStyle(fontSize: 18),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        WhitelistingTextInputFormatter.digitsOnly
+                      ],
+                      decoration: InputDecoration(
+                        labelText: 'počet',
+                      ),
+                      validator: (s) {
+                        if (s.isEmpty) {
+                          return 'Zadejte počet';
+                        }
+                        return null;
+                      },
+                      onSaved: (val) {
+                        quantity = int.parse(val);
+                      },
+                    ),
+
+                    SizedBox(height: 15),
+
+                    RaisedButton(
+                      child: Text('Uložit'),
+                      onPressed: () {
+                        if (!_formKey.currentState.validate()) {
+                          return;
+                        }
+                        _formKey.currentState.save();
+                        if (record.quantity == quantity) {
+                          Navigator.pop(_context);
+                          return;
+                        }
+                        record.changeQuantity(quantity);
+
+                        Navigator.pop(_context);
+                      },
+                    )
+                  ],
+                ),
+              )
+            ],
+          );
+        }
     );
   }
 }
