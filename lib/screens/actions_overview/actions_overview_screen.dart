@@ -42,18 +42,29 @@ class ActionsOverviewScreen extends StatelessWidget {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        backgroundColor: Color(0xff34495e),
-        onPressed: () async{
-          await _openProcedureCreationDialog(context);
-        },
+      floatingActionButton: Builder(
+        builder: (context) => FloatingActionButton(
+          child: Icon(Icons.add),
+          backgroundColor: Color(0xff34495e),
+          onPressed: () async{
+            var result = await _openProcedureCreationDialog(context);
+            if (result == null) return;
+            // only successful action should pass ( check the form handler )
+            Scaffold.of(context).showSnackBar(SnackBar(
+              duration: Duration(seconds: 1),
+              content: ListTile(
+                title: Text('Akce byla úspěšně vytvořena'),
+                trailing: Icon(Icons.done, color: Colors.lightGreen),
+              ),
+            ));
+          },
+        ),
       ),
     );
   }
 
 
-  void _openProcedureCreationDialog(BuildContext _context) async{
+  Future<ResultObject<Procedure>> _openProcedureCreationDialog(BuildContext _context) async{
     return await showDialog(
         context: _context,
         builder: (BuildContext context) {
@@ -73,7 +84,7 @@ class ActionsOverviewScreen extends StatelessWidget {
                         formModel.procedureNameErrorText = result.lastMessage;
                         return;
                       }
-                      Navigator.pop(context);
+                      Navigator.pop(context, result); // only successful action is returned
                     }
                   ),
                 ),

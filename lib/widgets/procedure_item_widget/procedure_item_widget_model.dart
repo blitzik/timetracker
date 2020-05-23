@@ -12,12 +12,13 @@ class ProcedureItemWidgetModel with ChangeNotifier {
 
   ProcedureType get type => _procedure.type;
 
-
   ProcedureItemWidgetModel(this._procedure);
 
 
   Future<ResultObject<Procedure>> save(String newName) async{
     if (newName == null || newName.isEmpty) throw ArgumentError();
+
+    if (_procedure.name == newName) return Future.value(ResultObject(_procedure));
 
     String oldName = _procedure.name;
     _procedure.name = newName;

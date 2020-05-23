@@ -22,7 +22,25 @@ class ProcedureItemWidget extends StatelessWidget{
     return InkWell(
       child: getBody(procedure),
       onTap: () async{
-        await _openEditDialog(context, procedure);
+        var result = await _openEditDialog(context, procedure);
+        if (result == null) return;
+
+        ScaffoldState ss = Scaffold.of(context);
+        Text text = Text('Akce byla úspěšně uložena');
+        Icon icon = Icon(Icons.done, color: Colors.lightGreen);
+
+        if (!result.isSuccess) {
+          text = Text(result.lastMessage);
+          icon = Icon(Icons.error, color: Colors.red);
+        }
+
+        ss.showSnackBar(SnackBar(
+          duration: Duration(seconds: 1),
+          content: ListTile(
+            title: text,
+            trailing: icon,
+          ),
+        ));
       },
     );
   }
@@ -40,9 +58,9 @@ class ProcedureItemWidget extends StatelessWidget{
   }
 
 
-  void _openEditDialog(BuildContext _context, ProcedureItemWidgetModel procedureModel) async{
+  Future<ResultObject<Procedure>> _openEditDialog(BuildContext _context, ProcedureItemWidgetModel procedureModel) async{
 
-    return await showDialog(
+    return showDialog(
       context: _context,
       builder: (BuildContext context) {
         return SimpleDialog(
@@ -54,11 +72,6 @@ class ProcedureItemWidget extends StatelessWidget{
                 create: (context) => ProcedureFormModel(procedureModel.name),
                 child: ProcedureForm(
                   (context, formModel) async{
-                    if (formModel.procedureName == procedureModel.name) {
-                      Navigator.pop(context);
-                      return;
-                    }
-
                     var parentModel = Provider.of<ProcedureItemWidgetModel>(_context, listen: false);
 
                     ResultObject<Procedure> result = await parentModel.save(formModel.procedureName);
@@ -66,7 +79,7 @@ class ProcedureItemWidget extends StatelessWidget{
                       formModel.procedureNameErrorText = result.lastMessage;
                       return;
                     }
-                    Navigator.pop(context);
+                    Navigator.pop(context, result);
                   }
                 ),
               ),

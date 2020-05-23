@@ -75,21 +75,23 @@ class ProcedureRecordItemWidget extends StatelessWidget {
     return () async{
       var result = await _displayEditDialog(context, record);
       if (result == null) return;
-      if (result.isSuccess) {
-        Scaffold.of(context).showSnackBar(SnackBar(
-          content: ListTile(
-            title: Text('Položka uložena'),
-            trailing: Icon(Icons.done, color: Colors.lightGreen),
-          ),
-        ));
-      } else {
-        Scaffold.of(context).showSnackBar(SnackBar(
-          content: ListTile(
-            title: Text(result.lastMessage),
-            trailing: Icon(Icons.error, color: Colors.red),
-          ),
-        ));
+
+      ScaffoldState ss = Scaffold.of(context);
+      Text text = Text('Položka uložena');
+      Icon icon = Icon(Icons.done, color: Colors.lightGreen);
+
+      if (!result.isSuccess) {
+        text = Text(result.lastMessage);
+        icon = Icon(Icons.done, color: Colors.red);
       }
+
+      Scaffold.of(context).showSnackBar(SnackBar(
+        duration: Duration(seconds: 1),
+        content: ListTile(
+          title: text,
+          trailing: icon,
+        ),
+      ));
     };
   }
 
