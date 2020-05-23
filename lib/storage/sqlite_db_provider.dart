@@ -78,7 +78,7 @@ class SQLiteDbProvider {
             await db.execute('''
               INSERT INTO procedure(name) VALUES
                 ('Střih vláken, kabelů a tubingů'), ('Střih vláken v primární izolaci'),
-                ('Střih kabelů s velkým průměrem'), ('Střih vláken a tubingů dp 0,5m'),
+                ('Střih kabelů s velkým průměrem'), ('Střih vláken a tubingů do 0,5m'),
                 ('Protahování vláken do tubingů do 1,1m'), ('Protahování vláken do tubingů do 3,1m'),
                 ('Protahování vláken do tubingů do 6,1m'), ('Rozdělení konců duplex'),
                 ('Zakracování délky'), ('Příprava kabelů leoni'), ('Příprava vícevláknových kabelů'),

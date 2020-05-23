@@ -2,11 +2,11 @@ import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_w
 import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_widget.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen.dart';
+import 'package:app/screens/archive/archive_screen.dart';
 import 'package:app/screens/summary/summary_screen.dart';
 import 'package:app/screens/main/main_screen_model.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/extensions/string_extension.dart';
-import 'package:app/domain/procedure_record.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:app/app_state.dart';
@@ -36,7 +36,7 @@ class MainScreen extends StatelessWidget {
               height: 65,
               child: DrawerHeader(
                 decoration: BoxDecoration(color: Color(0xff34495e)),
-                child: Text('Navigace', style: TextStyle(color: Colors.white, fontSize: 16)),
+                child: Text('TimeTracker', style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
             ),
 
@@ -53,6 +53,14 @@ class MainScreen extends StatelessWidget {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, SummaryScreen.routeName);
+              },
+            ),
+
+            ListTile(
+              title: Text('Historické záznamy'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, ArchiveScreen.routeName);
               },
             ),
           ],

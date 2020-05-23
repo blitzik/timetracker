@@ -2,7 +2,6 @@ import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:app/domain/procedure_summary.dart';
 import 'package:flutter/foundation.dart';
-import 'package:app/app_state.dart';
 
 
 enum SummaryType {
@@ -11,9 +10,8 @@ enum SummaryType {
 
 
 class SummaryScreenModel with ChangeNotifier {
-  AppState _appState;
-
-  DateTime get date => _appState.date;
+  DateTime _date;
+  DateTime get date => _date;
 
   List<ProcedureSummary> _summary = List();
 
@@ -23,11 +21,10 @@ class SummaryScreenModel with ChangeNotifier {
   double _workedHours = 0.0;
   double get workedHours => _workedHours;
 
-
   SummaryType currentType;
 
 
-  SummaryScreenModel(this._appState) {
+  SummaryScreenModel(DateTime date) {
     currentType = SummaryType.day;
     loadSummary(currentType);
   }

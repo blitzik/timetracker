@@ -8,7 +8,9 @@ import 'package:intl/intl.dart';
 
 
 class SummaryScreen extends StatelessWidget {
-  static const routeName = '/summary';
+  static const routeName = '/summaryCurrent';
+  static const archiveRouteName = '/archiveSummary';
+
 
   SummaryScreen();
 
