@@ -1,6 +1,6 @@
-import 'package:app/widgets/procedure_form/procedure_form.dart';
-import 'package:app/widgets/procedure_form/procedure_form_model.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_model.dart';
+import 'package:app/widgets/procedure_form/procedure_form_model.dart';
+import 'package:app/widgets/procedure_form/procedure_form.dart';
 import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/domain/procedure.dart';
 import 'package:provider/provider.dart';

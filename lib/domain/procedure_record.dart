@@ -17,10 +17,9 @@ class ProcedureRecord {
     _id = id;
   }
 
-  Procedure _procedure;
-  Procedure get procedure => _procedure;
+  Procedure procedure;
 
-  bool get isBreak => _procedure.type == ProcedureType.BREAK;
+  bool get isBreak => procedure.type == ProcedureType.BREAK;
 
   int _year;
   int get year => _year;
@@ -70,14 +69,14 @@ class ProcedureRecord {
   }
 
 
-  ProcedureRecord(this._procedure, DateTime start) {
+  ProcedureRecord(this.procedure, DateTime start) {
     this.__start = start;
   }
 
 
   ProcedureRecord._(
       this._id,
-      this._procedure,
+      this.procedure,
       this._year,
       this._month,
       this._day,
@@ -125,7 +124,7 @@ class ProcedureRecord {
 
   Map<String, dynamic> toMap() {
     return {
-      'procedure': _procedure.id,
+      'procedure': procedure.id,
       'year': _year,
       'month': _month,
       'day': _day,

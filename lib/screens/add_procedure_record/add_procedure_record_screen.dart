@@ -167,7 +167,7 @@ class AddProcedureRecordScreen extends StatelessWidget {
 
 
   Widget _getQuantityTextField(AddProcedureRecordScreenModel model) {
-    if (model.procedureType == ProcedureType.BREAK) {
+    if (model.isLastProcedureSet == false || model.procedureType == ProcedureType.BREAK) {
       return null;
     }
 

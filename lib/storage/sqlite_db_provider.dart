@@ -164,7 +164,7 @@ class SQLiteDbProvider {
       if (e.isUniqueConstraintError())
         result.addErrorMessage('Akce již existuje');
       else
-        result.addErrorMessage('Při ukládání došlo k chybě');
+        result.addErrorMessage('Při ukládání záznamu došlo k chybě');
     } catch (e) {
       result.addErrorMessage('Požadavek nelze dokončit');
     }
@@ -184,9 +184,18 @@ class SQLiteDbProvider {
   }
 
 
-  void updateProcedureRecord(ProcedureRecord record, [Transaction tx]) async{
+  Future<ResultObject<void>> updateProcedureRecord(ProcedureRecord record, [Transaction tx]) async{
     final db = tx != null ? tx : await database;
-    db.update('procedure_record', record.toMap(), where: 'id = ?', whereArgs: [record.id]);
+    ResultObject<void> result = ResultObject();
+    try {
+      db.update('procedure_record', record.toMap(), where: 'id = ?', whereArgs: [record.id]);
+
+    } on DatabaseException catch (e) {
+      result.addErrorMessage('Při ukládání záznamu došlo k chybě');
+    } catch (e) {
+      result.addErrorMessage('Požadavek nelze dokončit');
+    }
+    return Future.value(result);
   }
 
 
@@ -201,7 +210,7 @@ class SQLiteDbProvider {
 
     List<Procedure> procedures = List<Procedure>();
     var futureResults = db.rawQuery('''
-      SELECT id as procedure_id, name as procedure_name, type as procedure_type 
+      SELECT id as procedure_id, name as procedure_name, type as procedure_type
       FROM procedure
       ORDER BY name
     ''');

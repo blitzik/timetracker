@@ -1,5 +1,8 @@
 import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_widget_model.dart';
+import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_model.dart';
+import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
+import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/screens/main/main_screen_model.dart';
 import 'package:app/domain/procedure_record.dart';
 import 'package:provider/provider.dart';
@@ -25,11 +28,13 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ProcedureRecordItemWidgetModel>(
       builder: (context, record, _) {
+        print('REBUILT ${record.procedureRecord.id} =====');
         return InkWell(
           child: ListTile(
             contentPadding: _padding,
             title: Text(record.procedureName,
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)
+            ),
             subtitle: Row(
               children: <Widget>[
                 Expanded(
@@ -66,9 +71,25 @@ class ProcedureRecordItemWidget extends StatelessWidget {
 
 
   Function() _decideClickability(BuildContext context, ProcedureRecordItemWidgetModel record) {
-    if (record.isLast || record.isBreak) return null;
+    if (record.isBreak || (record.isLast && record.state == ProcedureRecordState.opened)) return null;
     return () async{
-      await _displayEditDialog(context, record);
+      var result = await _displayEditDialog(context, record);
+      if (result == null) return;
+      if (result.isSuccess) {
+        Scaffold.of(context).showSnackBar(SnackBar(
+          content: ListTile(
+            title: Text('Položka uložena'),
+            trailing: Icon(Icons.done, color: Colors.lightGreen),
+          ),
+        ));
+      } else {
+        Scaffold.of(context).showSnackBar(SnackBar(
+          content: ListTile(
+            title: Text(result.lastMessage),
+            trailing: Icon(Icons.error, color: Colors.red),
+          ),
+        ));
+      }
     };
   }
 
@@ -89,15 +110,6 @@ class ProcedureRecordItemWidget extends StatelessWidget {
     if (!record.isLast) {
       return SizedBox(width: 50, height: 50);
     }
-
-    /*return SizedBox(
-        width: 50,
-        height: 50,
-        child: IconButton(
-          icon: Icon(Icons.delete, color: Color(0xff888888)),
-          onPressed: _onRemoveClicked
-        ),
-      );*/
 
     return PopupMenuButton(
       itemBuilder: (BuildContext context) => [
@@ -270,63 +282,17 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   }
 
 
-  Future<void> _displayEditDialog(BuildContext _context, ProcedureRecordItemWidgetModel record) async{
-    return await showDialog(
+  Future<ResultObject<void>> _displayEditDialog(BuildContext _context, ProcedureRecordItemWidgetModel record) async{
+    return showDialog(
         context: _context,
         builder: (BuildContext context) {
-          GlobalKey<FormState> _formKey = GlobalKey();
-          int quantity;
-
           return SimpleDialog(
             contentPadding: EdgeInsets.all(25),
             title: Text(record.procedureName),
             children: <Widget>[
-              Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    TextFormField(
-                      initialValue: record.quantity.toString(),
-                      style: TextStyle(fontSize: 18),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        WhitelistingTextInputFormatter.digitsOnly
-                      ],
-                      decoration: InputDecoration(
-                        labelText: 'počet',
-                      ),
-                      validator: (s) {
-                        if (s.isEmpty) {
-                          return 'Zadejte počet';
-                        }
-                        return null;
-                      },
-                      onSaved: (val) {
-                        quantity = int.parse(val);
-                      },
-                    ),
-
-                    SizedBox(height: 15),
-
-                    RaisedButton(
-                      child: Text('Uložit'),
-                      onPressed: () {
-                        if (!_formKey.currentState.validate()) {
-                          return;
-                        }
-                        _formKey.currentState.save();
-                        if (record.quantity == quantity) {
-                          Navigator.pop(_context);
-                          return;
-                        }
-                        record.changeQuantity(quantity);
-
-                        Navigator.pop(_context);
-                      },
-                    )
-                  ],
-                ),
+              ChangeNotifierProvider(
+                create: (context) => ProcedureRecordEditFormModel(record.procedureRecord, () { record.refresh(); }),
+                child: ProcedureRecordEditForm(),
               )
             ],
           );

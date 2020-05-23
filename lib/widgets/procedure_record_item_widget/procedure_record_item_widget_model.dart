@@ -38,6 +38,11 @@ class ProcedureRecordItemWidgetModel with ChangeNotifier {
   }
 
 
+  void refresh() {
+    notifyListeners();
+  }
+
+
   void changeQuantity(int quantity) {
     _procedureRecord.quantity = quantity;
     SQLiteDbProvider.db.updateProcedureRecord(_procedureRecord);
