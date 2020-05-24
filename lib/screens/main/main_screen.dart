@@ -87,7 +87,7 @@ class MainScreen extends StatelessWidget {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
+              padding: const EdgeInsets.only(left: 5, right: 5, top: 10),
               child: Selector<MainScreenModel, int>(
                   selector: (context, model) => model.procedureRecordsCount,
                   builder: (context, recordsCount, _) {

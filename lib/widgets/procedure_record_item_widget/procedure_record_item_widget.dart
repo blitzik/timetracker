@@ -38,42 +38,44 @@ class ProcedureRecordItemWidget extends StatelessWidget {
       sizeFactor: _animation,
       child: Consumer<ProcedureRecordItemWidgetModel>(
         builder: (context, record, _) {
-          print('REBUILT ${record.procedureRecord.id} =====');
-          return InkWell(
-            child: ListTile(
-              contentPadding: _padding,
-              title: Text(record.procedureName,
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)
+          return Card(
+            color: Color(0xffeceff1),
+            child: InkWell(
+              child: ListTile(
+                contentPadding: _padding,
+                title: Text(record.procedureName,
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)
+                ),
+                subtitle: Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                          '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
+                          style: TextStyle(fontSize: _fontSize),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                          record.timeSpent == null
+                              ? '-'
+                              : '${record.timeSpent.toString()}h',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: _fontSize),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(_getQuantityString(record),
+                          textAlign: TextAlign.right,
+                          style: TextStyle(fontSize: _fontSize),
+                      ),
+                    ),
+                  ],
+                ),
+                trailing: _displayMenu(context, record)
               ),
-              subtitle: Row(
-                children: <Widget>[
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                        '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
-                        style: TextStyle(fontSize: _fontSize),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                        record.timeSpent == null
-                            ? '-'
-                            : '${record.timeSpent.toString()}h',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: _fontSize),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(_getQuantityString(record),
-                        textAlign: TextAlign.right,
-                        style: TextStyle(fontSize: _fontSize),
-                    ),
-                  ),
-                ],
-              ),
-              trailing: _displayMenu(context, record)
+              onTap: _decideClickability(context, record)
             ),
-            onTap: _decideClickability(context, record)
           );
         }
       ),
