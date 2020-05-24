@@ -16,56 +16,67 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   final EdgeInsetsGeometry _padding;
 
   final double _fontSize = 15;
+  final Animation<double> _animation;
+
+  final Function(BuildContext context) _onDeleteClicked;
 
 
   ProcedureRecordItemWidget(
     this._padding,
-    this._displayTrailing
-  );
+    this._displayTrailing,
+    this._animation,
+    this._onDeleteClicked
+  ) : assert(_padding != null),
+      assert(_displayTrailing != null),
+      assert(_animation != null),
+      assert(_onDeleteClicked != null);
 
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProcedureRecordItemWidgetModel>(
-      builder: (context, record, _) {
-        print('REBUILT ${record.procedureRecord.id} =====');
-        return InkWell(
-          child: ListTile(
-            contentPadding: _padding,
-            title: Text(record.procedureName,
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)
+    return SizeTransition(
+      sizeFactor: _animation,
+      child: Consumer<ProcedureRecordItemWidgetModel>(
+        builder: (context, record, _) {
+          print('REBUILT ${record.procedureRecord.id} =====');
+          return InkWell(
+            child: ListTile(
+              contentPadding: _padding,
+              title: Text(record.procedureName,
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)
+              ),
+              subtitle: Row(
+                children: <Widget>[
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                        '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
+                        style: TextStyle(fontSize: _fontSize),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                        record.timeSpent == null
+                            ? '-'
+                            : '${record.timeSpent.toString()}h',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: _fontSize),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(_getQuantityString(record),
+                        textAlign: TextAlign.right,
+                        style: TextStyle(fontSize: _fontSize),
+                    ),
+                  ),
+                ],
+              ),
+              trailing: _displayMenu(context, record)
             ),
-            subtitle: Row(
-              children: <Widget>[
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                      '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
-                      style: TextStyle(fontSize: _fontSize),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                      record.timeSpent == null
-                          ? '-'
-                          : '${record.timeSpent.toString()}h',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: _fontSize),
-                  ),
-                ),
-                Expanded(
-                  child: Text(_getQuantityString(record),
-                      textAlign: TextAlign.right,
-                      style: TextStyle(fontSize: _fontSize),
-                  ),
-                ),
-              ],
-            ),
-            trailing: _displayMenu(context, record)
-          ),
-          onTap: _decideClickability(context, record)
-        );
-      }
+            onTap: _decideClickability(context, record)
+          );
+        }
+      ),
     );
   }
 
@@ -237,24 +248,24 @@ class ProcedureRecordItemWidget extends StatelessWidget {
     return await showDialog(
         context: _context,
         builder: (BuildContext context) => AlertDialog(
-              contentPadding: EdgeInsets.all(25),
-              content: SingleChildScrollView(
-                child: Text('Skutečně otevřít záznam?'),
-              ),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text('Ano'),
-                  onPressed: () {
-                    var model = Provider.of<ProcedureRecordItemWidgetModel>( _context, listen: false);
-                    model.openRecord();
+          contentPadding: EdgeInsets.all(25),
+          content: SingleChildScrollView(
+            child: Text('Skutečně otevřít záznam?'),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Ano'),
+              onPressed: () {
+                var model = Provider.of<ProcedureRecordItemWidgetModel>( _context, listen: false);
+                model.openRecord();
 
-                    var mainModel = Provider.of<MainScreenModel>(_context, listen: false);
-                    mainModel.refreshWorkedHours();
+                var mainModel = Provider.of<MainScreenModel>(_context, listen: false);
+                mainModel.refreshWorkedHours();
 
-                    Navigator.pop(_context);
-                  },
-                ),
-              ],
+                Navigator.pop(_context);
+              },
+            ),
+          ],
         )
     );
   }
@@ -272,11 +283,8 @@ class ProcedureRecordItemWidget extends StatelessWidget {
           FlatButton(
             child: Text('Ano'),
             onPressed: () {
-              var mainModel = Provider.of<MainScreenModel>(_context, listen: false);
-              mainModel.deleteLastRecord();
-
-              Navigator.pop(_context);
-            },
+              _onDeleteClicked?.call(_context);
+            }
           ),
         ],
       )

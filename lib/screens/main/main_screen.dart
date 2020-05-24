@@ -1,3 +1,4 @@
+import 'package:app/domain/procedure_record.dart';
 import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_widget_model.dart';
 import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_widget.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
@@ -16,6 +17,7 @@ import 'package:intl/intl.dart';
 class MainScreen extends StatelessWidget {
   static const routeName = '/';
 
+  final GlobalKey<AnimatedListState> _animatedList = GlobalKey();
 
   MainScreen();
 
@@ -97,19 +99,13 @@ class MainScreen extends StatelessWidget {
                       );
                     }
 
-                    return ListView.separated(
-                      itemCount: model.procedureRecordsCount,
-                      separatorBuilder: (BuildContext context, int index) => Divider(height: 1),
-                      itemBuilder: (BuildContext context, int index) {
+                    // todo for some reason AnimatedList rebuilds all items when we navigate to another screen
+                    return AnimatedList(
+                      key: _animatedList,
+                      initialItemCount: model.procedureRecordsCount,
+                      itemBuilder: (BuildContext context, int index, Animation<double> animation) {
                         var record = model.getProcedureRecordAt(index);
-                        return ChangeNotifierProvider(
-                          key: ValueKey(record.id),
-                          create: (context) => ProcedureRecordItemWidgetModel(record, index == 0),
-                          child: ProcedureRecordItemWidget(
-                            const EdgeInsets.symmetric(horizontal: 15),
-                            true
-                          ),
-                        );
+                        return _buildItem(context, record, index, animation);
                       },
                     );
                   }),
@@ -124,9 +120,34 @@ class MainScreen extends StatelessWidget {
           var newProcedureRecord = await Navigator.pushNamed(context, AddProcedureRecordScreen.routeName, arguments: screenModel.lastProcedureRecord);
           if (newProcedureRecord != null) {
             screenModel.addProcedureRecord(newProcedureRecord);
+            if (_animatedList.currentState != null) {
+              _animatedList.currentState.insertItem(0);
+            }
           }
         },
       )
+    );
+  }
+
+
+  Widget _buildItem(BuildContext mainContext, ProcedureRecord record, int index, Animation<double> animation) {
+    return ChangeNotifierProvider(
+      key: ValueKey(record.id),
+      create: (context) => ProcedureRecordItemWidgetModel(record, index == 0),
+      child: ProcedureRecordItemWidget(
+          const EdgeInsets.symmetric(horizontal: 15),
+          true,
+          animation,
+          (_context) {
+            var screenModel = Provider.of<MainScreenModel>(mainContext, listen: false);
+            screenModel.deleteLastRecord();
+            _animatedList.currentState.removeItem(index, (context, animation) {
+              return _buildItem(mainContext, record, index, animation);
+            } 
+            );
+            Navigator.pop(_context);
+          }
+      ),
     );
   }
 }
