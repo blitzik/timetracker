@@ -24,7 +24,7 @@ class SummaryScreenModel with ChangeNotifier {
   SummaryType currentType;
 
 
-  SummaryScreenModel(DateTime date) {
+  SummaryScreenModel(this._date) {
     currentType = SummaryType.day;
     loadSummary(currentType);
   }
