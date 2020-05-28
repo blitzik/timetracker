@@ -107,7 +107,7 @@ class SQLiteDbProvider {
                 ('Navlékání couplerů do metal tubingu'), ('Montáž FC na metal tubing'), ('Zakládání do boxů na nápar'), ('Vyndávání z boxů po náparu'),
                 ('Měření a zakracování luna'), ('Broušení AFC 2 plochy'), ('Broušení AFC 4 plochy'), ('Měření GEO AFC'),
                 ('Optická kontrola pro planární tech.'), ('Měření mechanické délky FORJ'), ('Čístění v IPA'), ('Měření optické délky'),
-                ('Perforace tubingu'), ('Lepení ferule do těla konektoru'), ('Měření mechanické délky FORJ')
+                ('Perforace tubingu'), ('Lepení ferule do těla konektoru')
             ''');
 
             /*var today = DateTime.now();
