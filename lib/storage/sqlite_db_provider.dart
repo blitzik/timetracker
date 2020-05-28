@@ -213,7 +213,7 @@ class SQLiteDbProvider {
     var futureResults = db.rawQuery('''
       SELECT id as procedure_id, name as procedure_name, type as procedure_type
       FROM procedure
-      ORDER BY name
+      ORDER BY name COLLATE LOCALIZED
     ''');
     var results = await futureResults;
     results.forEach((f) {
@@ -330,6 +330,7 @@ class SQLiteDbProvider {
       LEFT JOIN procedure p ON (p.id = pr.procedure)
       WHERE pr.year = ? AND pr.month = ? AND pr.day = ?
       GROUP BY p.id
+      ORDER BY p.id ASC
     ''', [year, month, day]);
     var result = await futureResult;
 
@@ -351,6 +352,7 @@ class SQLiteDbProvider {
       LEFT JOIN procedure p ON (p.id = pr.procedure)
       WHERE pr.year = ? AND pr.week = ?
       GROUP BY p.id
+      ORDER BY p.id
     ''', [year, week]);
     var result = await futureResult;
 
