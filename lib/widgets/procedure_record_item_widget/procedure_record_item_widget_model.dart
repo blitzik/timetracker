@@ -1,9 +1,12 @@
 import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:app/domain/procedure_record.dart';
-import 'package:flutter/foundation.dart';
+import 'dart:async';
 
 
-class ProcedureRecordItemWidgetModel with ChangeNotifier {
+class ProcedureRecordItemWidgetModel  {
+
+  StreamController<ProcedureRecordItemWidgetModel> _ownStreamController = StreamController.broadcast();
+  Stream<ProcedureRecordItemWidgetModel> get ownStream => _ownStreamController.stream;
 
   final ProcedureRecord _procedureRecord;
   ProcedureRecord get procedureRecord => _procedureRecord;
@@ -16,8 +19,9 @@ class ProcedureRecordItemWidgetModel with ChangeNotifier {
   String get procedureName => _procedureRecord.procedure.name;
   DateTime get start => _procedureRecord.start;
   DateTime get finish => _procedureRecord.finish;
-  double get timeSpent => _procedureRecord.timeSpent;
   int get quantity => _procedureRecord.quantity;
+
+  double get timeSpent => _procedureRecord.timeSpent;
   ProcedureRecordState get state => _procedureRecord.state;
 
 
@@ -27,25 +31,23 @@ class ProcedureRecordItemWidgetModel with ChangeNotifier {
   void closeRecord(DateTime finish, int quantity) async{
     _procedureRecord.closeRecord(finish, quantity);
     SQLiteDbProvider.db.updateProcedureRecord(_procedureRecord);
-    notifyListeners();
+    _ownStreamController.add(this);
   }
 
 
   void openRecord() async{
     _procedureRecord.openRecord();
     SQLiteDbProvider.db.updateProcedureRecord(_procedureRecord);
-    notifyListeners();
+    _ownStreamController.add(this);
   }
 
 
   void refresh() {
-    notifyListeners();
+    _ownStreamController.add(this);
   }
 
 
-  void changeQuantity(int quantity) {
-    _procedureRecord.quantity = quantity;
-    SQLiteDbProvider.db.updateProcedureRecord(_procedureRecord);
-    notifyListeners();
+  void dispose() {
+    _ownStreamController.close();
   }
 }

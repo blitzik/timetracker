@@ -25,9 +25,10 @@ class RouteGenerator {
 
     switch (settings.name) {
       case MainScreen.routeName: return MaterialPageRoute(
-          builder: (_) => ChangeNotifierProvider(
+          builder: (_) => Provider<MainScreenModel>(
             create: (context) => MainScreenModel(_appState),
-            child: MainScreen()
+            child: MainScreen(),
+            dispose: (context, model) => model.dispose(),
           )
       );
 

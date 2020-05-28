@@ -1,13 +1,14 @@
 import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:app/domain/procedure_record.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:app/app_state.dart';
 import 'dart:async';
 
 
-class MainScreenModel with ChangeNotifier {
+class MainScreenModel {
   AppState _appState;
+
+  StreamController<MainScreenModel> _ownStreamController = StreamController.broadcast();
+  Stream<MainScreenModel> get ownStream => _ownStreamController.stream;
 
   DateTime get _date => _appState.date;
 
@@ -41,7 +42,7 @@ class MainScreenModel with ChangeNotifier {
     var records = await SQLiteDbProvider.db.findAllProcedureRecords(_date.year, _date.month, _date.day);
     _procedureRecords = records;
     _workedHours = _calculateWorkedHours();
-    notifyListeners();
+    _ownStreamController.add(this);
   }
 
 
@@ -53,13 +54,13 @@ class MainScreenModel with ChangeNotifier {
   void addProcedureRecord(ProcedureRecord record) {
     _procedureRecords.insert(0, record);
     _workedHours = _calculateWorkedHours();
-    notifyListeners();
+    _ownStreamController.add(this);
   }
 
 
   void refreshWorkedHours() {
     _workedHours = _calculateWorkedHours();
-    notifyListeners();
+    _ownStreamController.add(this);
   }
 
 
@@ -67,7 +68,7 @@ class MainScreenModel with ChangeNotifier {
     await SQLiteDbProvider.db.deleteProcedureRecord(_procedureRecords[0]);
     _procedureRecords.removeAt(0);
     _workedHours = _calculateWorkedHours();
-    notifyListeners();
+    _ownStreamController.add(this);
   }
 
 
@@ -78,5 +79,10 @@ class MainScreenModel with ChangeNotifier {
       workedHours += f.timeSpent;
     });
     return workedHours;
+  }
+
+
+  void dispose() {
+    _ownStreamController.close();
   }
 }

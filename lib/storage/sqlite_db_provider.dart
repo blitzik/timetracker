@@ -96,7 +96,7 @@ class SQLiteDbProvider {
                 ('Navíjení krátkých cívek do 100m'), ('Navíjení PVL nad 100m'), ('Montáž kazety PVL'), ('Konečná montáž PVL'),
                 ('2. Středění diamond'), ('2. středění diamond 0,1dB'), ('Měření numerické apertury HP'),
                 ('Měření úhlu HP'), ('Zabrušování kermika PC'), ('Zabrušování keramika LC, E2000 APC'),
-                ('Zabrušování SC, FC APC'), ('Zabrušování kapilár'), ('Zabrušování MT'), ('Zabrušování KOV'),
+                ('Zabrušování SC, FC APC'), ('Broušení ferule FORJ schleifring'), ('Zabrušování kapilár'), ('Zabrušování MT'), ('Zabrušování KOV'),
                 ('Broušení kapilár 0,5mm'), ('Broušení kapilár jednochodka'), ('Broušení kapilár excentr'),
                 ('Broušení keramika KAR.'), ('Broušení diamond KAR.'), ('Broušení MT/APC KAR.'), ('Broušení MT/PC excentr'),
                 ('Broušení ker. ručně'), ('Broušení KOV ručně'), ('Broušení SMA/APC/PC'), ('Optická kontrola MOK, KOK'),
@@ -106,7 +106,8 @@ class SQLiteDbProvider {
                 ('Balení UHV'), ('Balení splitr'), ('Balení coupler'), ('Balení ribon radiall + opt. kontrola'), ('Příprava a zakrácení couplerů'),
                 ('Navlékání couplerů do metal tubingu'), ('Montáž FC na metal tubing'), ('Zakládání do boxů na nápar'), ('Vyndávání z boxů po náparu'),
                 ('Měření a zakracování luna'), ('Broušení AFC 2 plochy'), ('Broušení AFC 4 plochy'), ('Měření GEO AFC'),
-                ('Optická kontrola pro planární tech.'), ('Měření mechanické délky FORJ'), ('Čístění v IPA')
+                ('Optická kontrola pro planární tech.'), ('Měření mechanické délky FORJ'), ('Čístění v IPA'), ('Měření optické délky'),
+                ('Perforace tubingu'), ('Lepení ferule do těla konektoru'), ('Měření mechanické délky FORJ')
             ''');
 
             /*var today = DateTime.now();

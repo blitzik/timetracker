@@ -2,6 +2,7 @@ import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_w
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_model.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
+import 'package:app/widgets/animated_replacement/animated_replacement.dart';
 import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/screens/main/main_screen_model.dart';
 import 'package:app/domain/procedure_record.dart';
@@ -16,7 +17,6 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   final EdgeInsetsGeometry _padding;
 
   final double _fontSize = 15;
-  final Animation<double> _animation;
 
   final Function(BuildContext context) _onDeleteClicked;
 
@@ -24,62 +24,71 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   ProcedureRecordItemWidget(
     this._padding,
     this._displayTrailing,
-    this._animation,
     this._onDeleteClicked
   ) : assert(_padding != null),
       assert(_displayTrailing != null),
-      assert(_animation != null),
       assert(_onDeleteClicked != null);
 
 
   @override
   Widget build(BuildContext context) {
-    return SizeTransition(
-      sizeFactor: _animation,
-      child: Consumer<ProcedureRecordItemWidgetModel>(
-        builder: (context, record, _) {
-          return Card(
-            color: Color(0xffeceff1),
-            child: InkWell(
-              child: ListTile(
-                contentPadding: _padding,
-                title: Text(record.procedureName,
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)
-                ),
-                subtitle: Row(
-                  children: <Widget>[
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                          '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
-                          style: TextStyle(fontSize: _fontSize),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                          record.timeSpent == null
-                              ? '-'
-                              : '${record.timeSpent.toString()}h',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: _fontSize),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(_getQuantityString(record),
-                          textAlign: TextAlign.right,
-                          style: TextStyle(fontSize: _fontSize),
-                      ),
-                    ),
-                  ],
-                ),
-                trailing: _displayMenu(context, record)
-              ),
-              onTap: _decideClickability(context, record)
+    var recordModel = Provider.of<ProcedureRecordItemWidgetModel>(context, listen: false);
+
+    return AnimatedReplacement<ProcedureRecordItemWidgetModel>(
+      stream: recordModel.ownStream,
+      initialValue: recordModel,
+      builder: (record) => Card(
+        color: Color(0xffeceff1),
+        child: InkWell(
+          child: ListTile(
+            contentPadding: _padding,
+            title: Text(record.procedureName,
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)
             ),
-          );
-        }
+            subtitle: Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                      '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
+                      style: TextStyle(fontSize: _fontSize)
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                      record.timeSpent == null
+                          ? '-'
+                          : '${record.timeSpent.toString()}h',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: _fontSize),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    _getQuantityString(record),
+                    textAlign: TextAlign.right,
+                    style: TextStyle(fontSize: _fontSize),
+                  )
+                ),
+              ],
+            ),
+            trailing: _displayMenu(context, record)
+          ),
+          onTap: _decideClickability(context, record)
+        ),
       ),
     );
+  }
+
+
+  String _getQuantityString(ProcedureRecordItemWidgetModel record) {
+    if (record.isBreak) {
+      return '';
+    }
+
+    return record.quantity == null
+        ? '-'
+        : '${record.quantity.toString()}ks';
   }
 
 
@@ -109,17 +118,6 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   }
 
 
-  String _getQuantityString(ProcedureRecordItemWidgetModel record) {
-    if (record.isBreak) {
-      return '';
-    }
-
-    return record.quantity == null
-        ? ''
-        : '${record.quantity.toString()}ks';
-  }
-
-
   Widget _displayMenu(BuildContext context, ProcedureRecordItemWidgetModel record) {
     if (_displayTrailing == false) return null;
     if (!record.isLast) {
@@ -127,30 +125,21 @@ class ProcedureRecordItemWidget extends StatelessWidget {
     }
 
     return PopupMenuButton(
-      itemBuilder: (BuildContext context) => [
-        PopupMenuItem(
-            value: 1, child: _displayToggleStateText(record.state)),
-        PopupMenuItem(
-          value: 2,
-          child: Text('Odstranit'),
-        ),
-      ],
+      itemBuilder: (BuildContext context) => _generateMenuItems(record),
       onSelected: (v) async{
         switch (v) {
-          case 1:
-            {
-              if (record.state == ProcedureRecordState.opened) {
-                await _closeProcedureRecordDialog(context);
-              } else {
-                await _openProcedureRecordDialog(context);
-              }
-              break;
-            }
-          case 2:
-            {
-              await _deleteProcedureRecordDialog(context);
-              break;
-            }
+          case 1: {
+            await _closeProcedureRecordDialog(context);
+            break;
+          }
+          case 2: {
+            await _openProcedureRecordDialog(context);
+            break;
+          }
+          case 3: {
+            await _deleteProcedureRecordDialog(context);
+            break;
+          }
           default:
             {
               return;
@@ -161,11 +150,26 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   }
 
 
-  Widget _displayToggleStateText(ProcedureRecordState s) {
-    if (s == ProcedureRecordState.opened) {
-      return Text('Uzavřít');
+  List<PopupMenuEntry<int>> _generateMenuItems(ProcedureRecordItemWidgetModel record) {
+    List<PopupMenuEntry<int>> list = List();
+    if (!record.isBreak && record.state == ProcedureRecordState.opened) {
+      list.add(PopupMenuItem(
+          value: 1, child: Text('Uzavřít'))
+      );
     }
-    return Text('Otevřít');
+
+    if (record.state == ProcedureRecordState.closed) {
+      list.add(PopupMenuItem(
+          value: 2, child: Text('Otevřít'))
+      );
+    }
+
+    list.add(PopupMenuItem(
+      value: 3,
+      child: Text('Odstranit'),
+    ));
+
+    return list;
   }
 
 

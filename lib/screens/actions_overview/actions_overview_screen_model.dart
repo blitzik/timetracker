@@ -1,6 +1,6 @@
+import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:app/domain/procedure.dart';
-import 'package:app/utils/result_object/result_object.dart';
 import 'package:flutter/foundation.dart';
 import 'package:app/app_state.dart';
 
@@ -8,7 +8,6 @@ import 'package:app/app_state.dart';
 class ActionsOverviewScreeModel with ChangeNotifier {
   AppState _appState;
 
-  DateTime get _date => _appState.date;
 
   List<Procedure> _procedures = List();
   bool get isListEmpty => _procedures.isEmpty;

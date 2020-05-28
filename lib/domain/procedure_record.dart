@@ -62,9 +62,10 @@ class ProcedureRecord {
 
 
   ProcedureRecordState get state {
-    if (finish != null && quantity != null) {
+    if (finish != null && (isBreak || quantity != null)) {
       return ProcedureRecordState.closed;
     }
+
     return ProcedureRecordState.opened;
   }
 
