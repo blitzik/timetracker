@@ -42,7 +42,7 @@ class _AnimatedReplacementState<T> extends State<AnimatedReplacement>
 
     _value = widget.initialValue;
 
-    _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
     _animation = Tween<double>(
         begin: 1,
         end: 0

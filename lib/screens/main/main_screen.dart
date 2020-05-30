@@ -1,7 +1,7 @@
-import 'package:app/widgets/animated_replacement/animated_replacement.dart';
 import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_widget_model.dart';
 import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_widget.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
+import 'package:app/widgets/animated_replacement/animated_replacement.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen.dart';
 import 'package:app/screens/archive/archive_screen.dart';
 import 'package:app/screens/summary/summary_screen.dart';
@@ -80,7 +80,7 @@ class MainScreen extends StatelessWidget {
                   '${DateFormat('EEEE d. MMMM yyyy').format(appState.date).toString().capitalizeFirst()}',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                subtitle: AnimatedReplacement(
+                subtitle: AnimatedReplacement<MainScreenModel>(
                   stream: screenModel.ownStream,
                   initialValue: screenModel,
                   builder: (value) => Text('Celkem odpracováno: ${value.workedHours}h'),
@@ -92,8 +92,9 @@ class MainScreen extends StatelessWidget {
               padding: const EdgeInsets.only(left: 5, right: 5, top: 10),
               child: StreamBuilder<MainScreenModel>(
                 stream: screenModel.ownStream,
+                initialData: screenModel,
                 builder: (context, snapshot) {
-                  var model = Provider.of<MainScreenModel>(context, listen: false);
+                  var model = snapshot.data;
                   if (model.isProcedureRecordsEmpty) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),

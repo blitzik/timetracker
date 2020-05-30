@@ -1,22 +1,23 @@
+import 'package:app/widgets/animated_replacement/animated_replacement.dart';
 import 'package:app/screens/summary/summary_screen_model.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/extensions/string_extension.dart';
+import 'package:app/widgets/summary/summary.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:app/app_state.dart';
 import 'package:intl/intl.dart';
 
 
 class SummaryScreen extends StatelessWidget {
   static const routeName = '/summaryCurrent';
-  static const archiveRouteName = '/archiveSummary';
 
 
   SummaryScreen();
 
+
   @override
   Widget build(BuildContext context) {
-    var appState = Provider.of<AppState>(context, listen: false);
+    var summaryModel = Provider.of<SummaryScreenModel>(context, listen: false);
 
     return Scaffold(
         appBar: AppBar(
@@ -29,12 +30,17 @@ class SummaryScreen extends StatelessWidget {
                 decoration: BoxDecoration(color: Color(0xfff0f0f0), border: Border(bottom: BorderSide(width: 1, color: Color(0xffcccccc)))),
                 padding: EdgeInsets.symmetric(vertical: 15),
                 child: InkWell(
-                  child: Consumer<SummaryScreenModel>(
-                    builder: (context, model, _) => createTitle(model)
+                  child: AnimatedReplacement<SummaryScreenModel>(
+                    stream: summaryModel.modelStream,
+                    initialValue: summaryModel,
+                    builder: (model) => _createTitle(model),
                   ),
                   onTap: () {
-                    var model = Provider.of<SummaryScreenModel>(context, listen: false);
-                    model.toggleType();
+                    if (summaryModel.currentType == SummaryType.day) {
+                      summaryModel.loadSummary.add(SummaryType.week);
+                    } else {
+                      summaryModel.loadSummary.add(SummaryType.day);
+                    }
                   },
                 )
             ),
@@ -42,18 +48,21 @@ class SummaryScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 30, right: 30, top: 10),
               child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Consumer<SummaryScreenModel>(
-                    builder: (context, model, _) => RichText(
-                      text: TextSpan(
-                        style: TextStyle(fontSize: 15, color: Color(0xff333333)),
-                        children: <TextSpan>[
-                          TextSpan(text: 'Celkem odpracováno: '),
-                          TextSpan(text: '${model.workedHours}h', style: TextStyle(fontWeight: FontWeight.bold)),
-                        ]
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Text('Celkem odpracováno: ', style: TextStyle(fontSize: 15, color: Color(0xff333333))),
+                    SizedBox(
+                      width: 40,
+                      child: AnimatedReplacement<double>(
+                        stream: summaryModel.workedHoursStream,
+                        initialValue: 0.0,
+                        builder: (workedHours) => Text('${workedHours}h', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                     )
-                  )
+                  ],
+                )
               ),
             ),
 
@@ -62,29 +71,10 @@ class SummaryScreen extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
-                child: Consumer<SummaryScreenModel>(
-                    builder: (context, model, _) {
-                      if (model.isSummaryEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          child: Text('Dnes nebyl přidán žádný záznam.'),
-                        );
-                      }
-
-                      return ListView.separated(
-                        separatorBuilder: (BuildContext context, int index) => Divider(),
-                        itemCount: model.summaryCount,
-                        itemBuilder: (BuildContext context, int index) {
-                          var summary = model.getProcedureSummaryAt(index);
-                          return ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-                            title: Text(summary.name,
-                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                            subtitle: Text('${summary.quantity}ks     ${summary.timeSpent}h'),
-                          );
-                        },
-                      );
-                    }),
+                child: Summary(
+                  initSummaryType: SummaryType.day,
+                  model: summaryModel,
+                )
               ),
             )
           ],
@@ -92,7 +82,7 @@ class SummaryScreen extends StatelessWidget {
     );
   }
 
-  Widget createTitle(SummaryScreenModel model) {
+  Widget _createTitle(SummaryScreenModel model) {
     if (model.currentType == SummaryType.day) {
       return ListTile(
         title: Text(

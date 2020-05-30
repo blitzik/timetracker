@@ -40,17 +40,11 @@ class RouteGenerator {
       );
 
       case SummaryScreen.routeName: return MaterialPageRoute(
-        builder: (_) => ChangeNotifierProvider(
+        builder: (_) => Provider<SummaryScreenModel>(
           create: (context) => SummaryScreenModel(DateTime.now()),
           child: SummaryScreen(),
+          dispose: (context, model) => model.dispose(),
         )
-      );
-
-      case SummaryScreen.archiveRouteName: return MaterialPageRoute(
-          builder: (_) => ChangeNotifierProvider(
-            create: (context) => SummaryScreenModel(args as DateTime),
-            child: SummaryScreen(),
-          )
       );
 
       case ActionsOverviewScreen.routeName: return MaterialPageRoute(

@@ -241,7 +241,7 @@ class SQLiteDbProvider {
       procedures.add(ProcedureRecord.fromMap(f));
     });
 
-    return procedures;
+    return Future.value(procedures);
   }
 
 
@@ -340,7 +340,7 @@ class SQLiteDbProvider {
       summary.add(ProcedureSummary.fromMap(f));
     });
 
-    return Future.value(summary);
+    return summary;
   }
 
 
@@ -352,7 +352,7 @@ class SQLiteDbProvider {
       LEFT JOIN procedure p ON (p.id = pr.procedure)
       WHERE pr.year = ? AND pr.week = ?
       GROUP BY p.id
-      ORDER BY p.id
+      ORDER BY p.id ASC
     ''', [year, week]);
     var result = await futureResult;
 
@@ -362,7 +362,7 @@ class SQLiteDbProvider {
       summary.add(ProcedureSummary.fromMap(f));
     });
 
-    return Future.value(summary);
+    return summary;
   }
 
 
