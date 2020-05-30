@@ -44,7 +44,13 @@ class _SummaryState extends State<Summary> {
       stream: widget.model.procedureSummariesStream,
       builder: (BuildContext context, AsyncSnapshot<UnmodifiableListView<ProcedureSummary>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return Center(
+              child: SizedBox(
+                width: 150,
+                height: 150,
+                child: CircularProgressIndicator()
+              )
+          );
         }
 
         if (!snapshot.hasData || snapshot.data.isEmpty) {
