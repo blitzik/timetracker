@@ -76,8 +76,8 @@ class _ListState extends State<_List> {
         }
 
         if (!snapshot.hasData || snapshot.data.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+          return Center(
+            //padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text('Nebyly nalezeny žádné záznamy'),
           );
         }
