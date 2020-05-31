@@ -30,14 +30,14 @@ class MainScreenModel {
   MainScreenModel() {
     _loadProcedureRecordsSubscription = _loadProcedureRecordsController.stream.listen((date) async{
       _records = await _loadData(date);
-      _procedureRecordsController.add(UnmodifiableListView<ProcedureRecord>(_records));
+      _procedureRecordsController.add(UnmodifiableListView(_records));
       _workedHoursController.add(_calculateWorkedHours(_records));
     });
 
     _addProcedureRecordSubscription = _addProcedureRecordController.stream.listen((procedureRecord) {
       _records.insert(0, procedureRecord);
       _workedHoursController.add(_calculateWorkedHours(_records));
-      _procedureRecordsController.add(UnmodifiableListView<ProcedureRecord>(_records));
+      _procedureRecordsController.add(UnmodifiableListView(_records));
     });
   }
 
@@ -63,6 +63,7 @@ class MainScreenModel {
     }
     _records.removeAt(0);
     _workedHoursController.add(_calculateWorkedHours(_records));
+    _procedureRecordsController.add(UnmodifiableListView(_records));
   }
 
 

@@ -365,6 +365,24 @@ class SQLiteDbProvider {
   }
 
 
+  Future<List<DateTime>> loadHistoryData() async{
+    final db = await database;
+
+    var futureResult = db.rawQuery('''
+      SELECT DISTINCT pr.year, pr.month, pr.day 
+      FROM procedure_record pr
+      ORDER BY pr.year, pr.month, pr.day DESC
+    ''');
+    var result = await futureResult;
+    List<DateTime> data = List();
+    result.forEach((row) {
+      data.add(DateTime.utc(row['year'], row['month'], row['day'], 0, 0, 0, 0, 0));
+    });
+
+    return Future.value(data);
+  }
+
+
   // -----
 
 

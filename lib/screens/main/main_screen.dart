@@ -53,10 +53,10 @@ class MainScreen extends StatelessWidget {
             ),
 
             ListTile(
-              title: Text('Souhrn záznamů'),
+              title: Text('Dnešní souhrn záznamů'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.pushNamed(context, SummaryScreen.routeName);
+                Navigator.pushNamed(context, SummaryScreen.routeName, arguments: DateTime.now());
               },
             ),
 
@@ -161,8 +161,8 @@ class _ListState extends State<_List> {
         }
 
         if (!snapshot.hasData || snapshot.data.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+          return Center(
+            //padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text('Dnes nebyl přidán žádný záznam.'),
           );
         }

@@ -54,9 +54,9 @@ class _SummaryState extends State<Summary> {
         }
 
         if (!snapshot.hasData || snapshot.data.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Text('Dnes nebyl přidán žádný záznam.'),
+          return Center(
+            //padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Text('Dosud nebyl přidán žádný záznam.'),
           );
         }
 
