@@ -33,6 +33,7 @@ class SummaryScreen extends StatelessWidget {
                   child: AnimatedReplacement<SummaryScreenModel>(
                     stream: summaryModel.modelStream,
                     initialValue: summaryModel,
+                    duration: Duration(milliseconds: 100),
                     builder: (model) => _createTitle(model),
                   ),
                   onTap: () {
@@ -50,14 +51,15 @@ class SummaryScreen extends StatelessWidget {
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     Text('Celkem odpracováno: ', style: TextStyle(fontSize: 15, color: Color(0xff333333))),
                     SizedBox(
-                      width: 40,
+                      width: 70,
                       child: AnimatedReplacement<double>(
                         stream: summaryModel.workedHoursStream,
                         initialValue: 0.0,
+                        duration: Duration(milliseconds: 100),
                         builder: (workedHours) => Text('${workedHours}h', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                     )

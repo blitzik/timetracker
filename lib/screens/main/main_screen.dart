@@ -13,12 +13,13 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:app/app_state.dart';
 import 'package:intl/intl.dart';
+import 'dart:collection';
 
 
 class MainScreen extends StatelessWidget {
   static const routeName = '/';
 
-  final GlobalKey<AnimatedListState> _animatedList = GlobalKey();
+  final GlobalKey<AnimatedListState> _animatedListKey = GlobalKey();
 
   MainScreen();
 
@@ -80,39 +81,21 @@ class MainScreen extends StatelessWidget {
                   '${DateFormat('EEEE d. MMMM yyyy').format(appState.date).toString().capitalizeFirst()}',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                subtitle: AnimatedReplacement<MainScreenModel>(
-                  stream: screenModel.ownStream,
-                  initialValue: screenModel,
-                  builder: (value) => Text('Celkem odpracováno: ${value.workedHours}h'),
+                subtitle: AnimatedReplacement<double>(
+                  stream: screenModel.workedHoursStream,
+                  initialValue: 0.0,
+                  builder: (workedHours) => Text('Celkem odpracováno: ${workedHours}h'),
                 )
               )
           ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(left: 5, right: 5, top: 10),
-              child: StreamBuilder<MainScreenModel>(
-                stream: screenModel.ownStream,
-                initialData: screenModel,
-                builder: (context, snapshot) {
-                  var model = snapshot.data;
-                  if (model.isProcedureRecordsEmpty) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Text('Dnes nebyl přidán žádný záznam.'),
-                    );
-                  }
-
-                  // todo for some reason AnimatedList rebuilds all items when we navigate to another screen
-                  return AnimatedList(
-                    key: _animatedList,
-                    initialItemCount: model.procedureRecordsCount,
-                    itemBuilder: (BuildContext context, int index, Animation<double> animation) {
-                      var record = model.getProcedureRecordAt(index);
-                      return _buildItem(context, record, index, animation);
-                    },
-                  );
-                }
-              ),
+              child: _List(
+                date: DateTime.now(),
+                model: screenModel,
+                animatedListStateKey: _animatedListKey
+              )
             ),
           ),
         ],
@@ -123,13 +106,77 @@ class MainScreen extends StatelessWidget {
         onPressed: () async {
           var newProcedureRecord = await Navigator.pushNamed(context, AddProcedureRecordScreen.routeName, arguments: screenModel.lastProcedureRecord);
           if (newProcedureRecord != null) {
-            screenModel.addProcedureRecord(newProcedureRecord);
-            if (_animatedList.currentState != null) {
-              _animatedList.currentState.insertItem(0);
+            screenModel.addProcedureRecord.add(newProcedureRecord);
+            if (_animatedListKey.currentState != null) {
+              _animatedListKey.currentState.insertItem(0);
             }
           }
         },
       )
+    );
+  }
+}
+
+
+class _List extends StatefulWidget {
+
+  final DateTime date;
+  final MainScreenModel model;
+  final GlobalKey<AnimatedListState> animatedListStateKey;
+
+
+  _List({
+    @required this.date,
+    @required this.model,
+    @required this.animatedListStateKey
+  });
+
+
+  @override
+  _ListState createState() => _ListState();
+}
+
+
+class _ListState extends State<_List> {
+  @override
+  void initState() {
+    widget.model.loadProcedureRecords.add(widget.date);
+    super.initState();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<UnmodifiableListView<ProcedureRecord>>(
+      stream: widget.model.procedureRecordsStream,
+      builder: (BuildContext context, AsyncSnapshot<UnmodifiableListView<ProcedureRecord>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: SizedBox(
+              width: 150,
+              height: 150,
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (!snapshot.hasData || snapshot.data.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Text('Dnes nebyl přidán žádný záznam.'),
+          );
+        }
+
+        var records = snapshot.data;
+        return AnimatedList(
+          key: widget.animatedListStateKey,
+          initialItemCount: records.length,
+          itemBuilder: (BuildContext context, int index, Animation<double> animation) {
+            var record = records.elementAt(index);
+            return _buildItem(context, record, index, animation);
+          },
+        );
+      },
     );
   }
 
@@ -139,14 +186,18 @@ class MainScreen extends StatelessWidget {
       sizeFactor: animation,
       child: Provider(
         key: ValueKey(record.id),
-        create: (context) => ProcedureRecordItemWidgetModel(record, index == 0),
+        create: (context) => ProcedureRecordItemWidgetModel(
+          record,
+          index == 0,
+          () { widget.model.refreshWorkedHours(); },
+          () { widget.model.refreshWorkedHours(); }
+        ),
         child: ProcedureRecordItemWidget(
             const EdgeInsets.symmetric(horizontal: 15),
             true,
             (_context) {
-              var screenModel = Provider.of<MainScreenModel>(mainContext, listen: false);
-              screenModel.deleteLastRecord();
-              _animatedList.currentState.removeItem(index, (context, animation) {
+              widget.model.deleteLastRecord();
+              widget.animatedListStateKey.currentState.removeItem(index, (context, animation) {
                 return _buildItem(mainContext, record, index, animation);
               }
               );

@@ -333,7 +333,6 @@ class SQLiteDbProvider {
       ORDER BY p.id ASC
     ''', [year, month, day]);
     var result = await futureResult;
-
     List<ProcedureSummary> summary = List<ProcedureSummary>();
     result.forEach((f) {
       if (f['time_spent'] == null || f['quantity'] == null) return;

@@ -24,14 +24,26 @@ class ProcedureRecordItemWidgetModel  {
   double get timeSpent => _procedureRecord.timeSpent;
   ProcedureRecordState get state => _procedureRecord.state;
 
+  final Function() _onOpenedRecord;
+  final Function() _onClosedRecord;
 
-  ProcedureRecordItemWidgetModel(this._procedureRecord, this._isLast);
+
+  ProcedureRecordItemWidgetModel(
+    this._procedureRecord,
+    this._isLast,
+    this._onOpenedRecord,
+    this._onClosedRecord
+  ) : assert(_procedureRecord != null),
+      assert(_isLast != null),
+      assert(_onOpenedRecord != null),
+      assert(_onClosedRecord != null);
 
 
   void closeRecord(DateTime finish, int quantity) async{
     _procedureRecord.closeRecord(finish, quantity);
-    SQLiteDbProvider.db.updateProcedureRecord(_procedureRecord);
+    await SQLiteDbProvider.db.updateProcedureRecord(_procedureRecord);
     _ownStreamController.add(this);
+    _onClosedRecord.call();
   }
 
 
@@ -39,6 +51,7 @@ class ProcedureRecordItemWidgetModel  {
     _procedureRecord.openRecord();
     SQLiteDbProvider.db.updateProcedureRecord(_procedureRecord);
     _ownStreamController.add(this);
+    _onOpenedRecord.call();
   }
 
 

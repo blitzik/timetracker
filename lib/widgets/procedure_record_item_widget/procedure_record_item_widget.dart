@@ -4,7 +4,6 @@ import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_for
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:app/widgets/animated_replacement/animated_replacement.dart';
 import 'package:app/utils/result_object/result_object.dart';
-import 'package:app/screens/main/main_screen_model.dart';
 import 'package:app/domain/procedure_record.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
@@ -24,10 +23,11 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   ProcedureRecordItemWidget(
     this._padding,
     this._displayTrailing,
-    this._onDeleteClicked
+    this._onDeleteClicked,
   ) : assert(_padding != null),
       assert(_displayTrailing != null),
       assert(_onDeleteClicked != null);
+
 
 
   @override
@@ -98,7 +98,6 @@ class ProcedureRecordItemWidget extends StatelessWidget {
       var result = await _displayEditDialog(context, record);
       if (result == null) return;
 
-      ScaffoldState ss = Scaffold.of(context);
       Text text = Text('Položka uložena');
       Icon icon = Icon(Icons.done, color: Colors.lightGreen);
 
@@ -235,9 +234,6 @@ class ProcedureRecordItemWidget extends StatelessWidget {
                           var model = Provider.of<ProcedureRecordItemWidgetModel>(_context, listen: false);
                           model.closeRecord(finish, quantity);
 
-                          var mainModel = Provider.of<MainScreenModel>(_context, listen: false);
-                          mainModel.refreshWorkedHours();
-
                           Navigator.pop(context);
                         },
                       )
@@ -264,9 +260,6 @@ class ProcedureRecordItemWidget extends StatelessWidget {
               onPressed: () {
                 var model = Provider.of<ProcedureRecordItemWidgetModel>( _context, listen: false);
                 model.openRecord();
-
-                var mainModel = Provider.of<MainScreenModel>(_context, listen: false);
-                mainModel.refreshWorkedHours();
 
                 Navigator.pop(_context);
               },

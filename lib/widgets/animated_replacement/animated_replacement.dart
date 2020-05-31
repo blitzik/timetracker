@@ -7,13 +7,15 @@ class AnimatedReplacement<T> extends StatefulWidget {
   final Widget Function(dynamic value) builder;
   final Stream<T> stream;
   final T initialValue;
+  final Duration duration;
 
 
   const AnimatedReplacement({
     Key key,
     @required this.builder,
     @required this.stream,
-    @required this.initialValue
+    @required this.initialValue,
+    this.duration
   }) : super(key: key);
 
 
@@ -42,7 +44,7 @@ class _AnimatedReplacementState<T> extends State<AnimatedReplacement>
 
     _value = widget.initialValue;
 
-    _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
+    _animController = AnimationController(vsync: this, duration: widget.duration ?? const Duration(milliseconds: 250));
     _animation = Tween<double>(
         begin: 1,
         end: 0
