@@ -371,7 +371,7 @@ class SQLiteDbProvider {
     var futureResult = db.rawQuery('''
       SELECT DISTINCT pr.year, pr.month, pr.day 
       FROM procedure_record pr
-      ORDER BY pr.year, pr.month, pr.day DESC
+      ORDER BY pr.year DESC, pr.month DESC, pr.day DESC
     ''');
     var result = await futureResult;
     List<DateTime> data = List();
