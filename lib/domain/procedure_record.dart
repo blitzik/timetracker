@@ -3,11 +3,6 @@ import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/domain/procedure.dart';
 
 
-enum ProcedureRecordState {
-  opened, closed
-}
-
-
 class ProcedureRecord {
   int _id;
   int get id => _id;
@@ -61,13 +56,8 @@ class ProcedureRecord {
   double get timeSpent => _timeSpent == null ? null : _timeSpent / 3600;
 
 
-  ProcedureRecordState get state {
-    if (finish != null && (isBreak || quantity != null)) {
-      return ProcedureRecordState.closed;
-    }
-
-    return ProcedureRecordState.opened;
-  }
+  bool get isClosed => finish != null && (isBreak || quantity != null);
+  bool get isOpened => !isClosed;
 
 
   ProcedureRecord(this.procedure, DateTime start) {

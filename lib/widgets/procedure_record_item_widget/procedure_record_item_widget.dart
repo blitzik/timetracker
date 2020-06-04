@@ -93,7 +93,7 @@ class ProcedureRecordItemWidget extends StatelessWidget {
 
 
   Function() _decideClickability(BuildContext context, ProcedureRecordItemWidgetModel record) {
-    if (record.isBreak || (record.isLast && record.state == ProcedureRecordState.opened)) return null;
+    if (record.isBreak || (record.isLast && record.isOpened)) return null;
     return () async{
       var result = await _displayEditDialog(context, record);
       if (result == null) return;
@@ -151,13 +151,13 @@ class ProcedureRecordItemWidget extends StatelessWidget {
 
   List<PopupMenuEntry<int>> _generateMenuItems(ProcedureRecordItemWidgetModel record) {
     List<PopupMenuEntry<int>> list = List();
-    if (!record.isBreak && record.state == ProcedureRecordState.opened) {
+    if (!record.isBreak && record.isOpened) {
       list.add(PopupMenuItem(
           value: 1, child: Text('Uzavřít'))
       );
     }
 
-    if (record.state == ProcedureRecordState.closed) {
+    if (record.isClosed) {
       list.add(PopupMenuItem(
           value: 2, child: Text('Otevřít'))
       );

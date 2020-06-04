@@ -22,7 +22,8 @@ class ProcedureRecordItemWidgetModel  {
   int get quantity => _procedureRecord.quantity;
 
   double get timeSpent => _procedureRecord.timeSpent;
-  ProcedureRecordState get state => _procedureRecord.state;
+  bool get isOpened => _procedureRecord.isOpened;
+  bool get isClosed => _procedureRecord.isClosed;
 
   final Function() _onOpenedRecord;
   final Function() _onClosedRecord;
