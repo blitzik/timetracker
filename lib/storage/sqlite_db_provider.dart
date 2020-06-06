@@ -174,14 +174,21 @@ class SQLiteDbProvider {
   }
 
 
-  Future<ProcedureRecord> insertProcedureRecord(Procedure procedure, DateTime start, [Transaction tx]) async{
+  Future<ResultObject<ProcedureRecord>> insertProcedureRecord(ProcedureRecord newRecord, [Transaction tx]) async{
     final db = tx != null ? tx : await database;
-    _checkProcedureIdentity(procedure);
+    _checkProcedureIdentity(newRecord.procedure);
 
-    ProcedureRecord newRecord = ProcedureRecord(procedure, start);
-    int newId = await db.insert('procedure_record', newRecord.toMap());
-    newRecord.id = newId;
-    return Future.value(newRecord);
+    ResultObject<ProcedureRecord> result = ResultObject();
+    try {
+      int newId = await db.insert('procedure_record', newRecord.toMap());
+      newRecord.id = newId;
+      result = ResultObject(newRecord);
+
+    } catch (e) {
+      result.addErrorMessage('Při ukládání záznamu došlo k chybě');
+    }
+
+    return Future.value(result);
   }
 
 
@@ -224,24 +231,32 @@ class SQLiteDbProvider {
   }
 
 
-  Future<List<ProcedureRecord>> findAllProcedureRecords(int year, int month, int day) async{
+  Future<ResultObject<List<ProcedureRecord>>> findAllProcedureRecords(int year, int month, int day) async{
     final db = await database;
 
-    List<ProcedureRecord> procedures = List<ProcedureRecord>();
-    var futureResult = db.rawQuery(
-        '''SELECT pr.*, p.id as procedure_id, p.name as procedure_name, p.type as procedure_type
+    ResultObject<List<ProcedureRecord>> result = ResultObject();
+    List<ProcedureRecord> procedureRecords = List<ProcedureRecord>();
+    try {
+      var futureResult = db.rawQuery(
+          '''SELECT pr.*, p.id as procedure_id, p.name as procedure_name, p.type as procedure_type
            FROM procedure_record pr
            LEFT JOIN procedure p ON (p.id = pr.procedure)
            WHERE pr.year = ? AND pr.month = ? and pr.day = ?
            ORDER BY pr.id DESC''',
-        [year, month, day]
-    );
-    var result = await futureResult;
-    result.forEach((f) {
-      procedures.add(ProcedureRecord.fromMap(f));
-    });
+          [year, month, day]
+      );
+      var records = await futureResult;
 
-    return Future.value(procedures);
+      records.forEach((record) {
+        procedureRecords.add(ProcedureRecord.fromMap(record));
+      });
+      result = ResultObject(procedureRecords);
+
+    } catch (e) {
+      result.addErrorMessage('Při získávání dat došlo k chybě.');
+    }
+
+    return Future.value(result);
   }
 
 
@@ -306,19 +321,19 @@ class SQLiteDbProvider {
   }
 
 
-  Future<ProcedureRecord> startProcedureRecord(ProcedureRecord lastRecord, int lastProcedureQuantity, Procedure procedure, DateTime start) async{
+  Future<ResultObject<ProcedureRecord>> startProcedureRecord(ProcedureRecord lastRecord, int lastProcedureQuantity, Procedure procedure, DateTime start) async{
     final db = await database;
-    var newRecord = await db.transaction<ProcedureRecord>((txn) async{
+    var result = await db.transaction<ResultObject<ProcedureRecord>>((txn) async{
       if (lastRecord != null) {
         lastRecord.closeRecord(start, lastProcedureQuantity);
         await updateProcedureRecord(lastRecord, txn);
       }
 
-      ProcedureRecord newRecord = await insertProcedureRecord(procedure, start, txn);
-      return Future.value(newRecord);
+      var result = await insertProcedureRecord(ProcedureRecord(procedure, start), txn);
+      return Future.value(result);
     });
 
-    return Future.value(newRecord);
+    return Future.value(result);
   }
 
 

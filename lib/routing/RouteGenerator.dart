@@ -1,23 +1,22 @@
-import 'package:app/screens/add_procedure_record/add_procedure_record_screen_model.dart';
+import 'package:app/screens/add_procedure_record/add_procedure_record_screen_bloc.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen_model.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen.dart';
 import 'package:app/screens/archive/archive_screen_model.dart';
 import 'package:app/screens/summary/summary_screen_model.dart';
 import 'package:app/screens/archive/archive_screen.dart';
-import 'package:app/screens/main/main_screen_model.dart';
 import 'package:app/screens/summary/summary_screen.dart';
+import 'package:app/screens/main/main_screen_bloc.dart';
 import 'package:app/screens/main/main_screen.dart';
 import 'package:app/domain/procedure_record.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:app/app_state.dart';
 
 
 class RouteGenerator {
-  AppState _appState;
 
-  RouteGenerator(this._appState);
+  RouteGenerator();
 
 
   Route<dynamic> generateRoute(RouteSettings settings) {
@@ -25,16 +24,15 @@ class RouteGenerator {
 
     switch (settings.name) {
       case MainScreen.routeName: return MaterialPageRoute(
-          builder: (_) => Provider<MainScreenModel>(
-            create: (context) => MainScreenModel(),
+          builder: (_) => BlocProvider(
+            create: (context) => MainScreenBloc(),
             child: MainScreen(),
-            dispose: (context, model) => model.dispose(),
           )
       );
 
       case AddProcedureRecordScreen.routeName: return MaterialPageRoute(
-        builder: (_) => ChangeNotifierProvider(
-          create: (context) => AddProcedureRecordScreenModel(args as ProcedureRecord, _appState),
+        builder: (_) => BlocProvider(
+          create: (context) => AddProcedureRecordScreenBloc(args as ProcedureRecord),
           child: AddProcedureRecordScreen(),
         )
       );
@@ -49,7 +47,7 @@ class RouteGenerator {
 
       case ActionsOverviewScreen.routeName: return MaterialPageRoute(
           builder: (_) => ChangeNotifierProvider(
-            create: (context) => ActionsOverviewScreeModel(_appState),
+            create: (context) => ActionsOverviewScreeModel(),
             child: ActionsOverviewScreen(),
           )
       );

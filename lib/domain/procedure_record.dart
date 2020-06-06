@@ -1,3 +1,4 @@
+import 'package:app/domain/ProcedureRecordImmutable.dart';
 import 'package:app/exceptions/entity_identity_exception.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/domain/procedure.dart';
@@ -125,5 +126,16 @@ class ProcedureRecord {
       'finish': _finish == null ? null : _finish,
       'time_spent': _timeSpent,
     };
+  }
+
+
+  ProcedureRecordImmutable toImmutable(){
+    return ProcedureRecordImmutable(
+      procedure.name,
+      procedure.type,
+      start,
+      finish,
+      quantity
+    );
   }
 }
