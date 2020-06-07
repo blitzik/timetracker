@@ -1,87 +1,105 @@
-import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_widget_model.dart';
-import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_model.dart';
-import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form.dart';
+import 'package:app/screens/main/procedure_record_item_widget/procedure_record_item_events.dart';
+import 'package:app/screens/main/procedure_record_item_widget/procedure_record_item_widget_bloc.dart';
+import 'package:app/screens/main/procedure_record_item_widget/procedure_record_item_states.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
-import 'package:app/widgets/animated_replacement/animated_replacement.dart';
 import 'package:app/utils/result_object/result_object.dart';
-import 'package:app/domain/procedure_record.dart';
-import 'package:provider/provider.dart';
+import 'package:app/screens/main/main_screen_events.dart';
+import 'package:app/domain/ProcedureRecordImmutable.dart';
+import 'package:app/screens/main/main_screen_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 
-class ProcedureRecordItemWidget extends StatelessWidget {
+class ProcedureRecordItemWidget extends StatefulWidget {
   final bool _displayTrailing;
   final EdgeInsetsGeometry _padding;
-
-  final double _fontSize = 15;
-
-  final Function(BuildContext context) _onDeleteClicked;
 
 
   ProcedureRecordItemWidget(
     this._padding,
     this._displayTrailing,
-    this._onDeleteClicked,
   ) : assert(_padding != null),
-      assert(_displayTrailing != null),
-      assert(_onDeleteClicked != null);
+      assert(_displayTrailing != null);
 
+  @override
+  _ProcedureRecordItemWidgetState createState() => _ProcedureRecordItemWidgetState();
+}
+
+
+class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
+  final double _fontSize = 15;
+
+  ProcedureRecordItemWidgetBloc _bloc;
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    _bloc = BlocProvider.of<ProcedureRecordItemWidgetBloc>(context);
+  }
+
+
+  @override
+  void dispose() {
+    _bloc.dispose();
+    super.dispose();
+  }
 
 
   @override
   Widget build(BuildContext context) {
-    var recordModel = Provider.of<ProcedureRecordItemWidgetModel>(context, listen: false);
-
-    return AnimatedReplacement<ProcedureRecordItemWidgetModel>(
-      stream: recordModel.ownStream,
-      initialValue: recordModel,
-      builder: (record) => Card(
-        color: Color(0xffeceff1),
-        child: InkWell(
-          child: ListTile(
-            contentPadding: _padding,
-            title: Text(record.procedureName,
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)
-            ),
-            subtitle: Row(
-              children: <Widget>[
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                      '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
-                      style: TextStyle(fontSize: _fontSize)
+    return BlocBuilder<ProcedureRecordItemWidgetBloc, ProcedureRecordItemState>(
+      builder: (context, state) {
+        var record = (state as ProcedureRecordItemLoaded).record;
+        return Card(
+          color: Color(0xffeceff1),
+          child: InkWell(
+            child: ListTile(
+              contentPadding: widget._padding,
+              title: Text(record.procedureName,
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)
+              ),
+              subtitle: Row(
+                children: <Widget>[
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                        '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
+                        style: TextStyle(fontSize: _fontSize)
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: Text(
-                      record.timeSpent == null
-                          ? '-'
-                          : '${record.timeSpent.toString()}h',
-                      textAlign: TextAlign.center,
+                  Expanded(
+                    child: Text(
+                        record.timeSpent == null
+                            ? '-'
+                            : '${record.timeSpent.toString()}h',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: _fontSize),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      _getQuantityString(record),
+                      textAlign: TextAlign.right,
                       style: TextStyle(fontSize: _fontSize),
+                    )
                   ),
-                ),
-                Expanded(
-                  child: Text(
-                    _getQuantityString(record),
-                    textAlign: TextAlign.right,
-                    style: TextStyle(fontSize: _fontSize),
-                  )
-                ),
-              ],
+                ],
+              ),
+              trailing: _displayMenu(context, state)
             ),
-            trailing: _displayMenu(context, record)
+            onTap: _decideClickability(context, state)
           ),
-          onTap: _decideClickability(context, record)
-        ),
-      ),
+        );
+      }
     );
   }
 
 
-  String _getQuantityString(ProcedureRecordItemWidgetModel record) {
+  String _getQuantityString(ProcedureRecordImmutable record) {
     if (record.isBreak) {
       return '';
     }
@@ -92,10 +110,11 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   }
 
 
-  Function() _decideClickability(BuildContext context, ProcedureRecordItemWidgetModel record) {
-    if (record.isBreak || (record.isLast && record.isOpened)) return null;
+  Function() _decideClickability(BuildContext context, ProcedureRecordItemLoaded state) {
+    var record = state.record;
+    if (record.isBreak || (state.isLast && record.isOpened)) return null;
     return () async{
-      var result = await _displayEditDialog(context, record);
+      var result = await _displayEditDialog(context, state);
       if (result == null) return;
 
       Text text = Text('Položka uložena');
@@ -117,9 +136,10 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   }
 
 
-  Widget _displayMenu(BuildContext context, ProcedureRecordItemWidgetModel record) {
-    if (_displayTrailing == false) return null;
-    if (!record.isLast) {
+  Widget _displayMenu(BuildContext context, ProcedureRecordItemLoaded state) {
+    var record = state.record;
+    if (widget._displayTrailing == false) return null;
+    if (!state.isLast) {
       return SizedBox(width: 50, height: 50);
     }
 
@@ -149,7 +169,7 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   }
 
 
-  List<PopupMenuEntry<int>> _generateMenuItems(ProcedureRecordItemWidgetModel record) {
+  List<PopupMenuEntry<int>> _generateMenuItems(ProcedureRecordImmutable record) {
     List<PopupMenuEntry<int>> list = List();
     if (!record.isBreak && record.isOpened) {
       list.add(PopupMenuItem(
@@ -231,8 +251,7 @@ class ProcedureRecordItemWidget extends StatelessWidget {
                           }
                           _formKey.currentState.save();
 
-                          var model = Provider.of<ProcedureRecordItemWidgetModel>(_context, listen: false);
-                          model.closeRecord(finish, quantity);
+                          _bloc.add(ProcedureRecordClosed(finish, quantity));
 
                           Navigator.pop(context);
                         },
@@ -258,8 +277,7 @@ class ProcedureRecordItemWidget extends StatelessWidget {
             FlatButton(
               child: Text('Ano'),
               onPressed: () {
-                var model = Provider.of<ProcedureRecordItemWidgetModel>( _context, listen: false);
-                model.openRecord();
+                _bloc.add(ProcedureRecordOpened());
 
                 Navigator.pop(_context);
               },
@@ -282,7 +300,9 @@ class ProcedureRecordItemWidget extends StatelessWidget {
           FlatButton(
             child: Text('Ano'),
             onPressed: () {
-              _onDeleteClicked?.call(_context);
+              var mainBloc = BlocProvider.of<MainScreenBloc>(_context);
+              mainBloc.add(LastProcedureRecordDeleted());
+              Navigator.pop(context);
             }
           ),
         ],
@@ -291,18 +311,19 @@ class ProcedureRecordItemWidget extends StatelessWidget {
   }
 
 
-  Future<ResultObject<void>> _displayEditDialog(BuildContext _context, ProcedureRecordItemWidgetModel record) async{
+  Future<ResultObject<void>> _displayEditDialog(BuildContext _context, ProcedureRecordItemLoaded state) async{
     return showDialog(
         context: _context,
         builder: (BuildContext context) {
           return SimpleDialog(
             contentPadding: EdgeInsets.all(25),
-            title: Text(record.procedureName),
+            title: Text(state.record.procedureName),
             children: <Widget>[
-              ChangeNotifierProvider(
+              Text('todo')
+              /*ChangeNotifierProvider(
                 create: (context) => ProcedureRecordEditFormModel(record.procedureRecord, () { record.refresh(); }),
                 child: ProcedureRecordEditForm(),
-              )
+              )*/
             ],
           );
         }

@@ -40,8 +40,14 @@ class ProcedureRecordsLoadSuccess extends ProcedureRecordsState {
 }
 
 
-class RecordAddedSuccess extends ProcedureRecordsLoadSuccess {
+class ProcedureRecordAddedSuccess extends ProcedureRecordsLoadSuccess {
   final ProcedureRecord addedRecord;
 
-  RecordAddedSuccess(this.addedRecord, UnmodifiableListView<ProcedureRecord> records) : super(records);
+  ProcedureRecordAddedSuccess(this.addedRecord, UnmodifiableListView<ProcedureRecord> records) : super(records);
+}
+
+
+class ProcedureRecordDeletedSuccess extends ProcedureRecordsLoadSuccess {
+  final ProcedureRecord deletedRecord;
+  ProcedureRecordDeletedSuccess(this.deletedRecord, UnmodifiableListView<ProcedureRecord> records) : super(records);
 }

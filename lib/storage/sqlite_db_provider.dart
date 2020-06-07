@@ -207,9 +207,15 @@ class SQLiteDbProvider {
   }
 
 
-  void deleteProcedureRecord(ProcedureRecord record, [Transaction tx]) async{
+  Future<ResultObject<void>> deleteProcedureRecord(ProcedureRecord record, [Transaction tx]) async{
     final db = tx != null ? tx : await database;
-    db.delete('procedure_record', where: 'id = ?', whereArgs: [record.id]);
+    ResultObject<void> result = ResultObject();
+    try {
+      db.delete('procedure_record', where: 'id = ?', whereArgs: [record.id]);
+    } catch (e) {
+      result.addErrorMessage('Při odstraňování záznamu došlo k chybě.');
+    }
+    return Future.value(result);
   }
 
 
@@ -299,32 +305,6 @@ class SQLiteDbProvider {
     if (result.isEmpty) return Future.value(null);
 
     return Future.value(ProcedureRecord.fromMap(result[0]));
-  }
-
-
-  void deleteLastProcedureRecord(int year, int month, int day) async{
-    final db = await database;
-    await db.transaction((txn) async{
-      txn.rawQuery('''
-        DELETE FROM procedure_record
-        WHERE id = (
-            SELECT id FROM procedure_record 
-            WHERE year = ? AND month = ? AND day = ?
-            ORDER BY id DESC
-            LIMIT 1
-        )
-      ''', [year, month, day]);
-      txn.rawQuery('''
-        UPDATE procedure_record
-        SET finish = NULL, time_spent = NULL, quantity = NULL
-        WHERE id = id = (
-            SELECT id FROM procedure_record 
-            WHERE year = ? AND month = ? AND day = ?
-            ORDER BY id DESC
-            LIMIT 1
-        ) 
-      ''', [year, month, day]);
-    });
   }
 
 

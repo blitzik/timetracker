@@ -17,3 +17,6 @@ class ProcedureRecordAdded extends ProcedureRecordsEvents {
 
   const ProcedureRecordAdded(this.record);
 }
+
+
+class LastProcedureRecordDeleted extends ProcedureRecordsEvents {}

@@ -1,5 +1,5 @@
-import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_widget_model.dart';
-import 'package:app/widgets/procedure_record_item_widget/procedure_record_item_widget.dart';
+import 'package:app/screens/main/procedure_record_item_widget/procedure_record_item_widget_bloc.dart';
+import 'package:app/screens/main/procedure_record_item_widget/procedure_record_item_widget.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen.dart';
 import 'package:app/screens/main/main_screen_states.dart';
@@ -11,7 +11,6 @@ import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/extensions/string_extension.dart';
 import 'package:app/domain/procedure_record.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:app/app_bloc.dart';
 import 'package:intl/intl.dart';
@@ -156,9 +155,21 @@ class _MainScreenState extends State<MainScreen> {
         ),
         floatingActionButton: BlocConsumer<MainScreenBloc, ProcedureRecordsState>(
           listener: (context, state) {
-            if (state is RecordAddedSuccess) {
+            if (state is ProcedureRecordAddedSuccess) {
               if (_animatedListKey.currentState != null) {
                 _animatedListKey.currentState.insertItem(0);
+                Scaffold.of(context).showSnackBar(SnackBar(
+                  content: ListTile(
+                    title: Text('Záznam byl úspěšně uložen'),
+                    trailing: Icon(Icons.check, color: Colors.green),
+                  ),
+                  duration: const Duration(seconds: 1),
+                ));
+              }
+            }
+            if (state is ProcedureRecordDeletedSuccess) {
+              if (_animatedListKey.currentState != null) {
+                _animatedListKey.currentState.removeItem(0, (context, animation) => _buildItem(context, state.deletedRecord, 0, animation));
               }
             }
           },
@@ -192,25 +203,13 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildItem(BuildContext mainContext, ProcedureRecord record, int index, Animation<double> animation) {
     return SizeTransition(
       sizeFactor: animation,
-      child: Provider(
+      child: BlocProvider(
         key: ValueKey(record.id),
-        create: (context) => ProcedureRecordItemWidgetModel(
-            record,
-            index == 0
-        ),
+        create: (context) => ProcedureRecordItemWidgetBloc(record, index == 0),
         child: ProcedureRecordItemWidget(
             const EdgeInsets.symmetric(horizontal: 15),
-            true,
-                (_context) {
-              /*widget.model.deleteLastRecord();
-              widget.animatedListStateKey.currentState.removeItem(index, (context, animation) {
-                return _buildItem(mainContext, record, index, animation);
-              }
-              );*/
-              Navigator.pop(_context);
-            }
+            true
         ),
-        dispose: (context, model) => model.dispose(),
       ),
     );
   }
