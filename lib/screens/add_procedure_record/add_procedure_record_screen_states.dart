@@ -2,12 +2,37 @@ import 'package:app/domain/ProcedureRecordImmutable.dart';
 import 'package:app/domain/procedure.dart';
 import 'dart:collection';
 
+import 'package:app/domain/procedure_record.dart';
 
-abstract class AddProcedureRecordState {}
+
+abstract class AddProcedureRecordState {
+  final ProcedureRecordImmutable lastRecord;
+
+  AddProcedureRecordState(this.lastRecord);
+}
 
 
-class AddProcedureRecordStateInitial extends AddProcedureRecordState {
-  AddProcedureRecordStateInitial();
+class AddProcedureRecordLoadInProgress extends AddProcedureRecordState {
+  AddProcedureRecordLoadInProgress(ProcedureRecordImmutable lastRecord) : super(lastRecord);
+}
+
+
+class AddProcedureRecordLoadFailed extends AddProcedureRecordState {
+  final String message;
+
+  AddProcedureRecordLoadFailed(ProcedureRecordImmutable lastRecord, this.message) : super(lastRecord);
+}
+
+
+class AddProcedureRecordFormProcessingSucceeded extends AddProcedureRecordState {
+  final ProcedureRecord newRecord;
+  AddProcedureRecordFormProcessingSucceeded(ProcedureRecordImmutable lastRecord, this.newRecord) : super(lastRecord);
+}
+
+
+class AddProcedureRecordFormProcessingFailed extends AddProcedureRecordState {
+  final String message;
+  AddProcedureRecordFormProcessingFailed(ProcedureRecordImmutable lastRecord, this.message) : super(lastRecord);
 }
 
 
@@ -28,7 +53,7 @@ class AddProcedureRecordFormState extends AddProcedureRecordState {
     this.selectedProcedure,
     this.lastProcedureQuantity,
     this.newActionStart
-  ) {
+  ) : super(lastRecord) {
     Map<String, Procedure> result = Map();
     procedures.forEach((procedure) {
       result[procedure.name] = procedure;

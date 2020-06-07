@@ -23,8 +23,8 @@ class AddProcedureRecordScreen extends StatefulWidget {
 
 
 class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
-  final titleTextStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  TextStyle _titleTextStyle;
+  GlobalKey<FormState> _formKey;
 
 
   String _selectedProcedure;
@@ -39,6 +39,17 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
     super.initState();
 
     _bloc = BlocProvider.of<AddProcedureRecordScreenBloc>(context);
+    _bloc.add(AddProcedureRecordFormProceduresLoaded());
+
+    _titleTextStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
+    _formKey = GlobalKey<FormState>();
+  }
+
+
+  @override
+  void dispose() {
+    _bloc.dispose();
+    super.dispose();
   }
 
 
@@ -58,33 +69,27 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     border: Border(bottom: BorderSide(width: 1, color: Color(0xffcccccc))),
-
                   ),
                   child: Column(
                     crossAxisAlignment:  CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      Container(
-                        child: Text('Poslední záznam', style: titleTextStyle),
-                        decoration: BoxDecoration(border: Border(bottom: BorderSide(width: 1, color: Color(0xffcccccc)))),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: Container(
+                          child: Text('Poslední záznam', style: _titleTextStyle),
+                          decoration: BoxDecoration(border: Border(bottom: BorderSide(width: 1, color: Color(0xffcccccc)))),
+                        ),
                       ),
                       BlocBuilder<AddProcedureRecordScreenBloc, AddProcedureRecordState>(
                         builder: (context, state) {
-                          if (state is AddProcedureRecordStateInitial) {
-                            return Text('-');
-                          }
-
-                          var lastRecord = (state as AddProcedureRecordFormState).lastRecord;
                           return Row(
                           children: <Widget>[
                             Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 10),
-                                child: LastRecordWidget(lastRecord)
-                              ),
+                              child: LastRecordWidget(state.lastRecord),
                             ),
                             SizedBox(
                               width: 100,
-                              child: _getQuantityTextField(lastRecord)
+                              child: _getQuantityTextField(state)
                             )
                           ],
                         );}
@@ -101,16 +106,32 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                         decoration: BoxDecoration(border: Border(bottom: BorderSide(width: 1, color: Color(0xffcccccc)))),
                         child: Text(
                           'Nový záznam',
-                          style: titleTextStyle,
+                          style: _titleTextStyle,
                         ),
                       ),
                       SizedBox(
                         height: 100,
                         child: BlocBuilder<AddProcedureRecordScreenBloc, AddProcedureRecordState>(
+                          condition: (oldState, newState) {
+                            if (newState is AddProcedureRecordFormProcessingSucceeded ||
+                                newState is AddProcedureRecordFormProcessingFailed) {
+                              return false;
+                            }
+                            return true;
+                          },
                           builder: (context, state) {
-                            if (state is AddProcedureRecordStateInitial) {
+                            if (state is AddProcedureRecordLoadInProgress) {
                               return Center(
                                 child: CircularProgressIndicator(),
+                              );
+                            }
+
+                            if (state is AddProcedureRecordLoadFailed) {
+                              return Center(
+                                child: ListTile(
+                                  leading: Icon(Icons.error, color: Colors.red),
+                                  title: Text(state.message, style: TextStyle(color: Colors.red)),
+                                )
                               );
                             }
 
@@ -137,58 +158,93 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                           }
                         )
                       ),
-                      Container(
-                          height: 150,
-                          decoration: BoxDecoration(border: Border.all(width: 1, color: Colors.black)),
-                          child: BlocBuilder<AddProcedureRecordScreenBloc, AddProcedureRecordState>(
-                            builder: (context, state) {
-                              if (state is AddProcedureRecordStateInitial) {
-                                return Container(width: 0, height: 0);
-                              }
+                      BlocBuilder<AddProcedureRecordScreenBloc, AddProcedureRecordState>(
+                        condition: (oldState, newState) {
+                          if (newState is AddProcedureRecordFormProcessingSucceeded ||
+                              newState is AddProcedureRecordFormProcessingFailed) {
+                            return false;
+                          }
+                          return true;
+                        },
+                        builder: (context, state) {
+                          if (state is AddProcedureRecordLoadInProgress) {
+                            return SizedBox(width: 0, height: 0);
+                          }
 
-                              return TimePickerSpinner(
-                                time: _setDefaultTime((state as AddProcedureRecordFormState).lastRecord),
-                                isShowSeconds: false,
-                                is24HourMode: true,
-                                isForce2Digits: true,
-                                minutesInterval: 15,
-                                spacing: 75,
-                                itemHeight: 50,
-                                onTimeChange: (time) {
-                                  _newActionStart = time;
-                                },
-                              );
-                            }
-                          )
+                          if (state is AddProcedureRecordLoadFailed) {
+                            return SizedBox(width: 0, height: 0);
+                          }
+
+                          return Container(
+                            height: 150,
+                            decoration: BoxDecoration(border: Border.all(width: 1, color: Colors.black)),
+                            child: TimePickerSpinner(
+                              time: _setDefaultTime((state as AddProcedureRecordFormState).lastRecord),
+                              isShowSeconds: false,
+                              is24HourMode: true,
+                              isForce2Digits: true,
+                              minutesInterval: 15,
+                              spacing: 75,
+                              itemHeight: 50,
+                              onTimeChange: (time) {
+                                _newActionStart = time;
+                              },
+                            )
+                          );
+                        }
                       ),
                       SizedBox(height: 10),
                       SizedBox(
                         height: 60,
-                        child: BlocBuilder<AddProcedureRecordScreenBloc, AddProcedureRecordState>(
-                          builder: (context, state) {
-                            if (state is AddProcedureRecordStateInitial) {
-                              return Container(width: 0, height: 0);
-                            }
-
-                            var st = (state as AddProcedureRecordFormState);
-                            return RaisedButton(
-                              child: Text('START'),
-                              onPressed: () async{
-                                if (!_formKey.currentState.validate()) {
-                                  return;
-                                }
-                                _formKey.currentState.save();
-
-                                _bloc.add(AddProcedureRecordFormSent(
-                                  _lastProcedureQuantity,
-                                  _newActionStart,
-                                  st.procedures[_selectedProcedure]
+                        child: Builder(
+                          builder: (context) => BlocConsumer<AddProcedureRecordScreenBloc, AddProcedureRecordState>(
+                            listener: (prevState, currentState) {
+                              if (currentState is AddProcedureRecordFormProcessingSucceeded) {
+                                Navigator.pop(context, currentState.newRecord);
+                              }
+                              if (currentState is AddProcedureRecordFormProcessingFailed) {
+                                Scaffold.of(context).showSnackBar(SnackBar(
+                                  content: ListTile(
+                                    title: Text(currentState.message),
+                                    trailing: Icon(Icons.error, color: Colors.red),
+                                  ),
                                 ));
+                              }
+                            },
+                            buildWhen: (oldState, newState) {
+                              if (newState is AddProcedureRecordFormProcessingSucceeded ||
+                                  newState is AddProcedureRecordFormProcessingFailed) {
+                                return false;
+                              }
+                              return true;
+                            },
+                            builder: (context, state) {
+                              if (state is AddProcedureRecordLoadInProgress) {
+                                return Container(width: 0, height: 0);
+                              }
 
-                                Navigator.pop(context);
-                              },
-                            );
-                          }
+                              if (state is AddProcedureRecordLoadFailed) {
+                                return SizedBox(width: 0, height: 0);
+                              }
+
+                              var st = (state as AddProcedureRecordFormState);
+                              return RaisedButton(
+                                child: Text('START'),
+                                onPressed: () async{
+                                  if (!_formKey.currentState.validate()) {
+                                    return;
+                                  }
+                                  _formKey.currentState.save();
+
+                                  _bloc.add(AddProcedureRecordFormSent(
+                                    _lastProcedureQuantity,
+                                    _newActionStart,
+                                    st.procedures[_selectedProcedure]
+                                  ));
+                                },
+                              );
+                            }
+                          ),
                         ),
                       ),
                     ],
@@ -223,8 +279,17 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
   }
 
 
-  Widget _getQuantityTextField(ProcedureRecordImmutable lastRecord) {
-    if (lastRecord != null || lastRecord.procedureType == ProcedureType.BREAK) {
+  Widget _getQuantityTextField(AddProcedureRecordState state) {
+    if (state is AddProcedureRecordLoadInProgress) {
+      return null;
+    }
+
+    if (state is AddProcedureRecordLoadFailed) {
+      return null;
+    }
+
+    var lastRecord = state.lastRecord;
+    if (lastRecord == null || lastRecord.procedureType == ProcedureType.BREAK) {
       return null;
     }
 

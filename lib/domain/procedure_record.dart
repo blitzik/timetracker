@@ -129,13 +129,7 @@ class ProcedureRecord {
   }
 
 
-  ProcedureRecordImmutable toImmutable(){
-    return ProcedureRecordImmutable(
-      procedure.name,
-      procedure.type,
-      start,
-      finish,
-      quantity
-    );
+  ProcedureRecordImmutable toImmutable() {
+    return ProcedureRecordImmutable(this);
   }
 }

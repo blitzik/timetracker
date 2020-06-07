@@ -33,9 +33,9 @@ class ProcedureRecordEditFormModel with ChangeNotifier {
     var procedures = await SQLiteDbProvider.db.findAllProcedures();
 
     Map<String, Procedure> result = Map();
-    procedures.forEach((procedure) {
+    /*procedures.forEach((procedure) {
       result[procedure.name] = procedure;
-    });
+    });*/
 
     _procedures = result;
     notifyListeners();

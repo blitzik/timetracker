@@ -29,7 +29,7 @@ class MainScreen extends StatefulWidget {
 
 
 class _MainScreenState extends State<MainScreen> {
-  final GlobalKey<AnimatedListState> _animatedListKey = GlobalKey();
+  GlobalKey<AnimatedListState> _animatedListKey;
   MainScreenBloc _mainBloc;
 
 
@@ -38,6 +38,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _mainBloc = BlocProvider.of<MainScreenBloc>(context);
     _mainBloc.add(ProcedureRecordsLoaded(BlocProvider.of<AppBloc>(context).state.date));
+    _animatedListKey = GlobalKey();
   }
 
 
@@ -162,7 +163,14 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
         ),
-        floatingActionButton: BlocBuilder<MainScreenBloc, ProcedureRecordsState>(
+        floatingActionButton: BlocConsumer<MainScreenBloc, ProcedureRecordsState>(
+          listener: (oldState, newState) {
+            if (newState is RecordAddedSuccess) {
+              if (_animatedListKey.currentState != null) {
+                _animatedListKey.currentState.insertItem(0);
+              }
+            }
+          },
           builder: (context, state) {
             if (state is ProcedureRecordsLoadInProgress) {
               return Container(height: 0, width: 0);
@@ -176,14 +184,11 @@ class _MainScreenState extends State<MainScreen> {
             return FloatingActionButton(
               child: Icon(Icons.add),
               backgroundColor: Color(0xff34495e),
-              onPressed: () {
-                /*var newProcedureRecord = await */Navigator.pushNamed(context, AddProcedureRecordScreen.routeName, arguments: st.lastProcedureRecord);
-                /*if (newProcedureRecord != null) {
-                  mainBloc.add(ProcedureRecordAdded(newProcedureRecord));
-                  if (_animatedListKey.currentState != null) {
-                    _animatedListKey.currentState.insertItem(0);
-                  }
-                }*/
+              onPressed: () async{
+                var newProcedureRecord = await Navigator.pushNamed(context, AddProcedureRecordScreen.routeName, arguments: st.lastProcedureRecord);
+                if (newProcedureRecord != null) {
+                  _mainBloc.add(ProcedureRecordAdded(newProcedureRecord));
+                }
               },
             );
           },

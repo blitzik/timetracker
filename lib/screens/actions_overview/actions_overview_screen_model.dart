@@ -19,7 +19,7 @@ class ActionsOverviewScreeModel with ChangeNotifier {
 
   void loadProcedures() async{
     var procedures = await SQLiteDbProvider.db.findAllProcedures();
-    _procedures = procedures;
+    //_procedures = procedures;
     notifyListeners();
   }
 

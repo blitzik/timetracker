@@ -40,14 +40,8 @@ class MainScreenBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecordsState>
 
 
   Stream<ProcedureRecordsState> _procedureRecordAddedToState(ProcedureRecordAdded event) async*{
-    if (state is ProcedureRecordsLoadSuccess) {
-      // todo
-      var result = await SQLiteDbProvider.db.insertProcedureRecord(event.record);
-      if (result.isSuccess) {
-        final List<ProcedureRecord> updatedRecords = List.from((state as ProcedureRecordsLoadSuccess).records)..add(event.record);
-        yield RecordAddedSuccess(event.record, UnmodifiableListView(updatedRecords));
-      }
-    }
+    final List<ProcedureRecord> updatedRecords = List.from((state as ProcedureRecordsLoadSuccess).records)..insert(0, event.record);
+    yield RecordAddedSuccess(event.record, UnmodifiableListView(updatedRecords));
   }
 
 

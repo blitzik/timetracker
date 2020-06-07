@@ -174,7 +174,7 @@ class SQLiteDbProvider {
   }
 
 
-  Future<ResultObject<ProcedureRecord>> insertProcedureRecord(ProcedureRecord newRecord, [Transaction tx]) async{
+  Future<ResultObject<ProcedureRecord>> _insertProcedureRecord(ProcedureRecord newRecord, [Transaction tx]) async{
     final db = tx != null ? tx : await database;
     _checkProcedureIdentity(newRecord.procedure);
 
@@ -213,21 +213,28 @@ class SQLiteDbProvider {
   }
 
 
-  Future<List<Procedure>> findAllProcedures() async{
+  Future<ResultObject<List<Procedure>>> findAllProcedures() async{
     final db = await database;
 
+    ResultObject<List<Procedure>> result = ResultObject();
     List<Procedure> procedures = List<Procedure>();
-    var futureResults = db.rawQuery('''
-      SELECT id as procedure_id, name as procedure_name, type as procedure_type
-      FROM procedure
-      ORDER BY name COLLATE LOCALIZED
-    ''');
-    var results = await futureResults;
-    results.forEach((f) {
-      procedures.add(Procedure.fromMap(f));
-    });
+    try {
+      var futureResults = db.rawQuery('''
+        SELECT id as procedure_id, name as procedure_name, type as procedure_type
+        FROM procedure
+        ORDER BY name COLLATE LOCALIZED
+      ''');
+      var queryResults = await futureResults;
+      queryResults.forEach((f) {
+        procedures.add(Procedure.fromMap(f));
+      });
+      result = ResultObject(procedures);
 
-    return Future.value(procedures);
+    } catch (e) {
+      result.addErrorMessage('Při získávání akcí došlo k chybě.');
+    }
+
+    return Future.value(result);
   }
 
 
@@ -329,7 +336,7 @@ class SQLiteDbProvider {
         await updateProcedureRecord(lastRecord, txn);
       }
 
-      var result = await insertProcedureRecord(ProcedureRecord(procedure, start), txn);
+      var result = await _insertProcedureRecord(ProcedureRecord(procedure, start), txn);
       return Future.value(result);
     });
 
