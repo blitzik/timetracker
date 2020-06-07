@@ -86,86 +86,77 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
         ),
-        body: BlocListener<MainScreenBloc, ProcedureRecordsState>(
-          listener: (context, state) {
-            if (state is RecordAddedSuccess) {
-              if (_animatedListKey.currentState != null) {
-                _animatedListKey.currentState.insertItem(0);
-              }
-            }
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Container(
-                  decoration: BoxDecoration(color: Color(0xfff0f0f0), border: Border(bottom: BorderSide(width: 1, color: Color(0xffcccccc)))),
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  child: ListTile(
-                    title: Text(
-                      '${DateFormat('EEEE d. MMMM yyyy').format(appState.date).toString().capitalizeFirst()}',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: BlocBuilder<MainScreenBloc, ProcedureRecordsState>(
-                      builder: (context, state) {
-                        if (state is ProcedureRecordsLoadInProgress) {
-                          return CircularProgressIndicator();
-                        }
-
-                        if (state is ProcedureRecordsLoadingFailure) {
-                          return Text('-');
-                        }
-
-                        var st = (state as ProcedureRecordsLoadSuccess);
-                        return Text('Celkem odpracováno: ${st.workedHours}h');
-                      }
-                    )
-                  )
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 5, right: 5, top: 10),
-                  child: BlocBuilder<MainScreenBloc, ProcedureRecordsState>(
-                    builder: (BuildContext context, state) {
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Container(
+                decoration: BoxDecoration(color: Color(0xfff0f0f0), border: Border(bottom: BorderSide(width: 1, color: Color(0xffcccccc)))),
+                padding: EdgeInsets.symmetric(vertical: 15),
+                child: ListTile(
+                  title: Text(
+                    '${DateFormat('EEEE d. MMMM yyyy').format(appState.date).toString().capitalizeFirst()}',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: BlocBuilder<MainScreenBloc, ProcedureRecordsState>(
+                    builder: (context, state) {
                       if (state is ProcedureRecordsLoadInProgress) {
-                        return Center(
-                          child: SizedBox(
-                            width: 150,
-                            height: 150,
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
+                        return CircularProgressIndicator();
                       }
 
                       if (state is ProcedureRecordsLoadingFailure) {
-                        return Text(state.message);
+                        return Text('-');
                       }
 
                       var st = (state as ProcedureRecordsLoadSuccess);
-                      if (st.records.isEmpty) {
-                        return Center(
-                          child: Text('Dnes nebyl přidán žádný záznam.'),
-                        );
-                      }
-
-                      var records = st.records;
-                      return AnimatedList(
-                        key: _animatedListKey,
-                        initialItemCount: records.length,
-                        itemBuilder: (BuildContext context, int index, Animation<double> animation) {
-                          var record = records.elementAt(index);
-                          return _buildItem(context, record, index, animation);
-                        },
+                      return Text('Celkem odpracováno: ${st.workedHours}h');
+                    }
+                  )
+                )
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 5, right: 5, top: 10),
+                child: BlocBuilder<MainScreenBloc, ProcedureRecordsState>(
+                  builder: (BuildContext context, state) {
+                    if (state is ProcedureRecordsLoadInProgress) {
+                      return Center(
+                        child: SizedBox(
+                          width: 150,
+                          height: 150,
+                          child: CircularProgressIndicator(),
+                        ),
                       );
-                    },
-                  ),
+                    }
+
+                    if (state is ProcedureRecordsLoadingFailure) {
+                      return Text(state.message);
+                    }
+
+                    var st = (state as ProcedureRecordsLoadSuccess);
+                    if (st.records.isEmpty) {
+                      return Center(
+                        child: Text('Dnes nebyl přidán žádný záznam.'),
+                      );
+                    }
+
+                    var records = st.records;
+                    return AnimatedList(
+                      key: _animatedListKey,
+                      initialItemCount: records.length,
+                      itemBuilder: (BuildContext context, int index, Animation<double> animation) {
+                        var record = records.elementAt(index);
+                        return _buildItem(context, record, index, animation);
+                      },
+                    );
+                  },
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         floatingActionButton: BlocConsumer<MainScreenBloc, ProcedureRecordsState>(
-          listener: (oldState, newState) {
-            if (newState is RecordAddedSuccess) {
+          listener: (context, state) {
+            if (state is RecordAddedSuccess) {
               if (_animatedListKey.currentState != null) {
                 _animatedListKey.currentState.insertItem(0);
               }
