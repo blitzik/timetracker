@@ -192,7 +192,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
   }
 
 
-  Future<void> _closeProcedureRecordDialog(BuildContext _context) async {
+  Future<void> _closeProcedureRecordDialog(BuildContext _context) async{
     GlobalKey<FormState> _formKey = GlobalKey<FormState>();
     int quantity;
     DateTime finish;
@@ -311,7 +311,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
   }
 
 
-  Future<ResultObject<void>> _displayEditDialog(BuildContext _context, ProcedureRecordItemLoaded state) async{
+  Future<ResultObject<void>> _displayEditDialog(BuildContext _context, ProcedureRecordItemLoaded state) {
     return showDialog(
         context: _context,
         builder: (BuildContext context) {

@@ -27,6 +27,9 @@ class MainScreenBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecordsState>
 
     } else if (event is LastProcedureRecordDeleted) {
       yield* _lastProcedureRecordDeletedToState(event);
+
+    } else if (event is ProcedureRecordUpdated) {
+      yield* _procedureRecordUpdatedToState(event);
     }
   }
 
@@ -59,6 +62,17 @@ class MainScreenBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecordsState>
           deletedRecord = updatedRecords.removeAt(0);
           yield ProcedureRecordDeletedSuccess(deletedRecord, UnmodifiableListView(updatedRecords));
         }
+      }
+    }
+  }
+
+
+  Stream<ProcedureRecordsState> _procedureRecordUpdatedToState(ProcedureRecordUpdated event) async*{
+    if (state is ProcedureRecordsLoadSuccess) {
+      var st = (state as ProcedureRecordsLoadSuccess);
+      int index = st.records.indexOf(event.record);
+      if (index != -1) {
+        yield ProcedureRecordsLoadSuccess(UnmodifiableListView(st.records));
       }
     }
   }

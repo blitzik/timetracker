@@ -205,7 +205,7 @@ class _MainScreenState extends State<MainScreen> {
       sizeFactor: animation,
       child: BlocProvider(
         key: ValueKey(record.id),
-        create: (context) => ProcedureRecordItemWidgetBloc(record, index == 0),
+        create: (context) => ProcedureRecordItemWidgetBloc(_mainBloc, record, index == 0),
         child: ProcedureRecordItemWidget(
             const EdgeInsets.symmetric(horizontal: 15),
             true

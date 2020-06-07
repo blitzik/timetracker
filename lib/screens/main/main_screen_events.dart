@@ -20,3 +20,10 @@ class ProcedureRecordAdded extends ProcedureRecordsEvents {
 
 
 class LastProcedureRecordDeleted extends ProcedureRecordsEvents {}
+
+
+class ProcedureRecordUpdated extends ProcedureRecordsEvents {
+  final ProcedureRecord record;
+
+  ProcedureRecordUpdated(this.record);
+}
