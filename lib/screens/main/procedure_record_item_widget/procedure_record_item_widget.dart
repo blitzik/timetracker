@@ -1,6 +1,8 @@
 import 'package:app/screens/main/procedure_record_item_widget/procedure_record_item_events.dart';
 import 'package:app/screens/main/procedure_record_item_widget/procedure_record_item_widget_bloc.dart';
 import 'package:app/screens/main/procedure_record_item_widget/procedure_record_item_states.dart';
+import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form.dart';
+import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_bloc.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/screens/main/main_screen_events.dart';
@@ -54,44 +56,48 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
     return BlocBuilder<ProcedureRecordItemWidgetBloc, ProcedureRecordItemState>(
       builder: (context, state) {
         var record = (state as ProcedureRecordItemLoaded).record;
-        return Card(
-          color: Color(0xffeceff1),
-          child: InkWell(
-            child: ListTile(
-              contentPadding: widget._padding,
-              title: Text(record.procedureName,
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)
-              ),
-              subtitle: Row(
-                children: <Widget>[
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                        '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
-                        style: TextStyle(fontSize: _fontSize)
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          child: Card(
+            key: UniqueKey(),
+            color: Color(0xffeceff1),
+            child: InkWell(
+              child: ListTile(
+                contentPadding: widget._padding,
+                title: Text(record.procedureName,
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)
+                ),
+                subtitle: Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                          '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
+                          style: TextStyle(fontSize: _fontSize)
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: Text(
-                        record.timeSpent == null
-                            ? '-'
-                            : '${record.timeSpent.toString()}h',
-                        textAlign: TextAlign.center,
+                    Expanded(
+                      child: Text(
+                          record.timeSpent == null
+                              ? '-'
+                              : '${record.timeSpent.toString()}h',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: _fontSize),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        _getQuantityString(record),
+                        textAlign: TextAlign.right,
                         style: TextStyle(fontSize: _fontSize),
+                      )
                     ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      _getQuantityString(record),
-                      textAlign: TextAlign.right,
-                      style: TextStyle(fontSize: _fontSize),
-                    )
-                  ),
-                ],
+                  ],
+                ),
+                trailing: _displayMenu(context, state)
               ),
-              trailing: _displayMenu(context, state)
+              onTap: _decideClickability(context, state)
             ),
-            onTap: _decideClickability(context, state)
           ),
         );
       }
@@ -230,8 +236,8 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
                       Container(
                           height: 150,
                           decoration: BoxDecoration(
-                              border:
-                                  Border.all(width: 1, color: Colors.black)),
+                              border: Border.all(width: 1, color: Colors.black)
+                          ),
                           child: TimePickerSpinner(
                             isShowSeconds: false,
                             is24HourMode: true,
@@ -278,7 +284,6 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
               child: Text('Ano'),
               onPressed: () {
                 _bloc.add(ProcedureRecordOpened());
-
                 Navigator.pop(_context);
               },
             ),
@@ -319,11 +324,10 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
             contentPadding: EdgeInsets.all(25),
             title: Text(state.record.procedureName),
             children: <Widget>[
-              Text('todo')
-              /*ChangeNotifierProvider(
-                create: (context) => ProcedureRecordEditFormModel(record.procedureRecord, () { record.refresh(); }),
+              BlocProvider.value(
+                value: _bloc.editFormBloc,
                 child: ProcedureRecordEditForm(),
-              )*/
+              )
             ],
           );
         }

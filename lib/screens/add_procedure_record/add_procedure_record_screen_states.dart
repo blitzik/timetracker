@@ -1,8 +1,7 @@
 import 'package:app/domain/ProcedureRecordImmutable.dart';
+import 'package:app/domain/procedure_record.dart';
 import 'package:app/domain/procedure.dart';
 import 'dart:collection';
-
-import 'package:app/domain/procedure_record.dart';
 
 
 abstract class AddProcedureRecordState {

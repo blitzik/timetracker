@@ -58,11 +58,6 @@ class AddProcedureRecordScreenBloc extends Bloc<AddProcedureRecordEvent, AddProc
   }
 
 
-  void _loadProcedures() async{
-    var procedures = await SQLiteDbProvider.db.findAllProcedures();
-  }
-
-
   ProcedureRecordImmutable _getImmutableRecord(ProcedureRecord record) {
     if (record == null) {
       return null;

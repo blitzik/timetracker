@@ -96,19 +96,18 @@ class _MainScreenState extends State<MainScreen> {
                     '${DateFormat('EEEE d. MMMM yyyy').format(appState.date).toString().capitalizeFirst()}',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  subtitle: BlocBuilder<MainScreenBloc, ProcedureRecordsState>(
-                    builder: (context, state) {
-                      if (state is ProcedureRecordsLoadInProgress) {
-                        return CircularProgressIndicator();
-                      }
-
-                      if (state is ProcedureRecordsLoadingFailure) {
-                        return Text('-');
-                      }
-
-                      var st = (state as ProcedureRecordsLoadSuccess);
-                      return Text('Celkem odpracováno: ${st.workedHours}h');
-                    }
+                  subtitle: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      BlocBuilder<MainScreenBloc, ProcedureRecordsState>(
+                        builder: (context, state) {
+                          return AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 500),
+                            child: _buildWorkedHours(context, state)
+                          );
+                        }
+                      ),
+                    ],
                   )
                 )
             ),
@@ -212,6 +211,20 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
     );
+  }
+
+
+  Widget _buildWorkedHours(BuildContext context, ProcedureRecordsState state) {
+    if (state is ProcedureRecordsLoadInProgress) {
+      return CircularProgressIndicator(key: UniqueKey());
+    }
+
+    if (state is ProcedureRecordsLoadingFailure) {
+      return Text('-', key: UniqueKey());
+    }
+
+    var st = (state as ProcedureRecordsLoadSuccess);
+    return Text('Celkem odpracováno: ${st.workedHours}h', key: UniqueKey());
   }
 
 
