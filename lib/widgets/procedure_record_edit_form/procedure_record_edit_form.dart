@@ -90,29 +90,25 @@ class _ProcedureRecordEditFormState extends State<ProcedureRecordEditForm> {
 
               SizedBox(height: 15),
 
-              BlocBuilder<ProcedureRecordEditFormBloc, ProcedureRecordEditFormState>(
-                builder: (context, state) {
-                  return DropdownButtonFormField(
-                    isExpanded: true,
-                    hint: Text('Zvolte akci'),
-                    value: _selectedProcedure,
-                    items: st.procedures.map((k, v) {
-                      return MapEntry(k, DropdownMenuItem(value: k, child: Text(v.name, style: TextStyle(fontSize: 15))));
-                    }).values.toList(),
-                    onChanged: (v) {
-                      _selectedProcedure = v;
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Zvolte prosím jakou akcí chcete pokračovat.';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      _selectedProcedure = value;
-                    },
-                  );
-                }
+              DropdownButtonFormField(
+                isExpanded: true,
+                hint: Text('Zvolte akci'),
+                value: _selectedProcedure,
+                items: st.procedures.map((k, v) {
+                  return MapEntry(k, DropdownMenuItem(value: k, child: Text(v.name, style: TextStyle(fontSize: 15))));
+                }).values.toList(),
+                onChanged: (v) {
+                  _selectedProcedure = v;
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Zvolte prosím jakou akcí chcete pokračovat.';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _selectedProcedure = value;
+                },
               ),
 
               SizedBox(height: 15),

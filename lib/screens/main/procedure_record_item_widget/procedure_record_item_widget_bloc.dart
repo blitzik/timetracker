@@ -113,27 +113,4 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
     }
     this.close();
   }
-
-  /*
-
-  if (quantity == _record.quantity && selectedProcedure == _record.procedure.name) {
-      return Future.value(ResultObject<void>());
-    }
-
-    var oldProcedure = _record.procedure;
-    var oldQuantity = _record.quantity;
-
-    _record.procedure = _procedures[selectedProcedure];
-    _record.quantity = quantity;
-
-    var result = await SQLiteDbProvider.db.updateProcedureRecord(_record);
-    if (result.isSuccess) {
-      _onSavedRecord?.call();
-    } else {
-      _record.procedure = oldProcedure;
-      _record.quantity = oldQuantity;
-    }
-    return Future.value(result);
-
-  */
 }
