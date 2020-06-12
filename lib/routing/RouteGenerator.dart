@@ -3,7 +3,7 @@ import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dar
 import 'package:app/screens/actions_overview/actions_overview_screen_model.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen.dart';
 import 'package:app/screens/archive/archive_screen_model.dart';
-import 'package:app/screens/summary/summary_screen_model.dart';
+import 'package:app/screens/summary/summary_screen_bloc.dart';
 import 'package:app/screens/archive/archive_screen.dart';
 import 'package:app/screens/summary/summary_screen.dart';
 import 'package:app/screens/main/main_screen_bloc.dart';
@@ -38,10 +38,9 @@ class RouteGenerator {
       );
 
       case SummaryScreen.routeName: return MaterialPageRoute(
-        builder: (_) => Provider<SummaryScreenModel>(
-          create: (context) => SummaryScreenModel(args as DateTime),
-          child: SummaryScreen(),
-          dispose: (context, model) => model.dispose(),
+        builder: (_) => BlocProvider(
+          create: (context) => SummaryScreenBloc(args as DateTime),
+          child: SummaryScreen()
         )
       );
 

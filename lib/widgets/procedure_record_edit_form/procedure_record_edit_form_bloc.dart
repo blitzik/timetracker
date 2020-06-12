@@ -3,16 +3,10 @@ import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_for
 import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:app/domain/procedure_record.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:app/domain/procedure.dart';
-import 'dart:collection';
 
 
 class ProcedureRecordEditFormBloc extends Bloc<ProcedureRecordEditFormEvent, ProcedureRecordEditFormState> {
   final ProcedureRecord _record;
-
-
-  Map<String, Procedure> _procedures = Map();
-  UnmodifiableMapView<String, Procedure> get procedures => UnmodifiableMapView(_procedures);
 
 
   @override
@@ -58,26 +52,4 @@ class ProcedureRecordEditFormBloc extends Bloc<ProcedureRecordEditFormEvent, Pro
   void dispose() {
     this.close();
   }
-
-
-  /*Future<ResultObject<void>> save() async{
-    if (quantity == _record.quantity && selectedProcedure == _record.procedure.name) {
-      return Future.value(ResultObject<void>());
-    }
-
-    var oldProcedure = _record.procedure;
-    var oldQuantity = _record.quantity;
-
-    _record.procedure = _procedures[selectedProcedure];
-    _record.quantity = quantity;
-
-    var result = await SQLiteDbProvider.db.updateProcedureRecord(_record);
-    if (result.isSuccess) {
-      _onSavedRecord?.call();
-    } else {
-      _record.procedure = oldProcedure;
-      _record.quantity = oldQuantity;
-    }
-    return Future.value(result);
-  }*/
 }

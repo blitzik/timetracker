@@ -83,29 +83,6 @@ class MainScreenBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecordsState>
   }
 
 
-  /*double _calculateWorkedHours(List<ProcedureRecord> records) {
-    double workedHours = 0;
-    records.forEach((f) {
-      if (f.timeSpent == null || f.procedure.id == 1) return;
-      workedHours += f.timeSpent;
-    });
-    return workedHours;
-  }*/
-
-
-  /*void deleteLastRecord() async{
-    if (_records != null && _records.isNotEmpty) {
-      SQLiteDbProvider.db.deleteProcedureRecord(_records[0]);
-    }
-    _records.removeAt(0);
-  }*/
-
-
-  /*void refreshWorkedHours() {
-    _workedHoursController.add(_calculateWorkedHours(_records));
-  }*/
-
-
   void dispose() {
     this.close();
   }

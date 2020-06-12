@@ -71,7 +71,7 @@ class _MainScreenState extends State<MainScreen> {
                 title: Text('Dnešní souhrn záznamů'),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.pushNamed(context, SummaryScreen.routeName, arguments: DateTime.now());
+                  Navigator.pushNamed(context, SummaryScreen.routeName, arguments: appState.date);
                 },
               ),
 

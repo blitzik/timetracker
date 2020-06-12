@@ -36,6 +36,19 @@ class EditFormState extends ProcedureRecordEditFormState {
     });
     _procedures = result;
   }
+
+
+  EditFormState copyWith({
+    Procedure selectedProcedure,
+    int quantity
+  }) {
+    return EditFormState(
+      List.from(_procedures.values),
+      record,
+      selectedProcedure ?? this.selectedProcedure,
+      quantity ?? this.quantity
+    );
+  }
 }
 
 

@@ -324,46 +324,61 @@ class SQLiteDbProvider {
   }
 
 
-  Future<List<ProcedureSummary>> getDaySummary(int year, int month, int day) async{
+  Future<ResultObject<List<ProcedureSummary>>> getDaySummary(int year, int month, int day) async{
     final db = await database;
-    var futureResult = db.rawQuery('''
-      SELECT p.id, p.name, SUM(pr.quantity) AS quantity, SUM(pr.time_spent) AS time_spent
-      FROM procedure_record pr
-      LEFT JOIN procedure p ON (p.id = pr.procedure)
-      WHERE pr.year = ? AND pr.month = ? AND pr.day = ?
-      GROUP BY p.id
-      ORDER BY p.id ASC
-    ''', [year, month, day]);
-    var result = await futureResult;
-    List<ProcedureSummary> summary = List<ProcedureSummary>();
-    result.forEach((f) {
-      if (f['time_spent'] == null || f['quantity'] == null) return;
-      summary.add(ProcedureSummary.fromMap(f));
-    });
+    ResultObject<List<ProcedureSummary>> result = ResultObject();
+    try {
+      var futureResult = db.rawQuery('''
+        SELECT p.id, p.name, p.type, SUM(pr.quantity) AS quantity, SUM(pr.time_spent) AS time_spent
+        FROM procedure_record pr
+        LEFT JOIN procedure p ON (p.id = pr.procedure)
+        WHERE pr.year = ? AND pr.month = ? AND pr.day = ?
+        GROUP BY p.id
+        ORDER BY p.id ASC
+      ''', [year, month, day]);
+      var rawSummaryList = await futureResult;
 
-    return summary;
+      List<ProcedureSummary> procedureSummaries = List();
+      rawSummaryList.forEach((f) {
+        if (f['type'] == ProcedureType.BREAK || f['time_spent'] == null || f['quantity'] == null) return;
+        procedureSummaries.add(ProcedureSummary.fromMap(f));
+      });
+      result = ResultObject(procedureSummaries);
+
+    } catch (e) {
+      result.addErrorMessage('Při získávání záznamů došlo k chybě');
+    }
+
+    return result;
   }
 
 
-  Future<List<ProcedureSummary>> getWeekSummary(int year, int week) async{
+  Future<ResultObject<List<ProcedureSummary>>> getWeekSummary(int year, int week) async{
     final db = await database;
-    var futureResult = db.rawQuery('''
-      SELECT p.id, p.name, SUM(pr.quantity) AS quantity, SUM(pr.time_spent) AS time_spent
-      FROM procedure_record pr
-      LEFT JOIN procedure p ON (p.id = pr.procedure)
-      WHERE pr.year = ? AND pr.week = ?
-      GROUP BY p.id
-      ORDER BY p.id ASC
-    ''', [year, week]);
-    var result = await futureResult;
+    ResultObject<List<ProcedureSummary>> result = ResultObject();
+    try {
+      var futureResult = db.rawQuery('''
+        SELECT p.id, p.name, SUM(pr.quantity) AS quantity, SUM(pr.time_spent) AS time_spent
+        FROM procedure_record pr
+        LEFT JOIN procedure p ON (p.id = pr.procedure)
+        WHERE pr.year = ? AND pr.week = ?
+        GROUP BY p.id
+        ORDER BY p.id ASC
+      ''', [year, week]);
+      var rawSummaryList = await futureResult;
 
-    List<ProcedureSummary> summary = List<ProcedureSummary>();
-    result.forEach((f) {
-      if (f['time_spent'] == null || f['quantity'] == null) return;
-      summary.add(ProcedureSummary.fromMap(f));
-    });
+      List<ProcedureSummary> procedureSummaries = List();
+      rawSummaryList.forEach((f) {
+        if (f['type'] == ProcedureType.BREAK || f['time_spent'] == null || f['quantity'] == null) return;
+        procedureSummaries.add(ProcedureSummary.fromMap(f));
+      });
+      result = ResultObject(procedureSummaries);
 
-    return summary;
+    } catch (e) {
+      result.addErrorMessage('Při získávání záznamů došlo k chybě');
+    }
+
+    return result;
   }
 
 
