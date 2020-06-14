@@ -3,12 +3,10 @@ import 'package:app/screens/actions_overview/actions_overview_screen_events.dart
 import 'package:app/screens/actions_overview/actions_overview_screen_states.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen_bloc.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget.dart';
-import 'package:app/widgets/procedure_form/procedure_form_bloc.dart';
 import 'package:app/widgets/procedure_form/procedure_form.dart';
 import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/domain/procedure_immutable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:app/domain/procedure.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
@@ -27,14 +25,14 @@ class ActionsOverviewScreen extends StatefulWidget {
 
 class _ActionsOverviewScreenState extends State<ActionsOverviewScreen> {
 
-
+  GlobalKey<AnimatedListState> _animatedListKey;
   ActionsOverviewScreenBloc _bloc;
 
 
   @override
   void initState() {
     super.initState();
-
+    _animatedListKey = GlobalKey();
     _bloc = BlocProvider.of<ActionsOverviewScreenBloc>(context);
     _bloc.add(ActionsOverviewLoaded());
   }
@@ -54,8 +52,22 @@ class _ActionsOverviewScreenState extends State<ActionsOverviewScreen> {
         title: Text('Přehled akcí'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(15),
-        child: BlocBuilder<ActionsOverviewScreenBloc, ActionsOverviewScreenState>(
+        padding: const EdgeInsets.all(5),
+        child: BlocConsumer<ActionsOverviewScreenBloc, ActionsOverviewScreenState>(
+          listener: (_context, state) {
+            if (state is ActionsOverviewProcedureSaveFailure) {
+              _showSnackBar(_context, state.errorMessage, Icons.error, Colors.red);
+            }
+            if (state is ActionsOverviewProcedureSaveSuccess) {
+              if (_animatedListKey.currentState != null) {
+                _animatedListKey.currentState.insertItem(0);
+              }
+              _showSnackBar(_context, 'Akce byla úspěšně přidána', Icons.check, Colors.green);
+            }
+          },
+          buildWhen: (oldState, newState) {
+            return !(newState is ActionsOverviewProcedureSaveFailure);
+          },
           builder: (context, state) {
             if (state is ActionsOverviewLoadFailure) {
               return Center(
@@ -76,16 +88,12 @@ class _ActionsOverviewScreenState extends State<ActionsOverviewScreen> {
             }
 
             var st = (state as ActionsOverviewLoadSuccess);
-            return ListView.separated(
-              itemCount: st.procedures.length,
-              separatorBuilder: (BuildContext context, int index) => Divider(height: 1),
-              itemBuilder: (BuildContext context, int index) {
+            return AnimatedList(
+              key: _animatedListKey,
+              initialItemCount: st.procedures.length,
+              itemBuilder: (BuildContext context, int index, Animation<double> animation) {
                 ProcedureImmutable procedure = st.procedures.elementAt(index);
-                return BlocProvider(
-                  key: ValueKey(procedure.id),
-                  create: (context) => ProcedureItemWidgetBloc(procedure),
-                  child: ProcedureItemWidget(),
-                );
+                return _buildItem(procedure, animation);
               }
           );
           },
@@ -95,23 +103,26 @@ class _ActionsOverviewScreenState extends State<ActionsOverviewScreen> {
         builder: (context) => FloatingActionButton(
           child: Icon(Icons.add),
           backgroundColor: Color(0xff34495e),
-          onPressed: () async{
-            var result = await _openProcedureCreationDialog(context);
-            if (result == null) return;
-            Scaffold.of(context).showSnackBar(SnackBar(
-              duration: Duration(seconds: 1),
-              content: ListTile(
-                title: Text('Akce byla úspěšně vytvořena'),
-                trailing: Icon(Icons.done, color: Colors.lightGreen),
-              ),
-            ));
-          },
+          onPressed: () => _openProcedureCreationDialog(context),
         ),
       ),
     );
   }
 
-  Future<ResultObject<Procedure>> _openProcedureCreationDialog(BuildContext _context) async{
+
+  Widget _buildItem(ProcedureImmutable procedure, Animation<double> animation) {
+    return SizeTransition(
+      sizeFactor: animation,
+      child: BlocProvider(
+        key: ValueKey(procedure.id),
+        create: (context) => ProcedureItemWidgetBloc(procedure),
+        child: ProcedureItemWidget(),
+      ),
+    );
+  }
+
+
+  Future<ResultObject<ProcedureImmutable>> _openProcedureCreationDialog(BuildContext _context) async{
     return await showDialog(
         context: _context,
         builder: (BuildContext context) {
@@ -120,8 +131,8 @@ class _ActionsOverviewScreenState extends State<ActionsOverviewScreen> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(25),
-                child: BlocProvider(
-                  create: (context) => ProcedureFormBloc(null),
+                child: BlocProvider.value(
+                  value: _bloc.creationFormBloc,
                   child: ProcedureForm(),
                 ),
               )
@@ -129,5 +140,16 @@ class _ActionsOverviewScreenState extends State<ActionsOverviewScreen> {
           );
         }
     );
+  }
+
+
+  void _showSnackBar(BuildContext context, String text, IconData icon, Color color) {
+    Scaffold.of(context).showSnackBar(SnackBar(
+      duration: const Duration(seconds: 1),
+      content: ListTile(
+        title: Text(text),
+        trailing: Icon(icon, color: color),
+      ),
+    ));
   }
 }

@@ -198,7 +198,7 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                         height: 60,
                         child: Builder(
                           builder: (context) => BlocConsumer<AddProcedureRecordScreenBloc, AddProcedureRecordState>(
-                            listener: (prevState, currentState) {
+                            listener: (_context, currentState) {
                               if (currentState is AddProcedureRecordFormProcessingSucceeded) {
                                 Navigator.pop(context, currentState);
                               }

@@ -44,7 +44,7 @@ class _ProcedureItemWidgetState extends State<ProcedureItemWidget> {
         return (newState is ProcedureItemUpdateSuccess ||
                 newState is ProcedureItemUpdateFailure);
       },
-      listener: (oldState, newState) {
+      listener: (_context, newState) {
         ScaffoldState ss = Scaffold.of(context);
         Text text = Text('Akce byla úspěšně uložena');
         Icon icon = Icon(Icons.done, color: Colors.lightGreen);
@@ -80,14 +80,25 @@ class _ProcedureItemWidgetState extends State<ProcedureItemWidget> {
 
 
   Widget getBody(ProcedureImmutable procedure) {
-    return Container(
-        padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
-        child: Text(procedure.name, style: TextStyle(fontSize: 15))
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      child: Card(
+        key: UniqueKey(),
+        color: Color(0xffeceff1),
+        margin: const EdgeInsets.symmetric(vertical: 5),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+          child: ListTile(
+            title: Text(procedure.name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+            trailing: procedure.type == ProcedureType.BREAK ? null : Icon(Icons.edit),
+          )
+        ),
+      ),
     );
   }
 
 
-  Future<ResultObject<Procedure>> _openEditDialog(BuildContext _context) async{
+  Future<ProcedureImmutable> _openEditDialog(BuildContext _context) async{
     return showDialog(
       context: _context,
       builder: (BuildContext context) {

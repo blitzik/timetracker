@@ -78,7 +78,7 @@ class _ProcedureFormState extends State<ProcedureForm> {
     body.add(BlocListener<ProcedureFormBloc, ProcedureFormState>(
       listener: (oldState, newState) {
         if (newState is ProcedureFormProcessingSuccess) {
-          Navigator.pop(context);
+          Navigator.pop(context, newState.procedure);
         }
       },
       child: RaisedButton(

@@ -127,7 +127,7 @@ class _ProcedureRecordEditFormState extends State<ProcedureRecordEditForm> {
           ),
         );
       },
-      listener: (oldState, newSTate) {
+      listener: (_context, newSTate) {
         if (newSTate is EditFormProcessingSuccess) {
           Navigator.pop(context);
         }

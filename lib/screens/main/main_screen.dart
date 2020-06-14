@@ -150,17 +150,17 @@ class _MainScreenState extends State<MainScreen> {
           ],
         ),
         floatingActionButton: BlocConsumer<MainScreenBloc, ProcedureRecordsState>(
-          listener: (context, state) {
+          listener: (_context, state) {
             if (state is ProcedureRecordAddedSuccess) {
               if (_animatedListKey.currentState != null) {
                 _animatedListKey.currentState.insertItem(0);
-                _showSnackBar(context, 'Záznam byl úspěšně uložen.', Icons.check, Colors.green);
+                _showSnackBar(_context, 'Záznam byl úspěšně uložen.', Icons.check, Colors.green);
               }
             }
             if (state is ProcedureRecordDeletedSuccess) {
               if (_animatedListKey.currentState != null) {
                 _animatedListKey.currentState.removeItem(0, (context, animation) => _buildItem(context, state.deletedRecord, 0, animation));
-                _showSnackBar(context, 'Záznam byl úspěšně odstraněn.', Icons.check, Colors.green);
+                _showSnackBar(_context, 'Záznam byl úspěšně odstraněn.', Icons.check, Colors.green);
               }
             }
           },

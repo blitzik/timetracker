@@ -20,3 +20,15 @@ class ActionsOverviewLoadFailure extends ActionsOverviewScreenState {
 
   ActionsOverviewLoadFailure(this.errorMessage);
 }
+
+
+class ActionsOverviewProcedureSaveSuccess extends ActionsOverviewLoadSuccess {
+  ActionsOverviewProcedureSaveSuccess(UnmodifiableListView<ProcedureImmutable> procedures) : super(procedures);
+}
+
+
+class ActionsOverviewProcedureSaveFailure extends ActionsOverviewScreenState {
+  final String errorMessage;
+
+  ActionsOverviewProcedureSaveFailure(this.errorMessage);
+}

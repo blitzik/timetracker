@@ -116,14 +116,14 @@ class SQLiteDbProvider {
   }
 
 
-  Future<ResultObject<Procedure>> insertProcedure(Procedure procedure) async{
-    if (procedure.id != null) throw ArgumentError('Argument must be newly created!');
+  Future<ResultObject<ProcedureImmutable>> insertProcedure(String name) async{
     final db = await database;
-    ResultObject<Procedure> result = ResultObject();
+    ResultObject<ProcedureImmutable> result = ResultObject();
     try {
+      Procedure procedure = Procedure(name);
       int id = await db.insert('procedure', procedure.toMap());
       procedure.id = id;
-      result = ResultObject(procedure);
+      result = ResultObject(procedure.toImmutable());
 
     } on DatabaseException catch(e) {
       if (e.isUniqueConstraintError()) {
