@@ -53,28 +53,13 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 decoration: BoxDecoration(color: Color(0xfff0f0f0), border: Border(bottom: BorderSide(width: 1, color: Color(0xffcccccc)))),
                 padding: EdgeInsets.symmetric(vertical: 15),
                 child: BlocBuilder<SummaryScreenBloc, SummaryScreenState>(
-                  builder: (context, state) {
-                    if (state is SummaryScreenLoadInProgress) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-
-                    var st = (state as SummaryScreenPeriodState);
-                    return InkWell(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: _createTitle(state)
-                      ),
-                      onTap: () {
-                        if (st.summaryPeriod == SummaryType.day) {
-                          _bloc.add(SummaryScreenLoaded(SummaryType.week));
-                        } else {
-                          _bloc.add(SummaryScreenLoaded(SummaryType.day));
-                        }
-                      },
-                    );
-                  }
+                  builder: (context, state) => AnimatedSwitcher(
+                    transitionBuilder: (Widget widget, Animation<double> animation) {
+                      return ScaleTransition(scale: animation, child: widget);
+                    },
+                    duration: const Duration(milliseconds: 300),
+                    child: _createTitle(state)
+                  )
                 )
             ),
 
@@ -89,18 +74,13 @@ class _SummaryScreenState extends State<SummaryScreen> {
                     SizedBox(
                       width: 70,
                       child: BlocBuilder<SummaryScreenBloc, SummaryScreenState>(
-                        builder: (context, state) {
-                          if (state is SummaryScreenLoadInProgress ||
-                              state is SummaryScreenLoadFailure) {
-                            return SizedBox(width: 0, height: 0);
-                          }
-
-                          var st = (state as SummaryScreenLoadSuccess);
-                          return AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            child: Text('${st.workedHours}h', key: ValueKey(st.workedHours), style: TextStyle(fontWeight: FontWeight.bold))
-                          );
-                        }
+                        builder: (context, state) => AnimatedSwitcher(
+                          transitionBuilder: (Widget widget, Animation<double> animation) {
+                            return ScaleTransition(scale: animation, child: widget);
+                          },
+                          duration: const Duration(milliseconds: 300),
+                          child: _createWorkedHours(state),
+                        )
                       ),
                     ),
                   ],
@@ -115,6 +95,9 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
                 child: BlocBuilder<SummaryScreenBloc, SummaryScreenState>(
                   builder: (context, state) => AnimatedSwitcher(
+                    transitionBuilder: (Widget widget, Animation<double> animation) {
+                      return ScaleTransition(scale: animation, child: widget);
+                    },
                     duration: const Duration(milliseconds: 300),
                     child: Summary(state, key: UniqueKey())
                   )
@@ -127,25 +110,59 @@ class _SummaryScreenState extends State<SummaryScreen> {
   }
 
 
-  Widget _createTitle(SummaryScreenPeriodState state) {
-    if (state.summaryPeriod == SummaryType.day) {
-      return ListTile(
+  Widget _createTitle(SummaryScreenState state) {
+    if (state is SummaryScreenLoadInProgress) {
+      return Center(
         key: UniqueKey(),
-        title: Text(
-          '${DateFormat('EEEE d. MMMM yyyy').format(state.date).toString().capitalizeFirst()}',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text('${state.date.getWeek()}. týden'),
+        child: CircularProgressIndicator(),
       );
     }
 
-    return ListTile(
+    var st = (state as SummaryScreenPeriodState);
+
+    Widget content;
+    if (st.summaryPeriod == SummaryType.day) {
+      content = ListTile(
+        title: Text(
+          '${DateFormat('EEEE d. MMMM yyyy').format(st.date).toString().capitalizeFirst()}',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text('${st.date.getWeek()}. týden'),
+      );
+    } else {
+      content = ListTile(
+        title: Text(
+          '${st.date.getWeek()}. týden',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text('${DateFormat('d. MMMM yyyy')
+            .format(st.date.weekStart())
+            .toString()} - ${DateFormat('d. MMMM yyyy').format(
+            st.date.weekEnd()).toString()}'),
+      );
+    }
+
+    return InkWell(
       key: UniqueKey(),
-      title: Text(
-        '${state.date.getWeek()}. týden',
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-      ),
-      subtitle: Text('${DateFormat('d. MMMM yyyy').format(state.date.weekStart()).toString()} - ${DateFormat('d. MMMM yyyy').format(state.date.weekEnd()).toString()}'),
+      child: content,
+      onTap: () {
+        if (st.summaryPeriod == SummaryType.day) {
+          _bloc.add(SummaryScreenLoaded(SummaryType.week));
+        } else {
+          _bloc.add(SummaryScreenLoaded(SummaryType.day));
+        }
+      },
     );
+  }
+
+
+  Widget _createWorkedHours(SummaryScreenState state) {
+    if (state is SummaryScreenLoadInProgress ||
+        state is SummaryScreenLoadFailure) {
+      return SizedBox(key:UniqueKey(), width: 0, height: 0);
+    }
+
+    var st = (state as SummaryScreenLoadSuccess);
+    return Text('${st.workedHours}h', key: UniqueKey(), style: TextStyle(fontWeight: FontWeight.bold));
   }
 }
