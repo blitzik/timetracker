@@ -28,6 +28,10 @@ class Summary extends StatelessWidget {
     }
 
     var state = (_state as SummaryScreenLoadSuccess);
+    if (state.records.isEmpty) {
+      return Text('Nebyly nalezeny žádné záznamy.');
+    }
+
     return ListView.separated(
       separatorBuilder: (BuildContext context, int index) => Divider(),
       itemCount: state.records.length,

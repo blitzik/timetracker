@@ -1,6 +1,7 @@
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_events.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_states.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_bloc.dart';
+import 'package:app/utils/result_object/time_utils.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -265,18 +266,7 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
       }
     }
 
-    DateTime now = DateTime.now();
-    int hour = now.hour;
-    int minutes;
-    if (now.minute >= 52) {
-      hour++;
-      minutes = 0;
-
-    } else {
-      minutes = (now.minute / 15).round() * 15;
-    }
-
-    return DateTime(now.year, now.month, now.day, hour, minutes, 0, 0, 0);
+    return TimeUtils.findClosestTime(DateTime.now(), 15);
   }
 
 

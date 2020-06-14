@@ -4,8 +4,9 @@ import 'package:app/screens/main/procedure_record_item_widget/procedure_record_i
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:app/utils/result_object/result_object.dart';
-import 'package:app/screens/main/main_screen_events.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
+import 'package:app/screens/main/main_screen_events.dart';
+import 'package:app/utils/result_object/time_utils.dart';
 import 'package:app/screens/main/main_screen_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
@@ -201,70 +202,72 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
     GlobalKey<FormState> _formKey = GlobalKey<FormState>();
     int quantity;
     DateTime finish;
+
     return await showDialog(
         context: _context,
         builder: (BuildContext context) => SimpleDialog(
-              contentPadding: EdgeInsets.all(25),
-              title: const Text('Uzavření záznamu'),
-              children: <Widget>[
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      TextFormField(
-                        style: TextStyle(fontSize: 18),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          WhitelistingTextInputFormatter.digitsOnly
-                        ],
-                        decoration: InputDecoration(
-                          labelText: 'počet',
-                        ),
-                        validator: (s) {
-                          if (s.isEmpty) {
-                            return 'Zadejte počet';
-                          }
-                          return null;
-                        },
-                        onSaved: (val) {
-                          quantity = int.parse(val);
-                        },
-                      ),
-                      SizedBox(height: 15),
-                      Container(
-                          height: 150,
-                          decoration: BoxDecoration(
-                              border: Border.all(width: 1, color: Colors.black)
-                          ),
-                          child: TimePickerSpinner(
-                            isShowSeconds: false,
-                            is24HourMode: true,
-                            isForce2Digits: true,
-                            minutesInterval: 15,
-                            spacing: 75,
-                            itemHeight: 50,
-                            onTimeChange: (time) {
-                              finish = time;
-                            },
-                          )),
-                      RaisedButton(
-                        child: Text('Uzavřít záznam'),
-                        onPressed: () {
-                          if (!_formKey.currentState.validate()) {
-                            return;
-                          }
-                          _formKey.currentState.save();
-
-                          _bloc.add(ProcedureRecordClosed(finish, quantity));
-
-                          Navigator.pop(context);
-                        },
-                      )
+          contentPadding: EdgeInsets.all(25),
+          title: const Text('Uzavření záznamu'),
+          children: <Widget>[
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  TextFormField(
+                    style: TextStyle(fontSize: 18),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      WhitelistingTextInputFormatter.digitsOnly
                     ],
+                    decoration: InputDecoration(
+                      labelText: 'počet',
+                    ),
+                    validator: (s) {
+                      if (s.isEmpty) {
+                        return 'Zadejte počet';
+                      }
+                      return null;
+                    },
+                    onSaved: (val) {
+                      quantity = int.parse(val);
+                    },
                   ),
-                )
-              ],
+                  SizedBox(height: 15),
+                  Container(
+                      height: 150,
+                      decoration: BoxDecoration(
+                          border: Border.all(width: 1, color: Colors.black)
+                      ),
+                      child: TimePickerSpinner(
+                        isShowSeconds: false,
+                        is24HourMode: true,
+                        isForce2Digits: true,
+                        minutesInterval: 15,
+                        spacing: 75,
+                        itemHeight: 50,
+                        time: TimeUtils.findClosestTime(DateTime.now(), 15),
+                        onTimeChange: (time) {
+                          finish = time;
+                        },
+                      )),
+                  RaisedButton(
+                    child: Text('Uzavřít záznam'),
+                    onPressed: () {
+                      if (!_formKey.currentState.validate()) {
+                        return;
+                      }
+                      _formKey.currentState.save();
+
+                      _bloc.add(ProcedureRecordClosed(finish, quantity));
+
+                      Navigator.pop(context);
+                    },
+                  )
+                ],
+              ),
+            )
+          ],
         )
     );
   }
