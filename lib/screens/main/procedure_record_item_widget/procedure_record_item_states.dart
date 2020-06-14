@@ -1,12 +1,19 @@
-import 'package:app/domain/ProcedureRecordImmutable.dart';
+import 'package:app/domain/procedure_record_immutable.dart';
 
 
-abstract class ProcedureRecordItemState {}
-
-
-class ProcedureRecordItemLoaded extends ProcedureRecordItemState {
+abstract class ProcedureRecordItemState {
   final ProcedureRecordImmutable record;
+
+  ProcedureRecordItemState(this.record);
+}
+
+
+class ProcedureRecordItemDefaultState extends ProcedureRecordItemState {
   final bool isLast;
 
-  ProcedureRecordItemLoaded(this.record, this.isLast) : assert(record != null);
+  ProcedureRecordItemDefaultState(
+    ProcedureRecordImmutable record,
+    this.isLast
+  ) : assert(record != null),
+      super(record);
 }

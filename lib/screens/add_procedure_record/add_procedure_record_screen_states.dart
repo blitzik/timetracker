@@ -1,6 +1,5 @@
-import 'package:app/domain/ProcedureRecordImmutable.dart';
-import 'package:app/domain/procedure_record.dart';
-import 'package:app/domain/procedure.dart';
+import 'package:app/domain/procedure_record_immutable.dart';
+import 'package:app/domain/procedure_immutable.dart';
 import 'dart:collection';
 
 
@@ -24,7 +23,8 @@ class AddProcedureRecordLoadFailed extends AddProcedureRecordState {
 
 
 class AddProcedureRecordFormProcessingSucceeded extends AddProcedureRecordState {
-  final ProcedureRecord newRecord;
+  final ProcedureRecordImmutable newRecord;
+
   AddProcedureRecordFormProcessingSucceeded(ProcedureRecordImmutable lastRecord, this.newRecord) : super(lastRecord);
 }
 
@@ -38,8 +38,8 @@ class AddProcedureRecordFormProcessingFailed extends AddProcedureRecordState {
 class AddProcedureRecordFormState extends AddProcedureRecordState {
   final ProcedureRecordImmutable lastRecord;
 
-  Map<String, Procedure> _procedures = Map();
-  UnmodifiableMapView<String, Procedure> get procedures => UnmodifiableMapView(_procedures);
+  Map<String, ProcedureImmutable> _procedures = Map();
+  UnmodifiableMapView<String, ProcedureImmutable> get procedures => UnmodifiableMapView(_procedures);
 
   final String selectedProcedure;
   final int lastProcedureQuantity;
@@ -48,12 +48,12 @@ class AddProcedureRecordFormState extends AddProcedureRecordState {
 
   AddProcedureRecordFormState(
     this.lastRecord,
-    List<Procedure> procedures,
+    List<ProcedureImmutable> procedures,
     this.selectedProcedure,
     this.lastProcedureQuantity,
     this.newActionStart
   ) : super(lastRecord) {
-    Map<String, Procedure> result = Map();
+    Map<String, ProcedureImmutable> result = Map();
     procedures.forEach((procedure) {
       result[procedure.name] = procedure;
     });

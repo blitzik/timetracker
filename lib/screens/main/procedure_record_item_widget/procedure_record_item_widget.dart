@@ -1,11 +1,11 @@
-import 'package:app/screens/main/procedure_record_item_widget/procedure_record_item_events.dart';
 import 'package:app/screens/main/procedure_record_item_widget/procedure_record_item_widget_bloc.dart';
+import 'package:app/screens/main/procedure_record_item_widget/procedure_record_item_events.dart';
 import 'package:app/screens/main/procedure_record_item_widget/procedure_record_item_states.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/screens/main/main_screen_events.dart';
-import 'package:app/domain/ProcedureRecordImmutable.dart';
+import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/screens/main/main_screen_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
@@ -54,7 +54,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
   Widget build(BuildContext context) {
     return BlocBuilder<ProcedureRecordItemWidgetBloc, ProcedureRecordItemState>(
       builder: (context, state) {
-        var record = (state as ProcedureRecordItemLoaded).record;
+        var record = (state as ProcedureRecordItemDefaultState).record;
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 500),
           child: Card(
@@ -115,7 +115,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
   }
 
 
-  Function() _decideClickability(BuildContext context, ProcedureRecordItemLoaded state) {
+  Function() _decideClickability(BuildContext context, ProcedureRecordItemDefaultState state) {
     var record = state.record;
     if (record.isBreak || (state.isLast && record.isOpened)) return null;
     return () async{
@@ -141,7 +141,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
   }
 
 
-  Widget _displayMenu(BuildContext context, ProcedureRecordItemLoaded state) {
+  Widget _displayMenu(BuildContext context, ProcedureRecordItemDefaultState state) {
     var record = state.record;
     if (widget._displayTrailing == false) return null;
     if (!state.isLast) {
@@ -315,7 +315,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
   }
 
 
-  Future<ResultObject<void>> _displayEditDialog(BuildContext _context, ProcedureRecordItemLoaded state) {
+  Future<ResultObject<void>> _displayEditDialog(BuildContext _context, ProcedureRecordItemDefaultState state) {
     return showDialog(
         context: _context,
         builder: (BuildContext context) {

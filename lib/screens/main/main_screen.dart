@@ -2,6 +2,7 @@ import 'package:app/screens/main/procedure_record_item_widget/procedure_record_i
 import 'package:app/screens/main/procedure_record_item_widget/procedure_record_item_widget.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen.dart';
+import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/screens/main/main_screen_states.dart';
 import 'package:app/screens/main/main_screen_events.dart';
 import 'package:app/screens/archive/archive_screen.dart';
@@ -9,7 +10,6 @@ import 'package:app/screens/summary/summary_screen.dart';
 import 'package:app/screens/main/main_screen_bloc.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/extensions/string_extension.dart';
-import 'package:app/domain/procedure_record.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:app/app_bloc.dart';
@@ -101,10 +101,7 @@ class _MainScreenState extends State<MainScreen> {
                     children: <Widget>[
                       BlocBuilder<MainScreenBloc, ProcedureRecordsState>(
                         builder: (context, state) {
-                          return AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 500),
-                            child: _buildWorkedHours(context, state)
-                          );
+                          return _buildWorkedHours(context, state);
                         }
                       ),
                     ],
@@ -157,18 +154,13 @@ class _MainScreenState extends State<MainScreen> {
             if (state is ProcedureRecordAddedSuccess) {
               if (_animatedListKey.currentState != null) {
                 _animatedListKey.currentState.insertItem(0);
-                Scaffold.of(context).showSnackBar(SnackBar(
-                  content: ListTile(
-                    title: Text('Záznam byl úspěšně uložen'),
-                    trailing: Icon(Icons.check, color: Colors.green),
-                  ),
-                  duration: const Duration(seconds: 1),
-                ));
+                _showSnackBar(context, 'Záznam byl úspěšně uložen.', Icons.check, Colors.green);
               }
             }
             if (state is ProcedureRecordDeletedSuccess) {
               if (_animatedListKey.currentState != null) {
                 _animatedListKey.currentState.removeItem(0, (context, animation) => _buildItem(context, state.deletedRecord, 0, animation));
+                _showSnackBar(context, 'Záznam byl úspěšně odstraněn.', Icons.check, Colors.green);
               }
             }
           },
@@ -186,9 +178,9 @@ class _MainScreenState extends State<MainScreen> {
               child: Icon(Icons.add),
               backgroundColor: Color(0xff34495e),
               onPressed: () async{
-                var newProcedureRecord = await Navigator.pushNamed(context, AddProcedureRecordScreen.routeName, arguments: st.lastProcedureRecord);
-                if (newProcedureRecord != null) {
-                  _mainBloc.add(ProcedureRecordAdded(newProcedureRecord));
+                var insertionState = await Navigator.pushNamed(context, AddProcedureRecordScreen.routeName, arguments: st.lastProcedureRecord);
+                if (insertionState != null) {
+                  _mainBloc.add(ProcedureRecordAdded(insertionState));
                 }
               },
             );
@@ -199,7 +191,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
 
-  Widget _buildItem(BuildContext mainContext, ProcedureRecord record, int index, Animation<double> animation) {
+  Widget _buildItem(BuildContext mainContext, ProcedureRecordImmutable record, int index, Animation<double> animation) {
     return SizeTransition(
       sizeFactor: animation,
       child: BlocProvider(
@@ -224,13 +216,32 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     var st = (state as ProcedureRecordsLoadSuccess);
-    return Text('Celkem odpracováno: ${st.workedHours}h', key: UniqueKey());
+    return Row(
+      children: <Widget>[
+        Text('Celkem odpracováno: '),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          child: Text('${st.workedHours}h', key: UniqueKey()),
+        )
+      ],
+    );
+  }
+
+
+  void _showSnackBar(BuildContext context, String text, IconData icon, Color color) {
+    Scaffold.of(context).showSnackBar(SnackBar(
+      content: ListTile(
+        title: Text(text),
+        trailing: Icon(icon, color: color),
+      ),
+      duration: const Duration(seconds: 1),
+    ));
   }
 
 
   @override
   void dispose() {
-    super.dispose();
     _mainBloc.dispose();
+    super.dispose();
   }
 }

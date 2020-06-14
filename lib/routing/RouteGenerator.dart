@@ -1,6 +1,7 @@
+import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_bloc.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
-import 'package:app/screens/actions_overview/actions_overview_screen_model.dart';
+import 'package:app/screens/actions_overview/actions_overview_screen_bloc.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen.dart';
 import 'package:app/screens/archive/archive_screen_model.dart';
 import 'package:app/screens/summary/summary_screen_bloc.dart';
@@ -32,7 +33,7 @@ class RouteGenerator {
 
       case AddProcedureRecordScreen.routeName: return MaterialPageRoute(
         builder: (_) => BlocProvider(
-          create: (context) => AddProcedureRecordScreenBloc(args as ProcedureRecord),
+          create: (context) => AddProcedureRecordScreenBloc(args as ProcedureRecordImmutable),
           child: AddProcedureRecordScreen(),
         )
       );
@@ -45,8 +46,8 @@ class RouteGenerator {
       );
 
       case ActionsOverviewScreen.routeName: return MaterialPageRoute(
-          builder: (_) => ChangeNotifierProvider(
-            create: (context) => ActionsOverviewScreeModel(),
+          builder: (_) => BlocProvider(
+            create: (context) => ActionsOverviewScreenBloc(),
             child: ActionsOverviewScreen(),
           )
       );

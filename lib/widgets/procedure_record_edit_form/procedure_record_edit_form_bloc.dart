@@ -1,16 +1,16 @@
+import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_events.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_states.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
-import 'package:app/domain/procedure_record.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 
 class ProcedureRecordEditFormBloc extends Bloc<ProcedureRecordEditFormEvent, ProcedureRecordEditFormState> {
-  final ProcedureRecord _record;
+  final ProcedureRecordImmutable _record;
 
 
   @override
-  ProcedureRecordEditFormState get initialState => EditFormProceduresLoadInProgress(_record.toImmutable());
+  ProcedureRecordEditFormState get initialState => EditFormProceduresLoadInProgress(_record);
 
 
   ProcedureRecordEditFormBloc(this._record);

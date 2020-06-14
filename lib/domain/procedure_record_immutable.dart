@@ -3,6 +3,9 @@ import 'package:app/domain/procedure.dart';
 
 
 class ProcedureRecordImmutable {
+    int _id;
+    int get id => _id;
+
    String _procedureName;
    String get procedureName => _procedureName;
 
@@ -32,14 +35,15 @@ class ProcedureRecordImmutable {
 
 
   ProcedureRecordImmutable(ProcedureRecord record) {
-    _procedureName = record?.procedure?.name;
-    _procedureType = record?.procedure?.type;
-    _start = record?.start;
+    _id = record.id;
+    _procedureName = record.procedure.name;
+    _procedureType = record.procedure.type;
+    _start = record.start;
     _finish = record?.finish;
     _quantity = record?.quantity;
     _timeSpent = record?.timeSpent;
-    _isBreak = record?.isBreak;
-    _isOpened = record?.isOpened;
-    _isClosed = record?.isClosed;
+    _isBreak = record.isBreak;
+    _isOpened = record.isOpened;
+    _isClosed = record.isClosed;
   }
 }

@@ -1,13 +1,14 @@
-import 'package:app/exceptions/entity_identity_exception.dart';
+import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/extensions/datetime_extension.dart';
+import 'package:app/domain/procedure_immutable.dart';
 import 'package:app/domain/procedure_summary.dart';
 import 'package:app/domain/procedure_record.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:app/domain/procedure.dart';
+import 'package:app/errors/failure.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:intl/intl.dart';
 import 'dart:io';
 
 
@@ -67,6 +68,7 @@ class SQLiteDbProvider {
             await db.execute('''
               CREATE INDEX year_month_day ON procedure_record (year, month, day)
             ''');
+
             await db.execute('''
               CREATE INDEX year_week ON procedure_record (year, week)
             ''');
@@ -109,23 +111,6 @@ class SQLiteDbProvider {
                 ('Optická kontrola pro planární tech.'), ('Měření mechanické délky FORJ'), ('Čístění v IPA'), ('Měření optické délky'),
                 ('Perforace tubingu'), ('Lepení ferule do těla konektoru')
             ''');
-
-            /*var today = DateTime.now();
-            var week = today.getWeek();
-            await db.execute('''
-              INSERT INTO procedure_record(procedure, year, month, day, week, quantity, start, finish, time_spent)
-              VALUES
-              (3, ${today.year}, ${today.month}, 15, $week, 10, ${DateTime(today.year, today.month, 15, 6, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, 15, 7, 0, 0).millisecondsSinceEpoch}, 3600),
-              (2, ${today.year}, ${today.month}, 15, $week, 10, ${DateTime(today.year, today.month, 15, 7, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, 15, 8, 0, 0).millisecondsSinceEpoch}, 3600),
-              (7, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 8, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 9, 0, 0).millisecondsSinceEpoch}, 3600),
-              (3, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 9, 0, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 10, 0, 0).millisecondsSinceEpoch}, 3600),
-              (1, ${today.year}, ${today.month}, ${today.day}, $week, NULL, ${DateTime(today.year, today.month, today.day, 10, 00, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 10, 30, 0).millisecondsSinceEpoch}, 1800),
-              (5, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 10, 30, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 11, 30, 0).millisecondsSinceEpoch}, 3600),
-              (6, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 11, 30, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 12, 30, 0).millisecondsSinceEpoch}, 3600),
-              (7, ${today.year}, ${today.month}, ${today.day}, $week, 10, ${DateTime(today.year, today.month, today.day, 12, 30, 0).millisecondsSinceEpoch}, ${DateTime(today.year, today.month, today.day, 13, 30, 0).millisecondsSinceEpoch}, 3600),
-              (8, ${today.year}, ${today.month}, ${today.day}, $week, NULL, ${DateTime(today.year, today.month, today.day, 13, 30, 0).millisecondsSinceEpoch}, NULL, NULL)
-            ''');*/
-
         }
     );
   }
@@ -141,33 +126,61 @@ class SQLiteDbProvider {
       result = ResultObject(procedure);
 
     } on DatabaseException catch(e) {
-      if (e.isUniqueConstraintError())
+      if (e.isUniqueConstraintError()) {
         result.addErrorMessage('Akce již existuje');
-      else
+      } else {
         result.addErrorMessage('Při ukládání došlo k chybě');
-    } catch (e) {
-      result.addErrorMessage('Požadavek nelze dokončit');
+      }
     }
 
     return Future.value(result);
   }
 
 
-  Future<ResultObject<Procedure>> updateProcedure(Procedure procedure) async{
-    final db = await database;
-    _checkProcedureIdentity(procedure);
+  Future<ResultObject<void>> _saveProcedure(Procedure procedure, [Transaction tx]) async{
+    final db = tx != null ? tx : await database;
 
-    ResultObject<Procedure> result = ResultObject(procedure);
+    ResultObject<void> result = ResultObject();
     try {
       await db.update('procedure', procedure.toMap(), where: 'id = ?', whereArgs: [procedure.id]);
 
     } on DatabaseException catch(e) {
-      if (e.isUniqueConstraintError())
+      if (e.isUniqueConstraintError()) {
         result.addErrorMessage('Akce již existuje');
-      else
+      } else {
         result.addErrorMessage('Při ukládání záznamu došlo k chybě');
-    } catch (e) {
-      result.addErrorMessage('Požadavek nelze dokončit');
+      }
+    }
+
+    return result;
+  }
+
+
+  Future<ResultObject<ProcedureImmutable>> updateProcedure(ProcedureImmutable procedure, String newName) async{
+    final db = await database;
+
+    ResultObject<ProcedureImmutable> result = ResultObject();
+    try {
+      var updatedProcedure = await db.transaction<ProcedureImmutable>((txn) async{
+        var procedureSearch = await _getProcedureById(procedure.id, txn);
+        if (procedureSearch.isFailure) {
+          throw Failure(procedureSearch.lastMessage);
+        }
+
+        var procedureEntity = procedureSearch.result;
+        procedureEntity.name = newName;
+
+        var update = await _saveProcedure(procedureEntity, txn);
+        if (update.isFailure) {
+          throw Failure(update.lastMessage);
+        }
+
+        return procedureEntity.toImmutable();
+      });
+      result = ResultObject(updatedProcedure);
+
+    } on Failure catch(e) {
+      result.addErrorMessage(e.message);
     }
 
     return Future.value(result);
@@ -184,7 +197,7 @@ class SQLiteDbProvider {
       newRecord.id = newId;
       result = ResultObject(newRecord);
 
-    } catch (e) {
+    } on DatabaseException catch (e) {
       result.addErrorMessage('Při ukládání záznamu došlo k chybě');
     }
 
@@ -192,38 +205,152 @@ class SQLiteDbProvider {
   }
 
 
-  Future<ResultObject<void>> updateProcedureRecord(ProcedureRecord record, [Transaction tx]) async{
+  Future<ResultObject<void>> _saveProcedureRecord(ProcedureRecord record, [Transaction tx]) async{
     final db = tx != null ? tx : await database;
     ResultObject<void> result = ResultObject();
     try {
-      db.update('procedure_record', record.toMap(), where: 'id = ?', whereArgs: [record.id]);
+      await db.update('procedure_record', record.toMap(), where: 'id = ?', whereArgs: [record.id]);
 
     } on DatabaseException catch (e) {
       result.addErrorMessage('Při ukládání záznamu došlo k chybě');
-    } catch (e) {
-      result.addErrorMessage('Požadavek nelze dokončit');
     }
     return Future.value(result);
   }
 
 
-  Future<ResultObject<void>> deleteProcedureRecord(ProcedureRecord record, [Transaction tx]) async{
+  Future<ResultObject<ProcedureRecordImmutable>> updateProcedureRecord(
+    ProcedureRecordImmutable recordToUpdate,
+    ProcedureImmutable newProcedure,
+    int newQuantity
+  ) async{
+    final db = await database;
+
+    ResultObject<ProcedureRecordImmutable> result = ResultObject();
+    try {
+      var record = await db.transaction<ProcedureRecordImmutable>((txn) async {
+        var procedureRecordSearch = await _getProcedureRecordById(recordToUpdate.id, txn);
+        if (procedureRecordSearch.isFailure) {
+          throw Failure(procedureRecordSearch.lastMessage);
+        }
+
+        var procedureSearch = await _getProcedureById(newProcedure.id, txn);
+        if (procedureSearch.isFailure) {
+          throw Failure(procedureSearch.lastMessage);
+        }
+
+        var procedureRecordEntity = procedureRecordSearch.result;
+        var procedureEntity = procedureSearch.result;
+
+        procedureRecordEntity.procedure = procedureEntity;
+        procedureRecordEntity.quantity = newQuantity;
+
+        var update = await _saveProcedureRecord(procedureRecordEntity, txn);
+        if (update.isFailure) {
+          throw Failure(update.lastMessage);
+        }
+
+        return procedureRecordEntity.toImmutable();
+      });
+      result = ResultObject(record);
+
+    } on Failure catch (e) {
+      result.addErrorMessage(e.message);
+
+    } on DatabaseException catch (e) {
+      result.addErrorMessage('Při ukládání záznamu došlo k chybě.');
+    }
+
+    return Future.value(result);
+  }
+
+
+  Future<ResultObject<void>> deleteProcedureRecord(ProcedureRecordImmutable record, [Transaction tx]) async{
     final db = tx != null ? tx : await database;
     ResultObject<void> result = ResultObject();
     try {
       db.delete('procedure_record', where: 'id = ?', whereArgs: [record.id]);
-    } catch (e) {
+    } on DatabaseException catch (e) {
       result.addErrorMessage('Při odstraňování záznamu došlo k chybě.');
     }
     return Future.value(result);
   }
 
 
-  Future<ResultObject<List<Procedure>>> findAllProcedures() async{
+  Future<ResultObject<ProcedureRecordImmutable>> openProcedureRecord(ProcedureRecordImmutable record) async{
     final db = await database;
 
-    ResultObject<List<Procedure>> result = ResultObject();
-    List<Procedure> procedures = List<Procedure>();
+    ResultObject<ProcedureRecordImmutable> result = ResultObject();
+    try {
+      var openedRecord = await db.transaction<ProcedureRecordImmutable>((txn) async{
+        var procedureRecordSearch = await _getProcedureRecordById(record.id, txn);
+        if (procedureRecordSearch.isFailure) {
+          throw Failure(procedureRecordSearch.lastMessage);
+        }
+
+        var procedureRecordEntity = procedureRecordSearch.result;
+        procedureRecordEntity.openRecord();
+
+        var update = await _saveProcedureRecord(procedureRecordEntity, txn);
+        if (update.isFailure) {
+          throw Failure(update.lastMessage);
+        }
+
+        return procedureRecordEntity.toImmutable();
+      });
+
+      result = ResultObject(openedRecord);
+
+    } on Failure catch (e) {
+      result.addErrorMessage(e.message);
+
+    } on DatabaseException catch (e) {
+      result.addErrorMessage('Při otevírání záznamu došlo k chybě');
+    }
+
+    return Future.value(result);
+  }
+
+
+  Future<ResultObject<ProcedureRecordImmutable>> closeProcedureRecord(ProcedureRecordImmutable record, DateTime finishTime, int quantity) async {
+    final db = await database;
+
+    ResultObject<ProcedureRecordImmutable> result = ResultObject();
+    try {
+      var closedRecord = await db.transaction<ProcedureRecordImmutable>((txn) async{
+        var procedureRecordSearch = await _getProcedureRecordById(record.id, txn);
+        if (procedureRecordSearch.isFailure) {
+          throw Failure(procedureRecordSearch.lastMessage);
+        }
+
+        var procedureRecordEntity = procedureRecordSearch.result;
+        procedureRecordEntity.closeRecord(finishTime, quantity);
+
+        var update = await _saveProcedureRecord(procedureRecordEntity, txn);
+        if (update.isFailure) {
+          throw Failure(update.lastMessage);
+        }
+
+        return procedureRecordEntity.toImmutable();
+      });
+
+      result = ResultObject(closedRecord);
+
+    } on Failure catch (e) {
+      result.addErrorMessage(e.message);
+
+    } on DatabaseException catch (e) {
+      result.addErrorMessage('Při uzavírání záznamu došlo k chybě');
+    }
+
+    return Future.value(result);
+  }
+
+
+  Future<ResultObject<List<ProcedureImmutable>>> findAllProcedures() async{
+    final db = await database;
+
+    ResultObject<List<ProcedureImmutable>> result = ResultObject();
+    List<ProcedureImmutable> procedures = List();
     try {
       var futureResults = db.rawQuery('''
         SELECT id as procedure_id, name as procedure_name, type as procedure_type
@@ -232,11 +359,11 @@ class SQLiteDbProvider {
       ''');
       var queryResults = await futureResults;
       queryResults.forEach((f) {
-        procedures.add(Procedure.fromMap(f));
+        procedures.add(Procedure.fromMap(f).toImmutable());
       });
       result = ResultObject(procedures);
 
-    } catch (e) {
+    } on DatabaseException catch (e) {
       result.addErrorMessage('Při získávání akcí došlo k chybě.');
     }
 
@@ -244,11 +371,33 @@ class SQLiteDbProvider {
   }
 
 
-  Future<ResultObject<List<ProcedureRecord>>> findAllProcedureRecords(int year, int month, int day) async{
+  Future<ResultObject<Procedure>> _getProcedureById(int id, [Transaction tx]) async{
+    final db = tx != null ? tx : await database;
+    ResultObject<Procedure> result = ResultObject();
+    try {
+      var futureResult = db.rawQuery(
+          '''SELECT p.id AS procedure_id, p.name AS procedure_name, p.type AS procedure_type
+             FROM procedure p
+             WHERE p.id = ?
+       ''', [id]);
+      var procedureResult = await futureResult;
+      if (procedureResult.isNotEmpty) {
+        result = ResultObject(Procedure.fromMap(procedureResult[0]));
+      }
+
+    } on DatabaseException catch (e) {
+      result.addErrorMessage('Při získávání záznamu došlo k chybě.');
+    }
+
+    return Future.value(result);
+  }
+
+
+  Future<ResultObject<List<ProcedureRecordImmutable>>> findAllProcedureRecords(int year, int month, int day) async{
     final db = await database;
 
-    ResultObject<List<ProcedureRecord>> result = ResultObject();
-    List<ProcedureRecord> procedureRecords = List<ProcedureRecord>();
+    ResultObject<List<ProcedureRecordImmutable>> result = ResultObject();
+    List<ProcedureRecordImmutable> procedureRecords = List<ProcedureRecordImmutable>();
     try {
       var futureResult = db.rawQuery(
           '''SELECT pr.*, p.id as procedure_id, p.name as procedure_name, p.type as procedure_type
@@ -261,11 +410,11 @@ class SQLiteDbProvider {
       var records = await futureResult;
 
       records.forEach((record) {
-        procedureRecords.add(ProcedureRecord.fromMap(record));
+        procedureRecords.add(ProcedureRecord.fromMap(record).toImmutable());
       });
       result = ResultObject(procedureRecords);
 
-    } catch (e) {
+    } on DatabaseException catch (e) {
       result.addErrorMessage('Při získávání dat došlo k chybě.');
     }
 
@@ -273,52 +422,78 @@ class SQLiteDbProvider {
   }
 
 
-  Future<ProcedureRecord> getProcedureRecordById(int id) async{
-    final db = await database;
-
-    var futureResult = db.rawQuery('''
-      SELECT pr.*, p.id as procedure_id, p.name as procedure_name, p.type as procedure_type
-      FROM procedure_record pr
-      LEFT JOIN procedure p ON (p.id = pr.procedure)
-      WHERE pr.id = ?
-      LIMIT 1
-    ''', [id]);
-    var result = await futureResult;
-    if (result.isEmpty) return Future.value(null);
-    return Future.value(ProcedureRecord.fromMap(result[0]));
-  }
-  
-  
-  Future<ProcedureRecord> getLastProcedureRecord(int year, int month, int day, [Transaction tx]) async{
+  Future<ResultObject<ProcedureRecord>> _getProcedureRecordById(int id, [Transaction tx]) async{
     final db = tx != null ? tx : await database;
 
-    var futureResult = db.rawQuery(
-        '''SELECT pr.*, p.id as procedure_id, p.name as procedure_name, p.type as procedure_type
-            FROM procedure_record pr
-            LEFT JOIN procedure p ON (p.id = pr.procedure)
-            WHERE pr.year = ? AND pr.month = ? and pr.day = ?
-            ORDER BY pr.id DESC
-            LIMIT 1''',
-      [year, month, day]
-    );
-    var result = await futureResult;
-    if (result.isEmpty) return Future.value(null);
-
-    return Future.value(ProcedureRecord.fromMap(result[0]));
-  }
-
-
-  Future<ResultObject<ProcedureRecord>> startProcedureRecord(ProcedureRecord lastRecord, int lastProcedureQuantity, Procedure procedure, DateTime start) async{
-    final db = await database;
-    var result = await db.transaction<ResultObject<ProcedureRecord>>((txn) async{
-      if (lastRecord != null) {
-        lastRecord.closeRecord(start, lastProcedureQuantity);
-        await updateProcedureRecord(lastRecord, txn);
+    ResultObject<ProcedureRecord> result = ResultObject();
+    try {
+      var futureResult = db.rawQuery('''
+        SELECT pr.*, p.id as procedure_id, p.name as procedure_name, p.type as procedure_type
+        FROM procedure_record pr
+        LEFT JOIN procedure p ON (p.id = pr.procedure)
+        WHERE pr.id = ?
+      ''', [id]);
+      var prResult = await futureResult;
+      if (prResult.isNotEmpty) {
+        result = ResultObject(ProcedureRecord.fromMap(prResult[0]));
       }
 
-      var result = await _insertProcedureRecord(ProcedureRecord(procedure, start), txn);
-      return Future.value(result);
-    });
+    } on DatabaseException catch (e) {
+      result.addErrorMessage('Při získávání záznamů došlo k chybě');
+    }
+
+    return Future.value(result);
+  }
+  
+
+  Future<ResultObject<Map<String, ProcedureRecordImmutable>>> startProcedureRecord(
+    ProcedureRecordImmutable lastRecord,
+    int lastProcedureQuantity,
+    ProcedureImmutable procedure,
+    DateTime start
+  ) async{
+    final db = await database;
+
+    ResultObject<Map<String, ProcedureRecordImmutable>> result = ResultObject();
+    try {
+      var resultMap = await db.transaction<Map<String, ProcedureRecordImmutable>>((txn) async {
+        Map<String, ProcedureRecordImmutable> result = Map();
+        result['lastRecord'] = null;
+        if (lastRecord != null) {
+          var lastRecordSearch = await _getProcedureRecordById(lastRecord.id, txn);
+          if (lastRecordSearch.isFailure) {
+            throw Failure('Záznam s ID#${lastRecord.id} nebyl nalezen.');
+          }
+
+          ProcedureRecord lastRecordEntity = lastRecordSearch.result;
+          lastRecordEntity.closeRecord(start, lastProcedureQuantity);
+
+          var procedureRecordUpdate = await _saveProcedureRecord(lastRecordEntity, txn);
+          if (procedureRecordUpdate.isFailure) {
+            throw Failure('Při úpravě záznamu došlo k chybě.');
+          }
+          result['lastRecord'] = lastRecordEntity.toImmutable();
+        }
+
+        var procedureSearch = await _getProcedureById(procedure.id, txn);
+        if (procedureSearch.isFailure) {
+          throw Failure('Akce s ID#${procedure.id} nebyla nalezena');
+        }
+
+        Procedure procedureEntity = procedureSearch.result;
+        var newRecordInsertion = await _insertProcedureRecord(ProcedureRecord(procedureEntity, start), txn);
+        if (newRecordInsertion.isFailure) {
+          throw Failure('Při ukládání záznamu došlo k chybě');
+        }
+
+        result['newRecord'] = newRecordInsertion.result.toImmutable();
+        return result;
+      });
+      result = ResultObject(resultMap);
+
+    } on Failure catch (e) {
+      result.addErrorMessage(e.message);
+    }
 
     return Future.value(result);
   }
@@ -345,7 +520,7 @@ class SQLiteDbProvider {
       });
       result = ResultObject(procedureSummaries);
 
-    } catch (e) {
+    } on DatabaseException catch (e) {
       result.addErrorMessage('Při získávání záznamů došlo k chybě');
     }
 
@@ -374,7 +549,7 @@ class SQLiteDbProvider {
       });
       result = ResultObject(procedureSummaries);
 
-    } catch (e) {
+    } on DatabaseException catch (e) {
       result.addErrorMessage('Při získávání záznamů došlo k chybě');
     }
 

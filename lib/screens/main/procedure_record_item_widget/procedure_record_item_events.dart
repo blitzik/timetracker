@@ -1,4 +1,5 @@
-import 'package:app/domain/procedure.dart';
+import 'package:app/domain/procedure_immutable.dart';
+
 
 abstract class ProcedureRecordItemEvent {}
 
@@ -16,7 +17,7 @@ class ProcedureRecordClosed extends ProcedureRecordItemEvent {
 
 class ProcedureRecordUpdated extends ProcedureRecordItemEvent {
   final int quantity;
-  final Procedure procedure;
+  final ProcedureImmutable procedure;
 
   ProcedureRecordUpdated(this.quantity, this.procedure);
 }

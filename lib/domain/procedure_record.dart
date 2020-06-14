@@ -1,5 +1,5 @@
-import 'package:app/domain/ProcedureRecordImmutable.dart';
 import 'package:app/exceptions/entity_identity_exception.dart';
+import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/domain/procedure.dart';
 

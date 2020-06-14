@@ -1,4 +1,4 @@
-import 'package:app/domain/procedure.dart';
+import 'package:app/domain/procedure_immutable.dart';
 
 
 abstract class ProcedureRecordEditFormEvent {}
@@ -8,7 +8,7 @@ class EditFormInitialized extends ProcedureRecordEditFormEvent {}
 
 
 class EditFormStateChanged extends ProcedureRecordEditFormEvent {
-  final Procedure selectedProcedure;
+  final ProcedureImmutable selectedProcedure;
   final int quantity;
 
   EditFormStateChanged(this.selectedProcedure, this.quantity);
@@ -17,7 +17,7 @@ class EditFormStateChanged extends ProcedureRecordEditFormEvent {
 
 class EditFormSent extends ProcedureRecordEditFormEvent {
   final int quantity;
-  final Procedure procedure;
+  final ProcedureImmutable procedure;
 
   EditFormSent(this.quantity, this.procedure);
 }

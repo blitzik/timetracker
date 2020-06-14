@@ -1,21 +1,51 @@
-import 'package:app/widgets/procedure_item_widget/procedure_item_widget_model.dart';
-import 'package:app/screens/actions_overview/actions_overview_screen_model.dart';
+import 'package:app/widgets/procedure_item_widget/procedure_item_widget_bloc.dart';
+import 'package:app/screens/actions_overview/actions_overview_screen_events.dart';
+import 'package:app/screens/actions_overview/actions_overview_screen_states.dart';
+import 'package:app/screens/actions_overview/actions_overview_screen_bloc.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget.dart';
-import 'package:app/widgets/procedure_form/procedure_form_model.dart';
+import 'package:app/widgets/procedure_form/procedure_form_bloc.dart';
 import 'package:app/widgets/procedure_form/procedure_form.dart';
 import 'package:app/utils/result_object/result_object.dart';
+import 'package:app/domain/procedure_immutable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app/domain/procedure.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 
-class ActionsOverviewScreen extends StatelessWidget {
+class ActionsOverviewScreen extends StatefulWidget {
   static const routeName = '/actionsOverview';
 
 
   ActionsOverviewScreen();
+
+  @override
+  _ActionsOverviewScreenState createState() => _ActionsOverviewScreenState();
+}
+
+
+class _ActionsOverviewScreenState extends State<ActionsOverviewScreen> {
+
+
+  ActionsOverviewScreenBloc _bloc;
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    _bloc = BlocProvider.of<ActionsOverviewScreenBloc>(context);
+    _bloc.add(ActionsOverviewLoaded());
+  }
+
+
+  @override
+  void dispose() {
+    _bloc.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -25,16 +55,35 @@ class ActionsOverviewScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(15),
-        child: Consumer<ActionsOverviewScreeModel>(
-          builder: (context, model, _) {
+        child: BlocBuilder<ActionsOverviewScreenBloc, ActionsOverviewScreenState>(
+          builder: (context, state) {
+            if (state is ActionsOverviewLoadFailure) {
+              return Center(
+                child: Text(state.errorMessage, style: TextStyle(color: Colors.red)),
+              );
+            }
+
+            if (state is ActionsOverviewLoadInProgress) {
+              return Center(
+                child: Column(
+                  children: <Widget>[
+                    Text('Načítám data ...'),
+                    SizedBox(height: 25,),
+                    CircularProgressIndicator()
+                  ],
+                ),
+              );
+            }
+
+            var st = (state as ActionsOverviewLoadSuccess);
             return ListView.separated(
-              itemCount: model.proceduresCount,
+              itemCount: st.procedures.length,
               separatorBuilder: (BuildContext context, int index) => Divider(height: 1),
               itemBuilder: (BuildContext context, int index) {
-                Procedure procedure = model.getProcedureAt(index);
-                return ChangeNotifierProvider(
+                ProcedureImmutable procedure = st.procedures.elementAt(index);
+                return BlocProvider(
                   key: ValueKey(procedure.id),
-                  create: (context) => ProcedureItemWidgetModel(procedure),
+                  create: (context) => ProcedureItemWidgetBloc(procedure),
                   child: ProcedureItemWidget(),
                 );
               }
@@ -49,7 +98,6 @@ class ActionsOverviewScreen extends StatelessWidget {
           onPressed: () async{
             var result = await _openProcedureCreationDialog(context);
             if (result == null) return;
-            // only successful action should pass ( check the form handler )
             Scaffold.of(context).showSnackBar(SnackBar(
               duration: Duration(seconds: 1),
               content: ListTile(
@@ -63,7 +111,6 @@ class ActionsOverviewScreen extends StatelessWidget {
     );
   }
 
-
   Future<ResultObject<Procedure>> _openProcedureCreationDialog(BuildContext _context) async{
     return await showDialog(
         context: _context,
@@ -73,20 +120,9 @@ class ActionsOverviewScreen extends StatelessWidget {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(25),
-                child: ChangeNotifierProvider(
-                  create: (context) => ProcedureFormModel(),
-                  child: ProcedureForm(
-                    (context, formModel) async{
-                      var parentModel = Provider.of<ActionsOverviewScreeModel>(_context, listen: false);
-
-                      ResultObject<Procedure> result = await parentModel.save(formModel.procedureName);
-                      if (!result.isSuccess) {
-                        formModel.procedureNameErrorText = result.lastMessage;
-                        return;
-                      }
-                      Navigator.pop(context, result); // only successful action is returned
-                    }
-                  ),
+                child: BlocProvider(
+                  create: (context) => ProcedureFormBloc(null),
+                  child: ProcedureForm(),
                 ),
               )
             ],

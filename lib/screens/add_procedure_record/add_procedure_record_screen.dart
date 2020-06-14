@@ -2,7 +2,7 @@ import 'package:app/screens/add_procedure_record/add_procedure_record_screen_eve
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_states.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_bloc.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
-import 'package:app/domain/ProcedureRecordImmutable.dart';
+import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app/domain/procedure.dart';
 import 'package:flutter/cupertino.dart';
@@ -200,8 +200,9 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                           builder: (context) => BlocConsumer<AddProcedureRecordScreenBloc, AddProcedureRecordState>(
                             listener: (prevState, currentState) {
                               if (currentState is AddProcedureRecordFormProcessingSucceeded) {
-                                Navigator.pop(context, currentState.newRecord);
+                                Navigator.pop(context, currentState);
                               }
+
                               if (currentState is AddProcedureRecordFormProcessingFailed) {
                                 Scaffold.of(context).showSnackBar(SnackBar(
                                   content: ListTile(

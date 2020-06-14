@@ -1,4 +1,6 @@
 import 'package:app/exceptions/entity_identity_exception.dart';
+import 'package:app/domain/procedure_immutable.dart';
+
 
 enum ProcedureType {
   BREAK, WORK
@@ -41,5 +43,10 @@ class Procedure {
       'name': this.name,
       'type': this._type,
     };
+  }
+
+
+  ProcedureImmutable toImmutable() {
+    return ProcedureImmutable(_id, _name, type);
   }
 }

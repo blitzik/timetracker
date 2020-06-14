@@ -1,5 +1,5 @@
-import 'package:app/domain/ProcedureRecordImmutable.dart';
-import 'package:app/domain/procedure.dart';
+import 'package:app/domain/procedure_record_immutable.dart';
+import 'package:app/domain/procedure_immutable.dart';
 import 'dart:collection';
 
 
@@ -16,21 +16,21 @@ class EditFormProceduresLoadInProgress extends ProcedureRecordEditFormState {
 
 
 class EditFormState extends ProcedureRecordEditFormState {
-  Map<String, Procedure> _procedures = Map();
-  UnmodifiableMapView<String, Procedure> get procedures => UnmodifiableMapView(_procedures);
+  Map<String, ProcedureImmutable> _procedures = Map();
+  UnmodifiableMapView<String, ProcedureImmutable> get procedures => UnmodifiableMapView(_procedures);
 
 
-  final Procedure selectedProcedure;
+  final ProcedureImmutable selectedProcedure;
   final int quantity;
 
 
   EditFormState(
-    List<Procedure> procedures,
+    List<ProcedureImmutable> procedures,
     ProcedureRecordImmutable record,
     this.selectedProcedure,
     this.quantity
   ) : super(record) {
-    Map<String, Procedure> result = Map();
+    Map<String, ProcedureImmutable> result = Map();
     procedures.forEach((procedure) {
       result[procedure.name] = procedure;
     });
@@ -39,7 +39,7 @@ class EditFormState extends ProcedureRecordEditFormState {
 
 
   EditFormState copyWith({
-    Procedure selectedProcedure,
+    ProcedureImmutable selectedProcedure,
     int quantity
   }) {
     return EditFormState(
@@ -63,9 +63,9 @@ class EditFormProceduresLoadFailure extends ProcedureRecordEditFormState {
 
 class EditFormProcessingSuccess extends EditFormState {
   EditFormProcessingSuccess(
-    List<Procedure> procedures,
+    List<ProcedureImmutable> procedures,
     ProcedureRecordImmutable record,
-    Procedure selectedProcedure,
+    ProcedureImmutable selectedProcedure,
     int quantity
   ) : super(procedures, record, selectedProcedure, quantity);
 }

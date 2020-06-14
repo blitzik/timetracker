@@ -3,17 +3,16 @@ import 'package:app/screens/main/procedure_record_item_widget/procedure_record_i
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_states.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_bloc.dart';
 import 'package:app/screens/main/main_screen_events.dart' as mainScreenEvents;
+import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/screens/main/main_screen_bloc.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
-import 'package:app/domain/procedure_record.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:app/domain/procedure.dart';
 import 'dart:async';
 
 
 class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, ProcedureRecordItemState> {
   final MainScreenBloc _mainScreenBloc;
-  final ProcedureRecord _procedureRecord;
+  final ProcedureRecordImmutable _procedureRecord;
   final bool _isLast;
 
 
@@ -24,7 +23,7 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
       _editFormBloc.close();
       _editFormSubscription.cancel();
     }
-    _editFormBloc = ProcedureRecordEditFormBloc(_procedureRecord);
+    _editFormBloc = ProcedureRecordEditFormBloc(state.record);
     _editFormSubscription = _editFormBloc.listen((onDataState) {
       if (onDataState is EditFormProcessingSuccess) {
         this.add(ProcedureRecordUpdated(onDataState.quantity, onDataState.selectedProcedure));
@@ -35,7 +34,7 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
 
 
   @override
-  ProcedureRecordItemState get initialState => ProcedureRecordItemLoaded(_procedureRecord.toImmutable(), _isLast);
+  ProcedureRecordItemState get initialState => ProcedureRecordItemDefaultState(_procedureRecord, _isLast);
 
 
   @override
@@ -52,56 +51,37 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
   }
 
 
-  ProcedureRecordItemWidgetBloc(this._mainScreenBloc, this._procedureRecord, this._isLast) :
-        assert(_mainScreenBloc != null),
-        assert(_procedureRecord != null),
-        assert(_isLast != null);
+  ProcedureRecordItemWidgetBloc(
+    this._mainScreenBloc,
+    this._procedureRecord,
+    this._isLast
+  ) : assert(_mainScreenBloc != null),
+      assert(_procedureRecord != null),
+      assert(_isLast != null);
 
 
   Stream<ProcedureRecordItemState> _procedureRecordOpenedToState(ProcedureRecordOpened event) async*{
-    DateTime oldFinish = _procedureRecord.finish;
-    int oldQuantity = _procedureRecord.quantity;
-    _procedureRecord.openRecord();
-    var result = await SQLiteDbProvider.db.updateProcedureRecord(_procedureRecord);
-    if (result.isSuccess) {
-      yield ProcedureRecordItemLoaded(_procedureRecord.toImmutable(), _isLast);
-      _mainScreenBloc.add(mainScreenEvents.ProcedureRecordUpdated(_procedureRecord));
-    } else {
-      _procedureRecord.closeRecord(oldFinish, oldQuantity);
+    var update = await SQLiteDbProvider.db.openProcedureRecord(state.record);
+    if (update.isSuccess) {
+      yield ProcedureRecordItemDefaultState(update.result, _isLast);
+      _mainScreenBloc.add(mainScreenEvents.ProcedureRecordUpdated(update.result));
     }
   }
 
 
   Stream<ProcedureRecordItemState> _procedureRecordClosedToState(ProcedureRecordClosed event) async*{
-    _procedureRecord.closeRecord(event.finish, event.quantity);
-    var result = await SQLiteDbProvider.db.updateProcedureRecord(_procedureRecord);
-    if (result.isSuccess) {
-      yield ProcedureRecordItemLoaded(_procedureRecord.toImmutable(), _isLast);
-      _mainScreenBloc.add(mainScreenEvents.ProcedureRecordUpdated(_procedureRecord));
-    } else {
-      _procedureRecord.openRecord();
+    var update = await SQLiteDbProvider.db.closeProcedureRecord(state.record, event.finish, event.quantity);
+    if (update.isSuccess) {
+      yield ProcedureRecordItemDefaultState(update.result, _isLast);
+      _mainScreenBloc.add(mainScreenEvents.ProcedureRecordUpdated(update.result));
     }
   }
 
 
   Stream<ProcedureRecordItemState> _procedureRecordUpdatedToState(ProcedureRecordUpdated event) async*{
-    if (event.procedure.id == _procedureRecord.procedure.id && event.quantity == _procedureRecord.quantity) {
-      return;
-    }
-
-    Procedure oldProcedure = _procedureRecord.procedure;
-    int oldQuantity = _procedureRecord.quantity;
-
-    _procedureRecord.procedure = event.procedure;
-    _procedureRecord.quantity = event.quantity;
-
-    var result = await SQLiteDbProvider.db.updateProcedureRecord(_procedureRecord);
-    if (result.isSuccess) {
-      yield ProcedureRecordItemLoaded(_procedureRecord.toImmutable(), _isLast);
-
-    } else {
-      _procedureRecord.procedure = oldProcedure;
-      _procedureRecord.quantity = oldQuantity;
+    var update = await SQLiteDbProvider.db.updateProcedureRecord(state.record, event.procedure, event.quantity);
+    if (update.isSuccess) {
+      yield ProcedureRecordItemDefaultState(update.result, _isLast);
     }
   }
 

@@ -1,65 +1,93 @@
-import 'package:app/widgets/procedure_item_widget/procedure_item_widget_model.dart';
-import 'package:app/widgets/procedure_form/procedure_form_model.dart';
+import 'package:app/widgets/procedure_item_widget/procedure_item_widget_states.dart';
+import 'package:app/widgets/procedure_item_widget/procedure_item_widget_bloc.dart';
 import 'package:app/widgets/procedure_form/procedure_form.dart';
 import 'package:app/utils/result_object/result_object.dart';
+import 'package:app/domain/procedure_immutable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app/domain/procedure.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 
-class ProcedureItemWidget extends StatelessWidget{
+class ProcedureItemWidget extends StatefulWidget {
 
   ProcedureItemWidget();
 
   @override
+  _ProcedureItemWidgetState createState() => _ProcedureItemWidgetState();
+}
+
+
+class _ProcedureItemWidgetState extends State<ProcedureItemWidget> {
+
+  ProcedureItemWidgetBloc _bloc;
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    _bloc = BlocProvider.of<ProcedureItemWidgetBloc>(context);
+  }
+
+
+  @override
+  void dispose() {
+    _bloc.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
-    var procedure = Provider.of<ProcedureItemWidgetModel>(context, listen: false);
-
-    if (procedure.type == ProcedureType.BREAK) {
-      return getBody(procedure);
-    }
-
-    return InkWell(
-      child: getBody(procedure),
-      onTap: () async{
-        var result = await _openEditDialog(context, procedure);
-        if (result == null) return;
-
+    return BlocConsumer<ProcedureItemWidgetBloc, ProcedureItemState>(
+      listenWhen: (oldState, newState) {
+        return (newState is ProcedureItemUpdateSuccess ||
+                newState is ProcedureItemUpdateFailure);
+      },
+      listener: (oldState, newState) {
         ScaffoldState ss = Scaffold.of(context);
         Text text = Text('Akce byla úspěšně uložena');
         Icon icon = Icon(Icons.done, color: Colors.lightGreen);
 
-        if (!result.isSuccess) {
-          text = Text(result.lastMessage);
+        if (newState is ProcedureItemUpdateFailure) {
+          text = Text(newState.errorMessage);
           icon = Icon(Icons.error, color: Colors.red);
         }
 
         ss.showSnackBar(SnackBar(
-          duration: Duration(seconds: 1),
+          duration: const Duration(seconds: 1),
           content: ListTile(
             title: text,
             trailing: icon,
           ),
         ));
       },
+      builder: (context, state) {
+        ProcedureImmutable procedure = (state as ProcedureItemDefaultState).procedure;
+        if (procedure.type == ProcedureType.BREAK) {
+          return getBody(procedure);
+        }
+
+        return InkWell(
+          child: getBody(procedure),
+          onTap: () {
+            _openEditDialog(context);
+          }
+        );
+      }
     );
   }
 
 
-  Widget getBody(ProcedureItemWidgetModel procedure) {
+  Widget getBody(ProcedureImmutable procedure) {
     return Container(
         padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
-        child: Consumer<ProcedureItemWidgetModel>(
-            builder: (context, model, _) {
-              return Text(procedure.name, style: TextStyle(fontSize: 15));
-            }
-        )
+        child: Text(procedure.name, style: TextStyle(fontSize: 15))
     );
   }
 
 
-  Future<ResultObject<Procedure>> _openEditDialog(BuildContext _context, ProcedureItemWidgetModel procedureModel) async{
-
+  Future<ResultObject<Procedure>> _openEditDialog(BuildContext _context) async{
     return showDialog(
       context: _context,
       builder: (BuildContext context) {
@@ -68,20 +96,9 @@ class ProcedureItemWidget extends StatelessWidget{
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(25),
-              child: ChangeNotifierProvider(
-                create: (context) => ProcedureFormModel(procedureModel.name),
-                child: ProcedureForm(
-                  (context, formModel) async{
-                    var parentModel = Provider.of<ProcedureItemWidgetModel>(_context, listen: false);
-
-                    ResultObject<Procedure> result = await parentModel.save(formModel.procedureName);
-                    if (!result.isSuccess) {
-                      formModel.procedureNameErrorText = result.lastMessage;
-                      return;
-                    }
-                    Navigator.pop(context, result);
-                  }
-                ),
+              child: BlocProvider.value(
+                value: _bloc.formBloc,
+                child: ProcedureForm(),
               ),
             )
           ],

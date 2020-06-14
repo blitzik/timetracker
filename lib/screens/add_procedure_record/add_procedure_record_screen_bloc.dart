@@ -1,19 +1,16 @@
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_events.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_states.dart';
-import 'package:app/domain/ProcedureRecordImmutable.dart';
+import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
-import 'package:app/domain/procedure_record.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 
 class AddProcedureRecordScreenBloc extends Bloc<AddProcedureRecordEvent, AddProcedureRecordState> {
-  final ProcedureRecord _lastRecord;
+  final ProcedureRecordImmutable _lastRecord;
 
 
   @override
-  AddProcedureRecordState get initialState => AddProcedureRecordLoadInProgress(
-    _getImmutableRecord(_lastRecord)
-  );
+  AddProcedureRecordState get initialState => AddProcedureRecordLoadInProgress(_lastRecord);
 
 
   @override
@@ -31,38 +28,30 @@ class AddProcedureRecordScreenBloc extends Bloc<AddProcedureRecordEvent, AddProc
 
 
   Stream<AddProcedureRecordState> _addProcedureRecordFormProceduresLoadedToState(AddProcedureRecordFormProceduresLoaded event) async*{
-    yield AddProcedureRecordLoadInProgress(_getImmutableRecord(_lastRecord));
-    var proceduresResult = await SQLiteDbProvider.db.findAllProcedures();
-    if (proceduresResult.isSuccess) {
+    yield AddProcedureRecordLoadInProgress(state.lastRecord);
+    var proceduresLoading = await SQLiteDbProvider.db.findAllProcedures();
+    if (proceduresLoading.isSuccess) {
       yield AddProcedureRecordFormState(
-        _getImmutableRecord(_lastRecord),
-        proceduresResult.result,
+        state.lastRecord,
+          proceduresLoading.result,
         null,
         null,
         null
       );
 
     } else {
-      yield AddProcedureRecordLoadFailed(_getImmutableRecord(_lastRecord), proceduresResult.lastMessage);
+      yield AddProcedureRecordLoadFailed(_lastRecord, proceduresLoading.lastMessage);
     }
   }
 
 
   Stream<AddProcedureRecordState> _addProcedureRecordFormSentToState(AddProcedureRecordFormSent event) async*{
-    var result = await SQLiteDbProvider.db.startProcedureRecord(_lastRecord,event.lastRecordQuantity, event.procedure, event.start);
-    if (result.isSuccess) {
-      yield AddProcedureRecordFormProcessingSucceeded(_getImmutableRecord(_lastRecord), result.result);
+    var insertion = await SQLiteDbProvider.db.startProcedureRecord(_lastRecord, event.lastRecordQuantity, event.procedure, event.start);
+    if (insertion.isSuccess) {
+      yield AddProcedureRecordFormProcessingSucceeded(insertion.result['lastRecord'], insertion.result['newRecord']);
     } else {
-      yield AddProcedureRecordFormProcessingFailed(_getImmutableRecord(_lastRecord), result.lastMessage);
+      yield AddProcedureRecordFormProcessingFailed(_lastRecord, insertion.lastMessage);
     }
-  }
-
-
-  ProcedureRecordImmutable _getImmutableRecord(ProcedureRecord record) {
-    if (record == null) {
-      return null;
-    }
-    return record.toImmutable();
   }
 
 
