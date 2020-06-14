@@ -1,16 +1,16 @@
 class TimeUtils {
   static DateTime findClosestTime(DateTime time, int step) {
-    int hour = time.hour;
-    int minutes;
     int transitionalMinute = (60 - (step / 2)).floor();
     if (time.minute > transitionalMinute) {
-      hour++;
-      minutes = 0;
+      time = time.add(Duration(hours: 1));
+      time = DateTime(time.year, time.month, time.day, time.hour, 0, 0, 0);
 
     } else {
-      minutes = (time.minute / step).round() * step;
+      time = DateTime(
+          time.year, time.month, time.day,
+          time.hour,  ((time.minute / step).round() * step), 0, 0, 0);
     }
 
-    return DateTime(time.year, time.month, time.day, hour, minutes, 0, 0, 0);
+    return time;
   }
 }
