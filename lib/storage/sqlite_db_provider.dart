@@ -1,6 +1,7 @@
+import 'dart:collection';
+
 import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/utils/result_object/result_object.dart';
-import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/domain/procedure_immutable.dart';
 import 'package:app/domain/procedure_summary.dart';
 import 'package:app/domain/procedure_record.dart';
@@ -557,21 +558,36 @@ class SQLiteDbProvider {
   }
 
 
-  Future<List<DateTime>> loadHistoryData() async{
+  Future<ResultObject<UnmodifiableListView<DateTime>>> findHistoryData() async{
     final db = await database;
 
-    var futureResult = db.rawQuery('''
-      SELECT DISTINCT pr.year, pr.month, pr.day 
-      FROM procedure_record pr
-      ORDER BY pr.year DESC, pr.month DESC, pr.day DESC
-    ''');
-    var result = await futureResult;
-    List<DateTime> data = List();
-    result.forEach((row) {
-      data.add(DateTime.utc(row['year'], row['month'], row['day'], 0, 0, 0, 0, 0));
-    });
+    ResultObject<UnmodifiableListView<DateTime>> result = ResultObject();
+    try {
+      var futureResult = db.rawQuery('''
+        SELECT DISTINCT pr.year, pr.month, pr.day
+        FROM procedure_record pr
+        ORDER BY pr.year DESC, pr.month DESC, pr.day DESC
+      ''');
+      var dates = await futureResult;
+      List<DateTime> data = List();
+      dates.forEach((row) {
+        data.add(DateTime.utc(
+            row['year'],
+            row['month'],
+            row['day'],
+            0,
+            0,
+            0,
+            0,
+            0));
+      });
+      result = ResultObject(UnmodifiableListView(data));
 
-    return Future.value(data);
+    } on DatabaseException catch (e) {
+      result.addErrorMessage('Při získávání záznamů došlo k chybě');
+    }
+
+    return Future.value(result);
   }
 
 

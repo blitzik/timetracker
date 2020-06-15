@@ -3,7 +3,7 @@ import 'package:app/screens/add_procedure_record/add_procedure_record_screen_blo
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen_bloc.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen.dart';
-import 'package:app/screens/archive/archive_screen_model.dart';
+import 'package:app/screens/archive/archive_screen_bloc.dart';
 import 'package:app/screens/summary/summary_screen_bloc.dart';
 import 'package:app/screens/archive/archive_screen.dart';
 import 'package:app/screens/summary/summary_screen.dart';
@@ -53,10 +53,9 @@ class RouteGenerator {
       );
 
       case ArchiveScreen.routeName: return MaterialPageRoute(
-        builder: (_) => Provider<ArchiveScreenModel>(
-          create: (context) => ArchiveScreenModel(),
+        builder: (_) => BlocProvider(
+          create: (context) => ArchiveScreenBloc(),
           child: ArchiveScreen(),
-          dispose: (context, model) => model.dispose(),
         )
       );
 
