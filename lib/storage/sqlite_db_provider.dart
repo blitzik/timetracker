@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/domain/procedure_immutable.dart';
@@ -10,6 +8,7 @@ import 'package:app/domain/procedure.dart';
 import 'package:app/errors/failure.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'dart:collection';
 import 'dart:io';
 
 
@@ -118,9 +117,10 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<ProcedureImmutable>> insertProcedure(String name) async{
-    final db = await database;
     ResultObject<ProcedureImmutable> result = ResultObject();
     try {
+      final db = await database;
+
       Procedure procedure = Procedure(name);
       int id = await db.insert('procedure', procedure.toMap());
       procedure.id = id;
@@ -138,11 +138,12 @@ class SQLiteDbProvider {
   }
 
 
-  Future<ResultObject<void>> _saveProcedure(Procedure procedure, [Transaction tx]) async{
-    final db = tx != null ? tx : await database;
+  Future<ResultObject<void>> _saveProcedure(Procedure procedure, [Transaction tx]) async{;
 
     ResultObject<void> result = ResultObject();
     try {
+      final db = tx != null ? tx : await database;
+
       await db.update('procedure', procedure.toMap(), where: 'id = ?', whereArgs: [procedure.id]);
 
     } on DatabaseException catch(e) {
@@ -158,10 +159,10 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<ProcedureImmutable>> updateProcedure(ProcedureImmutable procedure, String newName) async{
-    final db = await database;
-
     ResultObject<ProcedureImmutable> result = ResultObject();
     try {
+      final db = await database;
+
       var updatedProcedure = await db.transaction<ProcedureImmutable>((txn) async{
         var procedureSearch = await _getProcedureById(procedure.id, txn);
         if (procedureSearch.isFailure) {
@@ -189,11 +190,12 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<ProcedureRecord>> _insertProcedureRecord(ProcedureRecord newRecord, [Transaction tx]) async{
-    final db = tx != null ? tx : await database;
     _checkProcedureIdentity(newRecord.procedure);
 
     ResultObject<ProcedureRecord> result = ResultObject();
     try {
+      final db = tx != null ? tx : await database;
+
       int newId = await db.insert('procedure_record', newRecord.toMap());
       newRecord.id = newId;
       result = ResultObject(newRecord);
@@ -207,9 +209,10 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<void>> _saveProcedureRecord(ProcedureRecord record, [Transaction tx]) async{
-    final db = tx != null ? tx : await database;
     ResultObject<void> result = ResultObject();
     try {
+      final db = tx != null ? tx : await database;
+
       await db.update('procedure_record', record.toMap(), where: 'id = ?', whereArgs: [record.id]);
 
     } on DatabaseException catch (e) {
@@ -224,10 +227,10 @@ class SQLiteDbProvider {
     ProcedureImmutable newProcedure,
     int newQuantity
   ) async{
-    final db = await database;
-
     ResultObject<ProcedureRecordImmutable> result = ResultObject();
     try {
+      final db = await database;
+
       var record = await db.transaction<ProcedureRecordImmutable>((txn) async {
         var procedureRecordSearch = await _getProcedureRecordById(recordToUpdate.id, txn);
         if (procedureRecordSearch.isFailure) {
@@ -266,9 +269,10 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<void>> deleteProcedureRecord(ProcedureRecordImmutable record, [Transaction tx]) async{
-    final db = tx != null ? tx : await database;
     ResultObject<void> result = ResultObject();
     try {
+      final db = tx != null ? tx : await database;
+
       db.delete('procedure_record', where: 'id = ?', whereArgs: [record.id]);
     } on DatabaseException catch (e) {
       result.addErrorMessage('Při odstraňování záznamu došlo k chybě.');
@@ -278,10 +282,10 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<ProcedureRecordImmutable>> openProcedureRecord(ProcedureRecordImmutable record) async{
-    final db = await database;
-
     ResultObject<ProcedureRecordImmutable> result = ResultObject();
     try {
+      final db = await database;
+
       var openedRecord = await db.transaction<ProcedureRecordImmutable>((txn) async{
         var procedureRecordSearch = await _getProcedureRecordById(record.id, txn);
         if (procedureRecordSearch.isFailure) {
@@ -313,10 +317,10 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<ProcedureRecordImmutable>> closeProcedureRecord(ProcedureRecordImmutable record, DateTime finishTime, int quantity) async {
-    final db = await database;
-
     ResultObject<ProcedureRecordImmutable> result = ResultObject();
     try {
+      final db = await database;
+
       var closedRecord = await db.transaction<ProcedureRecordImmutable>((txn) async{
         var procedureRecordSearch = await _getProcedureRecordById(record.id, txn);
         if (procedureRecordSearch.isFailure) {
@@ -348,11 +352,11 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<List<ProcedureImmutable>>> findAllProcedures() async{
-    final db = await database;
-
     ResultObject<List<ProcedureImmutable>> result = ResultObject();
     List<ProcedureImmutable> procedures = List();
     try {
+      final db = await database;
+
       var futureResults = db.rawQuery('''
         SELECT id as procedure_id, name as procedure_name, type as procedure_type
         FROM procedure
@@ -373,9 +377,10 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<Procedure>> _getProcedureById(int id, [Transaction tx]) async{
-    final db = tx != null ? tx : await database;
     ResultObject<Procedure> result = ResultObject();
     try {
+      final db = tx != null ? tx : await database;
+
       var futureResult = db.rawQuery(
           '''SELECT p.id AS procedure_id, p.name AS procedure_name, p.type AS procedure_type
              FROM procedure p
@@ -395,11 +400,11 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<List<ProcedureRecordImmutable>>> findAllProcedureRecords(int year, int month, int day) async{
-    final db = await database;
-
     ResultObject<List<ProcedureRecordImmutable>> result = ResultObject();
     List<ProcedureRecordImmutable> procedureRecords = List<ProcedureRecordImmutable>();
     try {
+      final db = await database;
+
       var futureResult = db.rawQuery(
           '''SELECT pr.*, p.id as procedure_id, p.name as procedure_name, p.type as procedure_type
            FROM procedure_record pr
@@ -424,10 +429,10 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<ProcedureRecord>> _getProcedureRecordById(int id, [Transaction tx]) async{
-    final db = tx != null ? tx : await database;
-
     ResultObject<ProcedureRecord> result = ResultObject();
     try {
+      final db = tx != null ? tx : await database;
+
       var futureResult = db.rawQuery('''
         SELECT pr.*, p.id as procedure_id, p.name as procedure_name, p.type as procedure_type
         FROM procedure_record pr
@@ -453,10 +458,10 @@ class SQLiteDbProvider {
     ProcedureImmutable procedure,
     DateTime start
   ) async{
-    final db = await database;
-
     ResultObject<Map<String, ProcedureRecordImmutable>> result = ResultObject();
     try {
+      final db = await database;
+
       var resultMap = await db.transaction<Map<String, ProcedureRecordImmutable>>((txn) async {
         Map<String, ProcedureRecordImmutable> result = Map();
         result['lastRecord'] = null;
@@ -501,9 +506,10 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<List<ProcedureSummary>>> getDaySummary(int year, int month, int day) async{
-    final db = await database;
     ResultObject<List<ProcedureSummary>> result = ResultObject();
     try {
+      final db = await database;
+
       var futureResult = db.rawQuery('''
         SELECT p.id, p.name, p.type, SUM(pr.quantity) AS quantity, SUM(pr.time_spent) AS time_spent
         FROM procedure_record pr
@@ -530,9 +536,10 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<List<ProcedureSummary>>> getWeekSummary(int year, int week) async{
-    final db = await database;
     ResultObject<List<ProcedureSummary>> result = ResultObject();
     try {
+      final db = await database;
+
       var futureResult = db.rawQuery('''
         SELECT p.id, p.name, SUM(pr.quantity) AS quantity, SUM(pr.time_spent) AS time_spent
         FROM procedure_record pr
@@ -559,10 +566,10 @@ class SQLiteDbProvider {
 
 
   Future<ResultObject<UnmodifiableListView<DateTime>>> findHistoryData() async{
-    final db = await database;
-
     ResultObject<UnmodifiableListView<DateTime>> result = ResultObject();
     try {
+      final db = await database;
+
       var futureResult = db.rawQuery('''
         SELECT DISTINCT pr.year, pr.month, pr.day
         FROM procedure_record pr
