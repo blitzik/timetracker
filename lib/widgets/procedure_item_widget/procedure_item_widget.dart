@@ -1,7 +1,6 @@
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_states.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_bloc.dart';
 import 'package:app/widgets/procedure_form/procedure_form.dart';
-import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/domain/procedure_immutable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app/domain/procedure.dart';

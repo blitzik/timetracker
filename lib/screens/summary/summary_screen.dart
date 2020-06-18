@@ -54,9 +54,6 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 padding: EdgeInsets.symmetric(vertical: 15),
                 child: BlocBuilder<SummaryScreenBloc, SummaryScreenState>(
                   builder: (context, state) => AnimatedSwitcher(
-                    transitionBuilder: (Widget widget, Animation<double> animation) {
-                      return ScaleTransition(scale: animation, child: widget);
-                    },
                     duration: const Duration(milliseconds: 300),
                     child: _createTitle(state)
                   )
@@ -95,9 +92,6 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
                 child: BlocBuilder<SummaryScreenBloc, SummaryScreenState>(
                   builder: (context, state) => AnimatedSwitcher(
-                    transitionBuilder: (Widget widget, Animation<double> animation) {
-                      return ScaleTransition(scale: animation, child: widget);
-                    },
                     duration: const Duration(milliseconds: 300),
                     child: Summary(state, key: UniqueKey())
                   )

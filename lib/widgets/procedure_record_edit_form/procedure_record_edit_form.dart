@@ -66,64 +66,7 @@ class _ProcedureRecordEditFormState extends State<ProcedureRecordEditForm> {
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              TextFormField(
-                initialValue: _quantity.toString(),
-                style: TextStyle(fontSize: 18),
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  WhitelistingTextInputFormatter.digitsOnly
-                ],
-                decoration: InputDecoration(
-                  labelText: 'počet',
-                ),
-                validator: (s) {
-                  if (s.isEmpty) {
-                    return 'Zadejte počet';
-                  }
-                  return null;
-                },
-                onSaved: (val) {
-                  _quantity = int.parse(val);
-                },
-              ),
-
-              SizedBox(height: 15),
-
-              DropdownButtonFormField(
-                isExpanded: true,
-                hint: Text('Zvolte akci'),
-                value: _selectedProcedure,
-                items: st.procedures.map((k, v) {
-                  return MapEntry(k, DropdownMenuItem(value: k, child: Text(v.name, style: TextStyle(fontSize: 15))));
-                }).values.toList(),
-                onChanged: (v) {
-                  _selectedProcedure = v;
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Zvolte prosím jakou akcí chcete pokračovat.';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _selectedProcedure = value;
-                },
-              ),
-
-              SizedBox(height: 15),
-
-              RaisedButton(
-                child: Text('Uložit'),
-                onPressed: () {
-                  if (!_formKey.currentState.validate()) {
-                    return;
-                  }
-                  _formKey.currentState.save();
-                  _bloc.add(EditFormSent(_quantity, st.procedures[_selectedProcedure]));
-                },
-              )
-            ],
+            children: _buildForm(st)
           ),
         );
       },
@@ -133,5 +76,75 @@ class _ProcedureRecordEditFormState extends State<ProcedureRecordEditForm> {
         }
       },
     );
+  }
+
+
+  List<Widget> _buildForm(EditFormState state) {
+    List<Widget> content = List();
+
+    if (state.record.isClosed) {
+      content.add(TextFormField(
+        initialValue: _quantity.toString(),
+        style: TextStyle(fontSize: 18),
+        keyboardType: TextInputType.number,
+        inputFormatters: <TextInputFormatter>[
+          WhitelistingTextInputFormatter.digitsOnly
+        ],
+        decoration: InputDecoration(
+          labelText: 'počet',
+        ),
+        validator: (s) {
+          if (s.isEmpty) {
+            return 'Zadejte počet';
+          }
+          return null;
+        },
+        onSaved: (val) {
+          _quantity = int.parse(val);
+        },
+      ));
+
+      content.add(SizedBox(height: 15));
+    }
+
+
+    content.add(DropdownButtonFormField(
+      isExpanded: true,
+      hint: Text('Zvolte akci'),
+      value: _selectedProcedure,
+      items: state.procedures.map((k, v) {
+        return MapEntry(k, DropdownMenuItem(value: k, child: Text(v.name, style: TextStyle(fontSize: 15))));
+      }).values.toList(),
+      onChanged: (v) {
+        _selectedProcedure = v;
+      },
+      validator: (value) {
+        if (value == null) {
+          return 'Zvolte prosím jakou akcí chcete pokračovat.';
+        }
+        return null;
+      },
+      onSaved: (value) {
+        _selectedProcedure = value;
+      },
+    ));
+
+
+    content.add(SizedBox(height: 15));
+
+
+    content.add(RaisedButton(
+      child: Text('Uložit'),
+      onPressed: () {
+        if (!_formKey.currentState.validate()) {
+          return;
+        }
+        _formKey.currentState.save();
+        _bloc.add(EditFormSent(_quantity, state.procedures[_selectedProcedure]));
+      },
+    ));
+
+
+    return content;
   }
 }

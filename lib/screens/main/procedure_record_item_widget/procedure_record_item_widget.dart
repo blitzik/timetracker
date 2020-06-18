@@ -118,7 +118,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
 
   Function() _decideClickability(BuildContext context, ProcedureRecordItemDefaultState state) {
     var record = state.record;
-    if (record.isBreak || (state.isLast && record.isOpened)) return null;
+    if (record.isBreak/* || (state.isLast && record.isOpened)*/) return null;
     return () async{
       var result = await _displayEditDialog(context, state);
       if (result == null) return;

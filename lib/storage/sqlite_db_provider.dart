@@ -36,9 +36,10 @@ class SQLiteDbProvider {
         path,
         version: 1,
         onOpen: (db) {},
+        onConfigure: (db) async{
+          await db.execute('PRAGMA foreign_keys = ON');
+        },
         onCreate: (Database db, int version) async {
-            await db.execute('PRAGMA foreign_keys = ON');
-
             await db.execute('''
               CREATE TABLE procedure (
                   id   INTEGER PRIMARY KEY AUTOINCREMENT
@@ -138,8 +139,7 @@ class SQLiteDbProvider {
   }
 
 
-  Future<ResultObject<void>> _saveProcedure(Procedure procedure, [Transaction tx]) async{;
-
+  Future<ResultObject<void>> _saveProcedure(Procedure procedure, [Transaction tx]) async{
     ResultObject<void> result = ResultObject();
     try {
       final db = tx != null ? tx : await database;
@@ -246,7 +246,9 @@ class SQLiteDbProvider {
         var procedureEntity = procedureSearch.result;
 
         procedureRecordEntity.procedure = procedureEntity;
-        procedureRecordEntity.quantity = newQuantity;
+        if (procedureRecordEntity.isClosed) {
+          procedureRecordEntity.quantity = newQuantity;
+        }
 
         var update = await _saveProcedureRecord(procedureRecordEntity, txn);
         if (update.isFailure) {
