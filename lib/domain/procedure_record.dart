@@ -36,11 +36,11 @@ class ProcedureRecord {
   int _start;
   DateTime get start => DateTime.fromMillisecondsSinceEpoch(_start).toUtc();
   set __start(DateTime start) {
-    _start = _getCleanDateTimeUTC(start).millisecondsSinceEpoch;
     _year = start.year;
     _month = start.month;
     _day = start.day;
     _week = start.getWeek();
+    _start = _getCleanDateTimeUTC(start).millisecondsSinceEpoch;
   }
 
   int _finish;
@@ -49,7 +49,8 @@ class ProcedureRecord {
     if (finish == null) {
       return;
     }
-    _finish = _getCleanDateTimeUTC(finish).millisecondsSinceEpoch;
+    var cdt = _getCleanDateTimeUTC(finish);
+    _finish = cdt.millisecondsSinceEpoch;
     _timeSpent = (_finish - _start) ~/ 1000;
   }
 
@@ -94,7 +95,7 @@ class ProcedureRecord {
 
 
   DateTime _getCleanDateTimeUTC(DateTime d) {
-    return DateTime.utc(d.year, d.month, d.day, d.hour, d.minute, 0, 0, 0);
+    return DateTime.utc(_year, _month, _day, d.hour, d.minute, 0, 0, 0);
   }
 
 

@@ -60,7 +60,18 @@ class _EditableOverview extends State<EditableOverview> {
                   children: <Widget>[
                     BlocBuilder<EditableOverviewBloc, ProcedureRecordsState>(
                       builder: (context, state) {
-                        return _buildWorkedHours(context, state);
+                        return Row(
+                          children: <Widget>[
+                            Text('Celkem odpracováno: '),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 500),
+                              transitionBuilder: (Widget child, Animation<double> animation) {
+                                return ScaleTransition(scale: animation, child: child);
+                              },
+                              child: _buildWorkedHours(context, state)
+                            )
+                          ],
+                        );
                       }
                     ),
                   ],
@@ -174,15 +185,7 @@ class _EditableOverview extends State<EditableOverview> {
     }
 
     var st = (state as ProcedureRecordsLoadSuccess);
-    return Row(
-      children: <Widget>[
-        Text('Celkem odpracováno: '),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
-          child: Text('${st.workedHours}h', key: UniqueKey()),
-        )
-      ],
-    );
+    return Text('${st.workedHours}h', key: ValueKey(st.workedHours));
   }
 
 

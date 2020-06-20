@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 
 class AddProcedureRecordScreenBloc extends Bloc<AddProcedureRecordEvent, AddProcedureRecordState> {
-  final ProcedureRecordImmutable _lastRecord;
+  ProcedureRecordImmutable _lastRecord;
 
 
   @override
@@ -28,12 +28,12 @@ class AddProcedureRecordScreenBloc extends Bloc<AddProcedureRecordEvent, AddProc
 
 
   Stream<AddProcedureRecordState> _addProcedureRecordFormProceduresLoadedToState(AddProcedureRecordFormProceduresLoaded event) async*{
-    yield AddProcedureRecordLoadInProgress(state.lastRecord);
+    yield AddProcedureRecordLoadInProgress(_lastRecord);
     var proceduresLoading = await SQLiteDbProvider.db.findAllProcedures();
     if (proceduresLoading.isSuccess) {
       yield AddProcedureRecordFormState(
-        state.lastRecord,
-          proceduresLoading.result,
+        _lastRecord,
+        proceduresLoading.result,
         null,
         null,
         null
@@ -48,9 +48,10 @@ class AddProcedureRecordScreenBloc extends Bloc<AddProcedureRecordEvent, AddProc
   Stream<AddProcedureRecordState> _addProcedureRecordFormSentToState(AddProcedureRecordFormSent event) async*{
     var insertion = await SQLiteDbProvider.db.startProcedureRecord(_lastRecord, event.lastRecordQuantity, event.procedure, event.start);
     if (insertion.isSuccess) {
+      _lastRecord = insertion.result['lastRecord'];
       yield AddProcedureRecordFormProcessingSucceeded(insertion.result['lastRecord'], insertion.result['newRecord']);
     } else {
-      yield AddProcedureRecordFormProcessingFailed(_lastRecord, insertion.lastMessage);
+      yield AddProcedureRecordFormProcessingFailed(insertion.result['lastRecord'], insertion.lastMessage);
     }
   }
 

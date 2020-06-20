@@ -1,6 +1,7 @@
 import 'package:app/screens/archive/archive_screen_events.dart';
 import 'package:app/screens/archive/archive_screen_states.dart';
 import 'package:app/screens/archive/archive_screen_bloc.dart';
+import 'package:app/screens/editable_overview/editable_overview.dart';
 import 'package:app/screens/summary/summary_screen.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/extensions/string_extension.dart';
@@ -102,7 +103,7 @@ class _ListState extends State<_List> {
                 ),
               ),
               onTap: () {
-                Navigator.pushNamed(context, SummaryScreen.routeName, arguments: historyDate);
+                Navigator.pushNamed(context, EditableOverview.routeName, arguments: historyDate);
               },
             );
           }

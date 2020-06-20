@@ -1,3 +1,4 @@
+import 'package:app/screens/editable_overview/editable_overview_states.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/domain/procedure_immutable.dart';
 import 'dart:collection';
@@ -36,8 +37,6 @@ class AddProcedureRecordFormProcessingFailed extends AddProcedureRecordState {
 
 
 class AddProcedureRecordFormState extends AddProcedureRecordState {
-  final ProcedureRecordImmutable lastRecord;
-
   Map<String, ProcedureImmutable> _procedures = Map();
   UnmodifiableMapView<String, ProcedureImmutable> get procedures => UnmodifiableMapView(_procedures);
 
@@ -47,7 +46,7 @@ class AddProcedureRecordFormState extends AddProcedureRecordState {
 
 
   AddProcedureRecordFormState(
-    this.lastRecord,
+    ProcedureRecordImmutable lastRecord,
     List<ProcedureImmutable> procedures,
     this.selectedProcedure,
     this.lastProcedureQuantity,
