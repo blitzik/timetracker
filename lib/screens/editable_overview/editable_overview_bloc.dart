@@ -1,20 +1,23 @@
+import 'package:app/screens/editable_overview/editable_overview_events.dart';
+import 'package:app/screens/editable_overview/editable_overview_states.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/utils/result_object/result_object.dart';
-import 'package:app/screens/main/main_screen_events.dart';
-import 'package:app/screens/main/main_screen_states.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:collection';
 import 'dart:async';
 
 
-class MainScreenBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecordsState> {
+class EditableOverviewBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecordsState> {
 
-  MainScreenBloc();
+  final DateTime date;
+
+
+  EditableOverviewBloc(this.date);
 
 
   @override
-  ProcedureRecordsState get initialState => ProcedureRecordsLoadInProgress();
+  ProcedureRecordsState get initialState => ProcedureRecordsLoadInProgress(date);
 
 
   @override
@@ -35,12 +38,12 @@ class MainScreenBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecordsState>
 
 
   Stream<ProcedureRecordsState> _procedureRecordsLoadedToState(ProcedureRecordsLoaded event) async*{
-    yield ProcedureRecordsLoadInProgress();
-    var result = await _loadData(event.date);
+    yield ProcedureRecordsLoadInProgress(date);
+    var result = await _loadData(date);
     if (result.isSuccess) {
-      yield ProcedureRecordsLoadSuccess(UnmodifiableListView(result.result));
+      yield ProcedureRecordsLoadSuccess(date, UnmodifiableListView(result.result));
     } else {
-      yield ProcedureRecordsLoadingFailure(result.lastMessage);
+      yield ProcedureRecordsLoadingFailure(date, result.lastMessage);
     }
   }
 
@@ -53,7 +56,7 @@ class MainScreenBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecordsState>
     }
     updatedRecords.insert(0, event.formState.newRecord);
 
-    yield ProcedureRecordAddedSuccess(event.formState.newRecord, UnmodifiableListView(updatedRecords));
+    yield ProcedureRecordAddedSuccess(date, event.formState.newRecord, UnmodifiableListView(updatedRecords));
   }
 
 
@@ -66,7 +69,7 @@ class MainScreenBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecordsState>
           var deletedRecord;
           List<ProcedureRecordImmutable> updatedRecords = List.from(st.records);
           deletedRecord = updatedRecords.removeAt(0);
-          yield ProcedureRecordDeletedSuccess(deletedRecord, UnmodifiableListView(updatedRecords));
+          yield ProcedureRecordDeletedSuccess(date, deletedRecord, UnmodifiableListView(updatedRecords));
         }
       }
     }
@@ -78,7 +81,7 @@ class MainScreenBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecordsState>
       List<ProcedureRecordImmutable> updatedRecords = List.from((state as ProcedureRecordsLoadSuccess).records);
       updatedRecords.removeAt(0);
       updatedRecords.insert(0, event.record);
-      yield ProcedureRecordsLoadSuccess(UnmodifiableListView(updatedRecords));
+      yield ProcedureRecordsLoadSuccess(date, UnmodifiableListView(updatedRecords));
     }
   }
 

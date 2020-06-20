@@ -10,7 +10,7 @@ import 'package:intl/intl.dart';
 
 
 class ArchiveScreen extends StatelessWidget {
-  static const routeName = '/archive';
+  static const String routeName = '/archive';
 
   ArchiveScreen();
 

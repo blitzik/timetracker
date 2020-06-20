@@ -2,16 +2,22 @@ import 'package:app/domain/procedure_record_immutable.dart';
 import 'dart:collection';
 
 
-abstract class ProcedureRecordsState {}
+abstract class ProcedureRecordsState {
+  final DateTime date;
+
+  ProcedureRecordsState(this.date);
+}
 
 
-class ProcedureRecordsLoadInProgress extends ProcedureRecordsState {}
+class ProcedureRecordsLoadInProgress extends ProcedureRecordsState {
+  ProcedureRecordsLoadInProgress(DateTime date) : super(date);
+}
 
 
 class ProcedureRecordsLoadingFailure extends ProcedureRecordsState {
   final String message;
 
-  ProcedureRecordsLoadingFailure(this.message);
+  ProcedureRecordsLoadingFailure(DateTime date, this.message) : super(date);
 }
 
 
@@ -24,7 +30,7 @@ class ProcedureRecordsLoadSuccess extends ProcedureRecordsState {
   ProcedureRecordImmutable get lastProcedureRecord => records.isEmpty ? null : records[0];
 
 
-  ProcedureRecordsLoadSuccess(this.records) : assert (records != null) {
+  ProcedureRecordsLoadSuccess(DateTime date, this.records) : assert (records != null), super(date) {
     _workedHours = _calculateWorkedHours(records);
   }
 
@@ -43,11 +49,11 @@ class ProcedureRecordsLoadSuccess extends ProcedureRecordsState {
 class ProcedureRecordAddedSuccess extends ProcedureRecordsLoadSuccess {
   final ProcedureRecordImmutable addedRecord;
 
-  ProcedureRecordAddedSuccess(this.addedRecord, UnmodifiableListView<ProcedureRecordImmutable> records) : super(records);
+  ProcedureRecordAddedSuccess(DateTime date, this.addedRecord, UnmodifiableListView<ProcedureRecordImmutable> records) : super(date, records);
 }
 
 
 class ProcedureRecordDeletedSuccess extends ProcedureRecordsLoadSuccess {
   final ProcedureRecordImmutable deletedRecord;
-  ProcedureRecordDeletedSuccess(this.deletedRecord, UnmodifiableListView<ProcedureRecordImmutable> records) : super(records);
+  ProcedureRecordDeletedSuccess(DateTime date, this.deletedRecord, UnmodifiableListView<ProcedureRecordImmutable> records) : super(date, records);
 }

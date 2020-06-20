@@ -8,9 +8,7 @@ abstract class ProcedureRecordsEvents {
 
 
 class ProcedureRecordsLoaded extends ProcedureRecordsEvents {
-  final DateTime date;
-
-  const ProcedureRecordsLoaded(this.date);
+  const ProcedureRecordsLoaded();
 }
 
 

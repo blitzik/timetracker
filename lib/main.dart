@@ -1,3 +1,5 @@
+import 'package:app/screens/editable_overview/editable_overview.dart';
+import 'package:app/screens/main/main_screen.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:app/routing/RouteGenerator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,7 +49,7 @@ class App extends StatelessWidget{
             ),
           ),
         ),
-        initialRoute: '/',
+        initialRoute: MainScreen.routeName,
         onGenerateRoute: _routeGenerator.generateRoute,
       ),
     );

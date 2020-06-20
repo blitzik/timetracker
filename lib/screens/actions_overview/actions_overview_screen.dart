@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 
 
 class ActionsOverviewScreen extends StatefulWidget {
-  static const routeName = '/actionsOverview';
+  static const String routeName = '/actionsOverview';
 
 
   ActionsOverviewScreen();

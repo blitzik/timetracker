@@ -10,7 +10,7 @@ import 'package:intl/intl.dart';
 
 
 class SummaryScreen extends StatefulWidget {
-  static const routeName = '/summaryCurrent';
+  static const String routeName = '/summaryCurrent';
 
   SummaryScreen();
 

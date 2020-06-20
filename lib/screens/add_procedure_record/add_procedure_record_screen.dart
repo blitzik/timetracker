@@ -1,9 +1,9 @@
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_events.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_states.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_bloc.dart';
-import 'package:app/utils/result_object/time_utils.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
+import 'package:app/utils/result_object/time_utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app/domain/procedure.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,7 +13,7 @@ import 'package:intl/intl.dart';
 
 
 class AddProcedureRecordScreen extends StatefulWidget {
-  static const routeName = '/addProcedureRecord';
+  static const String routeName = '/addProcedureRecord';
 
 
   AddProcedureRecordScreen();
