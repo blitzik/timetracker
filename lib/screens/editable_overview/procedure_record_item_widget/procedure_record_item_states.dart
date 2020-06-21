@@ -17,3 +17,5 @@ class ProcedureRecordItemDefaultState extends ProcedureRecordItemState {
   ) : assert(record != null),
       super(record);
 }
+
+

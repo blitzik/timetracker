@@ -7,6 +7,7 @@ import 'package:app/screens/editable_overview/editable_overview_bloc.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/extensions/string_extension.dart';
+import 'package:app/screens/summary/summary_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -49,33 +50,39 @@ class _EditableOverview extends State<EditableOverview> {
         children: <Widget>[
           Container(
               decoration: BoxDecoration(color: Color(0xfff0f0f0), border: Border(bottom: BorderSide(width: 1, color: Color(0xffcccccc)))),
-              padding: EdgeInsets.symmetric(vertical: 15),
-              child: ListTile(
-                title: Text(
-                  '${DateFormat('EEEE d. MMMM yyyy').format(_bloc.state.date).toString().capitalizeFirst()}',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              child: FlatButton(
+                padding: EdgeInsets.symmetric(vertical: 15),
+                child: ListTile(
+                  title: Text(
+                    '${DateFormat('EEEE d. MMMM yyyy').format(_bloc.state.date).toString().capitalizeFirst()}',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      BlocBuilder<EditableOverviewBloc, ProcedureRecordsState>(
+                        builder: (context, state) {
+                          return Row(
+                            children: <Widget>[
+                              Text('Celkem odpracováno: '),
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 500),
+                                transitionBuilder: (Widget child, Animation<double> animation) {
+                                  return ScaleTransition(scale: animation, child: child);
+                                },
+                                child: _buildWorkedHours(context, state)
+                              )
+                            ],
+                          );
+                        }
+                      ),
+                    ],
+                  ),
+                  trailing: Icon(Icons.keyboard_arrow_right, size: 40)
                 ),
-                subtitle: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    BlocBuilder<EditableOverviewBloc, ProcedureRecordsState>(
-                      builder: (context, state) {
-                        return Row(
-                          children: <Widget>[
-                            Text('Celkem odpracováno: '),
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 500),
-                              transitionBuilder: (Widget child, Animation<double> animation) {
-                                return ScaleTransition(scale: animation, child: child);
-                              },
-                              child: _buildWorkedHours(context, state)
-                            )
-                          ],
-                        );
-                      }
-                    ),
-                  ],
-                )
+                onPressed: () {
+                  Navigator.pushNamed(context, SummaryScreen.routeName, arguments: _bloc.state.date);
+                },
               )
           ),
           Expanded(

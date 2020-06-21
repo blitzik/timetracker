@@ -122,6 +122,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         subtitle: Text('${st.date.getWeek()}. týden'),
+        trailing: Icon(Icons.low_priority, size: 40),
       );
     } else {
       content = ListTile(
@@ -133,6 +134,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
             .format(st.date.weekStart())
             .toString()} - ${DateFormat('d. MMMM yyyy').format(
             st.date.weekEnd()).toString()}'),
+        trailing: Icon(Icons.low_priority, size: 40),
       );
     }
 

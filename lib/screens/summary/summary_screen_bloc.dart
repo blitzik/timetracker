@@ -17,6 +17,8 @@ enum SummaryType {
 class SummaryScreenBloc extends Bloc<SummaryScreenEvent, SummaryScreenState> {
 
   final DateTime _date;
+  Map<SummaryType, SummaryScreenLoadSuccess> _summaryStates = Map();
+
 
   @override
   SummaryScreenState get initialState => SummaryScreenLoadInProgress();
@@ -34,10 +36,18 @@ class SummaryScreenBloc extends Bloc<SummaryScreenEvent, SummaryScreenState> {
 
 
   Stream<SummaryScreenState> _summaryScreenLoadedToState(SummaryScreenLoaded event) async*{
+    if (_summaryStates.containsKey(event.summaryPeriod)) {
+      yield _summaryStates[event.summaryPeriod];
+      return;
+    }
+
     yield SummaryScreenLoadInProgress();
     var result = await _loadData(event.summaryPeriod, _date);
     if (result.isSuccess) {
-      yield SummaryScreenLoadSuccess(_date, event.summaryPeriod, UnmodifiableListView(result.result));
+      var summary =  SummaryScreenLoadSuccess(_date, event.summaryPeriod, UnmodifiableListView(result.result));
+      yield summary;
+      _summaryStates[event.summaryPeriod] = summary;
+
     } else {
       yield SummaryScreenLoadFailure(_date, event.summaryPeriod, result.lastMessage);
     }
@@ -58,7 +68,7 @@ class SummaryScreenBloc extends Bloc<SummaryScreenEvent, SummaryScreenState> {
         date.getWeek()
       );
     }
-
+    print('summary_screen_bloc:_loadData()');
     return summaryFuture;
   }
 

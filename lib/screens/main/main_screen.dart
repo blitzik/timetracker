@@ -23,7 +23,10 @@ class MainScreen extends StatelessWidget {
             child: Container(
               color: Color(0xff2980b9),
               child: FlatButton(
-                child: Text('Přehled akcí', style: btnTextStyle),
+                child: ListTile(
+                  leading: Icon(Icons.view_headline, size: 50, color: Colors.white),
+                  title: Text('Přehled akcí', style: btnTextStyle)
+                ),
                 onPressed: () {
                   Navigator.pushNamed(context, ActionsOverviewScreen.routeName);
                 },
@@ -34,7 +37,10 @@ class MainScreen extends StatelessWidget {
             child: Container(
               color: Color(0xff34495e),
               child: FlatButton(
-                child: Text('Historické záznamy', style: btnTextStyle),
+                child: ListTile(
+                  leading: Icon(Icons.archive, size: 50, color: Colors.white),
+                  title: Text('Historické záznamy', style: btnTextStyle)
+                ),
                 onPressed: () {
                   Navigator.pushNamed(context, ArchiveScreen.routeName);
                 },
@@ -45,7 +51,10 @@ class MainScreen extends StatelessWidget {
             child: Container(
               color: Color(0xff27ae60),
               child: FlatButton(
-                child: Text('Spravovat dnešní záznamy', style: btnTextStyle),
+                child: ListTile(
+                  leading: Icon(Icons.access_time, size: 50, color: Colors.white),
+                  title: Text('Spravovat dnešní záznamy', style: btnTextStyle)
+                ),
                 onPressed: () {
                   Navigator.pushNamed(context, EditableOverview.routeName, arguments: DateTime.now());
                 },
