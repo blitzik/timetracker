@@ -68,7 +68,7 @@ class SummaryScreenBloc extends Bloc<SummaryScreenEvent, SummaryScreenState> {
         date.getWeek()
       );
     }
-    print('summary_screen_bloc:_loadData()');
+
     return summaryFuture;
   }
 
