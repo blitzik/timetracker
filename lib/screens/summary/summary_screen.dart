@@ -60,16 +60,22 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 )
             ),
 
-            Padding(
-              padding: const EdgeInsets.only(left: 30, right: 30, top: 10),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Text('Celkem odpracováno: ', style: TextStyle(fontSize: 15, color: Color(0xff333333))),
-                    SizedBox(
-                      width: 70,
+            Container(
+              padding: const EdgeInsets.only(top: 10, bottom: 10, right: 15),
+              decoration: BoxDecoration(border: Border(bottom: BorderSide(width: 1, color: Color(0xffcccccc)))),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Expanded(
+                    child: Text(
+                      'Celkem odpracováno: ',
+                      style: TextStyle(fontSize: 15, color: Color(0xff333333)),
+                      textAlign: TextAlign.right,
+                    )
+                  ),
+                  SizedBox(
+                    width: 70,
+                    child: Container(
                       child: BlocBuilder<SummaryScreenBloc, SummaryScreenState>(
                         builder: (context, state) => AnimatedSwitcher(
                           transitionBuilder: (Widget widget, Animation<double> animation) {
@@ -80,22 +86,20 @@ class _SummaryScreenState extends State<SummaryScreen> {
                         )
                       ),
                     ),
-                  ],
-                )
+                  ),
+                ],
               ),
             ),
 
-            Divider(),
-
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(left: 15, right: 15, top: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: BlocBuilder<SummaryScreenBloc, SummaryScreenState>(
                   builder: (context, state) => AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: Summary(state, key: UniqueKey())
                   )
-                )
+                ),
               ),
             )
           ],
@@ -159,6 +163,11 @@ class _SummaryScreenState extends State<SummaryScreen> {
     }
 
     var st = (state as SummaryScreenLoadSuccess);
-    return Text('${st.workedHours}h', key: UniqueKey(), style: TextStyle(fontWeight: FontWeight.bold));
+    return Text(
+      '${st.workedHours}h',
+      key: UniqueKey(),
+      style: TextStyle(fontWeight: FontWeight.bold),
+      textAlign: TextAlign.center,
+    );
   }
 }

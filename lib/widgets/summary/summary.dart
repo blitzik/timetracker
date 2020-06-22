@@ -29,7 +29,7 @@ class Summary extends StatelessWidget {
 
     var state = (_state as SummaryScreenLoadSuccess);
     if (state.records.isEmpty) {
-      return Text('Nebyly nalezeny žádné záznamy.');
+      return Center(child: Text('Nebyly nalezeny žádné záznamy.'));
     }
 
     return ListView.separated(
@@ -37,12 +37,31 @@ class Summary extends StatelessWidget {
       itemCount: state.records.length,
       itemBuilder: (BuildContext context, int index) {
         var summary = state.records.elementAt(index);
-        return ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+        return Padding(
+          padding: const EdgeInsets.all(15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Expanded(
+                child: Text(summary.name,
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              ),
+              SizedBox(
+                width: 70,
+                child: Text('${summary.quantity} ks', textAlign: TextAlign.center),
+              ),
+              SizedBox(
+                width: 70,
+                child: Text('${summary.timeSpent} h', textAlign: TextAlign.right),
+              ),
+            ],
+          ),
+        );
+        /*return ListTile(
           title: Text(summary.name,
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
           subtitle: Text('${summary.quantity}ks     ${summary.timeSpent}h'),
-        );
+        );*/
       },
     );
   }
