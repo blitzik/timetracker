@@ -1,37 +1,39 @@
 import 'package:app/domain/procedure_record.dart';
 import 'package:app/domain/procedure.dart';
+import 'package:quiver/core.dart';
 
 
 class ProcedureRecordImmutable {
-    int _id;
-    int get id => _id;
+  int _id;
+  int get id => _id;
 
-   String _procedureName;
-   String get procedureName => _procedureName;
+  String _procedureName;
+  String get procedureName => _procedureName;
 
-   ProcedureType _procedureType;
-   ProcedureType get procedureType => _procedureType;
+  ProcedureType _procedureType;
+  ProcedureType get procedureType => _procedureType;
 
-   DateTime _start;
-   DateTime get start => _start;
+  DateTime _start;
+  DateTime get start => _start;
 
-   DateTime _finish;
-   DateTime get finish => _finish;
+  DateTime _finish;
+  DateTime get finish => _finish;
 
-   int _quantity;
-   int get quantity => _quantity;
+  int _quantity;
+  int get quantity => _quantity;
 
-   double _timeSpent;
-   double get timeSpent => _timeSpent;
+  double _timeSpent;
+  double get timeSpent => _timeSpent;
 
-   bool _isBreak;
-   bool get isBreak =>_isBreak;
+  bool _isBreak;
+  bool get isBreak =>_isBreak;
 
-   bool _isOpened;
-   bool get isOpened => _isOpened;
+  bool _isOpened;
+  bool get isOpened => _isOpened;
 
-   bool _isClosed;
-   bool get isClosed => _isClosed;
+  bool _isClosed;
+  bool get isClosed => _isClosed;
+
 
 
   ProcedureRecordImmutable(ProcedureRecord record) {
@@ -46,4 +48,30 @@ class ProcedureRecordImmutable {
     _isOpened = record.isOpened;
     _isClosed = record.isClosed;
   }
+
+
+  int get hashCode => hashObjects([
+    procedureName,
+    procedureType,
+    start ,
+    finish,
+    quantity,
+    timeSpent,
+    isBreak ,
+    isOpened,
+    isClosed,
+  ]);
+
+
+  bool operator ==(o) =>
+    (o is ProcedureRecordImmutable) &&
+    o.procedureName == procedureName &&
+    o.procedureType == procedureType &&
+    o.start  == start &&
+    o.finish == finish &&
+    o.quantity == quantity &&
+    o.timeSpent == timeSpent &&
+    o.isBreak  == isBreak &&
+    o.isOpened == isOpened &&
+    o.isClosed == isClosed;
 }

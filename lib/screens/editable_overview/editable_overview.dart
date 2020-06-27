@@ -171,7 +171,7 @@ class _EditableOverview extends State<EditableOverview> {
     return SizeTransition(
       sizeFactor: animation,
       child: BlocProvider(
-        key: ValueKey(record.id),
+        key: ValueKey(record.hashCode),
         create: (context) => ProcedureRecordItemWidgetBloc(_bloc, record, index == 0),
         child: ProcedureRecordItemWidget(
             const EdgeInsets.symmetric(horizontal: 15),
@@ -184,7 +184,11 @@ class _EditableOverview extends State<EditableOverview> {
 
   Widget _buildWorkedHours(BuildContext context, ProcedureRecordsState state) {
     if (state is ProcedureRecordsLoadInProgress) {
-      return CircularProgressIndicator(key: UniqueKey());
+      return SizedBox(
+        width: 15,
+        height: 15,
+        child: CircularProgressIndicator(key: UniqueKey()),
+      );
     }
 
     if (state is ProcedureRecordsLoadingFailure) {

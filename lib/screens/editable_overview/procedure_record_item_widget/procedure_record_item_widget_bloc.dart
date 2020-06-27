@@ -82,6 +82,7 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
     var update = await SQLiteDbProvider.db.updateProcedureRecord(state.record, event.procedure, event.quantity);
     if (update.isSuccess) {
       yield ProcedureRecordItemDefaultState(update.result, _isLast);
+      _editableOverviewBloc.add(eoEvents.ProcedureRecordUpdated(update.result));
     }
   }
 

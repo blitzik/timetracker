@@ -13,7 +13,8 @@ class ProcedureRecord {
     _id = id;
   }
 
-  Procedure procedure;
+  Procedure _procedure;
+  Procedure get procedure => _procedure;
 
   bool get isBreak => procedure.type == ProcedureType.BREAK;
 
@@ -28,8 +29,8 @@ class ProcedureRecord {
 
   int _quantity;
   int get quantity => _quantity;
-  set quantity(int quantity) {
-    if (quantity < 0) throw ArgumentError('Only numbers higher than 0 can be passed');
+  set __quantity(int quantity) {
+    if (quantity != null && quantity < 0) throw ArgumentError('Only numbers higher than 0 can be passed');
     _quantity = quantity;
   }
 
@@ -62,14 +63,15 @@ class ProcedureRecord {
   bool get isOpened => !isClosed;
 
 
-  ProcedureRecord(this.procedure, DateTime start) {
+  ProcedureRecord(Procedure procedure, DateTime start) {
+    this._procedure = procedure;
     this.__start = start;
   }
 
 
   ProcedureRecord._(
       this._id,
-      this.procedure,
+      this._procedure,
       this._year,
       this._month,
       this._day,
@@ -91,6 +93,17 @@ class ProcedureRecord {
   void closeRecord(DateTime finish, int quantity) {
     __finish = finish;
     _quantity = quantity;
+  }
+
+
+  void updateRecord(Procedure procedure, int quantity) {
+    if (isOpened && quantity != null) throw StateError('Cannot set quantity to opened procedure record');
+    if (procedure.type == ProcedureType.BREAK) {
+      quantity = null;
+    }
+
+    this._procedure = procedure;
+    this.__quantity = quantity;
   }
 
 

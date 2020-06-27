@@ -245,10 +245,7 @@ class SQLiteDbProvider {
         var procedureRecordEntity = procedureRecordSearch.result;
         var procedureEntity = procedureSearch.result;
 
-        procedureRecordEntity.procedure = procedureEntity;
-        if (procedureRecordEntity.isClosed) {
-          procedureRecordEntity.quantity = newQuantity;
-        }
+        procedureRecordEntity.updateRecord(procedureEntity, newQuantity);
 
         var update = await _saveProcedureRecord(procedureRecordEntity, txn);
         if (update.isFailure) {
@@ -524,7 +521,7 @@ class SQLiteDbProvider {
 
       List<ProcedureSummary> procedureSummaries = List();
       rawSummaryList.forEach((f) {
-        if (f['type'] == ProcedureType.BREAK || f['time_spent'] == null || f['quantity'] == null) return;
+        if (f['time_spent'] == null) return;
         procedureSummaries.add(ProcedureSummary.fromMap(f));
       });
       result = ResultObject(procedureSummaries);
@@ -543,7 +540,7 @@ class SQLiteDbProvider {
       final db = await database;
 
       var futureResult = db.rawQuery('''
-        SELECT p.id, p.name, SUM(pr.quantity) AS quantity, SUM(pr.time_spent) AS time_spent
+        SELECT p.id, p.name, p.type, SUM(pr.quantity) AS quantity, SUM(pr.time_spent) AS time_spent
         FROM procedure_record pr
         LEFT JOIN procedure p ON (p.id = pr.procedure)
         WHERE pr.year = ? AND pr.week = ?
@@ -554,7 +551,7 @@ class SQLiteDbProvider {
 
       List<ProcedureSummary> procedureSummaries = List();
       rawSummaryList.forEach((f) {
-        if (f['type'] == ProcedureType.BREAK || f['time_spent'] == null || f['quantity'] == null) return;
+        if (f['time_spent'] == null) return;
         procedureSummaries.add(ProcedureSummary.fromMap(f));
       });
       result = ResultObject(procedureSummaries);

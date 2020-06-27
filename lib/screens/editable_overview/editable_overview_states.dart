@@ -38,8 +38,9 @@ class ProcedureRecordsLoadSuccess extends ProcedureRecordsState {
   double _calculateWorkedHours(List<ProcedureRecordImmutable> records) {
     double workedHours = 0;
     records.forEach((record) {
-      if (record.timeSpent == null || record.isBreak) return;
-      workedHours += record.timeSpent;
+      if (!record.isBreak) {
+        workedHours += record.timeSpent ?? 0;
+      }
     });
     return workedHours;
   }

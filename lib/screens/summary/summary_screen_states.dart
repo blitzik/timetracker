@@ -1,3 +1,4 @@
+import 'package:app/domain/procedure.dart';
 import 'package:app/screens/summary/summary_screen_bloc.dart';
 import 'package:app/domain/procedure_summary.dart';
 import 'dart:collection';
@@ -29,7 +30,9 @@ class SummaryScreenLoadSuccess extends SummaryScreenPeriodState {
   SummaryScreenLoadSuccess(DateTime date, this.summaryPeriod, this.records) : super(date, summaryPeriod) {
     double workedHours = 0;
     records.forEach((f) {
-      workedHours += f.timeSpent;
+      if (!f.isBreak) {
+        workedHours += f.timeSpent;
+      }
     });
     _workedHours = workedHours;
   }

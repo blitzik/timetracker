@@ -79,8 +79,9 @@ class EditableOverviewBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecords
   Stream<ProcedureRecordsState> _procedureRecordUpdatedToState(ProcedureRecordUpdated event) async*{
     if (state is ProcedureRecordsLoadSuccess) {
       List<ProcedureRecordImmutable> updatedRecords = List.from((state as ProcedureRecordsLoadSuccess).records);
-      updatedRecords.removeAt(0);
-      updatedRecords.insert(0, event.record);
+      int index = updatedRecords.indexWhere((element) => element.id == event.record.id);
+      updatedRecords.removeAt(index);
+      updatedRecords.insert(index, event.record);
       yield ProcedureRecordsLoadSuccess(date, UnmodifiableListView(updatedRecords));
     }
   }

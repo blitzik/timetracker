@@ -1,3 +1,4 @@
+import 'package:app/domain/procedure.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_events.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_states.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_bloc.dart';
@@ -17,12 +18,13 @@ class ProcedureRecordEditForm extends StatefulWidget {
 
 
 class _ProcedureRecordEditFormState extends State<ProcedureRecordEditForm> {
-
-  GlobalKey<FormState> _formKey = GlobalKey();
+  GlobalKey<FormState> _formKey;
   ProcedureRecordEditFormBloc _bloc;
 
   int _quantity;
   String _selectedProcedure;
+
+  bool _isQuantityFieldVisible;
 
 
   @override
@@ -32,6 +34,9 @@ class _ProcedureRecordEditFormState extends State<ProcedureRecordEditForm> {
     _bloc = BlocProvider.of<ProcedureRecordEditFormBloc>(context);
     _quantity = _bloc.state.record.quantity;
     _selectedProcedure = _bloc.state.record.procedureName;
+    _formKey = GlobalKey();
+
+    _isQuantityFieldVisible = _bloc.state.record.isClosed && !_bloc.state.record.isBreak;
 
     _bloc.add(EditFormInitialized());
   }
@@ -82,9 +87,9 @@ class _ProcedureRecordEditFormState extends State<ProcedureRecordEditForm> {
   List<Widget> _buildForm(EditFormState state) {
     List<Widget> content = List();
 
-    if (state.record.isClosed) {
+    if (_isQuantityFieldVisible) {
       content.add(TextFormField(
-        initialValue: _quantity.toString(),
+        initialValue: _quantity == null ? null : _quantity.toString(),
         style: TextStyle(fontSize: 18),
         keyboardType: TextInputType.number,
         inputFormatters: <TextInputFormatter>[
@@ -116,7 +121,11 @@ class _ProcedureRecordEditFormState extends State<ProcedureRecordEditForm> {
         return MapEntry(k, DropdownMenuItem(value: k, child: Text(v.name, style: TextStyle(fontSize: 15))));
       }).values.toList(),
       onChanged: (v) {
-        _selectedProcedure = v;
+        setState(() {
+          _selectedProcedure = v;
+          _isQuantityFieldVisible = state.procedures[_selectedProcedure].type != ProcedureType.BREAK;
+          _quantity = null;
+        });
       },
       validator: (value) {
         if (value == null) {

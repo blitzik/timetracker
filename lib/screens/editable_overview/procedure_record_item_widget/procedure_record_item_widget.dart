@@ -59,7 +59,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 500),
           child: Card(
-            key: UniqueKey(),
+            key: ValueKey(record.hashCode),
             color: Color(0xffeceff1),
             child: InkWell(
               child: ListTile(
@@ -117,8 +117,6 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
 
 
   Function() _decideClickability(BuildContext context, ProcedureRecordItemDefaultState state) {
-    var record = state.record;
-    if (record.isBreak/* || (state.isLast && record.isOpened)*/) return null;
     return () async{
       var result = await _displayEditDialog(context, state);
       if (result == null) return;
@@ -154,7 +152,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
       onSelected: (v) async{
         switch (v) {
           case 1: {
-            await _closeProcedureRecordDialog(context);
+            await _closeProcedureRecordDialog(context, record);
             break;
           }
           case 2: {
@@ -177,7 +175,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
 
   List<PopupMenuEntry<int>> _generateMenuItems(ProcedureRecordImmutable record) {
     List<PopupMenuEntry<int>> list = List();
-    if (!record.isBreak && record.isOpened) {
+    if (/*!record.isBreak && */record.isOpened) {
       list.add(PopupMenuItem(
           value: 1, child: Text('Uzavřít'))
       );
@@ -198,75 +196,14 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
   }
 
 
-  Future<void> _closeProcedureRecordDialog(BuildContext _context) async{
-    GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-    int quantity;
-    DateTime finish;
-
+  Future<void> _closeProcedureRecordDialog(BuildContext _context, ProcedureRecordImmutable record) async{
     return await showDialog(
         context: _context,
         builder: (BuildContext context) => SimpleDialog(
           contentPadding: EdgeInsets.all(25),
           title: const Text('Uzavření záznamu'),
           children: <Widget>[
-            Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  TextFormField(
-                    style: TextStyle(fontSize: 18),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      WhitelistingTextInputFormatter.digitsOnly
-                    ],
-                    decoration: InputDecoration(
-                      labelText: 'počet',
-                    ),
-                    validator: (s) {
-                      if (s.isEmpty) {
-                        return 'Zadejte počet';
-                      }
-                      return null;
-                    },
-                    onSaved: (val) {
-                      quantity = int.parse(val);
-                    },
-                  ),
-                  SizedBox(height: 15),
-                  Container(
-                      height: 150,
-                      decoration: BoxDecoration(
-                          border: Border.all(width: 1, color: Colors.black)
-                      ),
-                      child: TimePickerSpinner(
-                        isShowSeconds: false,
-                        is24HourMode: true,
-                        isForce2Digits: true,
-                        minutesInterval: 15,
-                        spacing: 75,
-                        itemHeight: 50,
-                        time: TimeUtils.findClosestTime(DateTime.now(), 15),
-                        onTimeChange: (time) {
-                          finish = time;
-                        },
-                      )),
-                  RaisedButton(
-                    child: Text('Uzavřít záznam'),
-                    onPressed: () {
-                      if (!_formKey.currentState.validate()) {
-                        return;
-                      }
-                      _formKey.currentState.save();
-
-                      _bloc.add(ProcedureRecordClosed(finish, quantity));
-
-                      Navigator.pop(context);
-                    },
-                  )
-                ],
-              ),
-            )
+            _CloseProcedureForm(record, _context)
           ],
         )
     );
@@ -334,5 +271,163 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
           );
         }
     );
+  }
+}
+
+
+
+class _CloseProcedureForm extends StatefulWidget {
+
+  final ProcedureRecordImmutable record;
+  final BuildContext originContext;
+
+
+  _CloseProcedureForm(this.record, this.originContext);
+
+
+  @override
+  __CloseProcedureFormState createState() => __CloseProcedureFormState();
+}
+
+
+class __CloseProcedureFormState extends State<_CloseProcedureForm> {
+  ProcedureRecordItemWidgetBloc _bloc;
+  GlobalKey<FormState> _formKey;
+  int _quantity;
+  DateTime _finish;
+  double _timeSpent = 0.0;
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    _formKey = GlobalKey();
+    _bloc = BlocProvider.of<ProcedureRecordItemWidgetBloc>(widget.originContext);
+  }
+
+
+  double _calcTime(DateTime start, DateTime finish) {
+    int t = (_getCleanDateTimeUTC(start, finish).millisecondsSinceEpoch - start.millisecondsSinceEpoch) ~/ 1000;
+    return t / 3600;
+  }
+
+
+  DateTime _getCleanDateTimeUTC(DateTime defaultTime, DateTime d) {
+    return DateTime.utc(defaultTime.year, defaultTime.month, defaultTime.day, d.hour, d.minute, 0, 0, 0);
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Row(
+            children: _getFormTopRowContext(widget.record)
+          ),
+
+          SizedBox(height: 15),
+
+          Container(
+            height: 150,
+            decoration: BoxDecoration(
+                border: Border.all(width: 1, color: Colors.black)
+            ),
+            child: TimePickerSpinner(
+              isShowSeconds: false,
+              is24HourMode: true,
+              isForce2Digits: true,
+              minutesInterval: 15,
+              spacing: 75,
+              itemHeight: 50,
+              time: _getDefaultTime(widget.record),
+              onTimeChange: (time) {
+                setState(() {
+                  _finish = time;
+                  _timeSpent = _calcTime(widget.record.start, _finish);
+                });
+              },
+            )
+          ),
+
+          RaisedButton(
+            child: Text('Uzavřít záznam'),
+            onPressed: () {
+              if (!_formKey.currentState.validate()) {
+                return;
+              }
+              _formKey.currentState.save();
+
+              _bloc.add(ProcedureRecordClosed(_finish, _quantity));
+
+              Navigator.pop(context);
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+
+  List<Widget> _getFormTopRowContext(ProcedureRecordImmutable record) {
+    List<Widget> content = List();
+
+    content.add(
+      Expanded(
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 350),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return ScaleTransition(scale: animation, child: child);
+          },
+          child: Text(
+            '${_timeSpent.toString()} h',
+            key: ValueKey(_timeSpent),
+            style: TextStyle(fontSize: 18),
+          )
+        ),
+      )
+    );
+
+    if (!record.isBreak) {
+      content.add(
+        Expanded(
+          child: TextFormField(
+            style: TextStyle(fontSize: 18),
+            keyboardType: TextInputType.number,
+            inputFormatters: <TextInputFormatter>[
+              WhitelistingTextInputFormatter.digitsOnly
+            ],
+            decoration: InputDecoration(
+              labelText: 'počet',
+            ),
+            validator: (s) {
+              if (s.isEmpty) {
+                return 'Zadejte počet';
+              }
+              return null;
+            },
+            onSaved: (val) {
+              _quantity = int.parse(val);
+            },
+          ),
+        )
+      );
+    }
+
+    return content;
+  }
+
+
+  DateTime _getDefaultTime(ProcedureRecordImmutable record) {
+    var startTime = record.start;
+    var now = _getCleanDateTimeUTC(startTime, DateTime.now());
+    if (now.isBefore(startTime)) {
+      return startTime;
+    }
+
+    return now;
   }
 }

@@ -1,3 +1,4 @@
+import 'package:app/domain/procedure.dart';
 import 'package:app/screens/summary/summary_screen_states.dart';
 import 'package:flutter/material.dart';
 
@@ -43,25 +44,44 @@ class Summary extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
               Expanded(
-                child: Text(summary.name,
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                child: Text(
+                  summary.name,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: summary.type == ProcedureType.BREAK ?
+                      Colors.black45 :
+                      Colors.black,
+                    fontWeight: FontWeight.bold
+                  )
+                ),
               ),
               SizedBox(
                 width: 70,
-                child: Text('${summary.quantity} ks', textAlign: TextAlign.center),
+                child: Text(
+                  summary.isBreak ? '-' : '${summary.quantity} ks',
+                  style: TextStyle(
+                    color: summary.type == ProcedureType.BREAK ?
+                      Colors.black45 :
+                      Colors.black,
+                  ),
+                  textAlign: TextAlign.center
+                ),
               ),
               SizedBox(
                 width: 70,
-                child: Text('${summary.timeSpent} h', textAlign: TextAlign.right),
+                child: Text(
+                  '${summary.timeSpent} h',
+                  style: TextStyle(
+                    color: summary.type == ProcedureType.BREAK ?
+                      Colors.black45 :
+                      Colors.black,
+                  ),
+                  textAlign: TextAlign.right
+                ),
               ),
             ],
           ),
         );
-        /*return ListTile(
-          title: Text(summary.name,
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-          subtitle: Text('${summary.quantity}ks     ${summary.timeSpent}h'),
-        );*/
       },
     );
   }
