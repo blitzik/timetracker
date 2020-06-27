@@ -56,6 +56,9 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
       builder: (context, state) {
         var record = (state as ProcedureRecordItemDefaultState).record;
         return AnimatedSwitcher(
+          /*transitionBuilder: (child, animation) {
+            return ScaleTransition(scale: animation, child: child);
+          },*/
           duration: const Duration(milliseconds: 500),
           child: Card(
             key: ValueKey(record.hashCode),

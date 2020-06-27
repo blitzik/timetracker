@@ -169,12 +169,13 @@ class _EditableOverview extends State<EditableOverview> {
 
   Widget _buildItem(BuildContext mainContext, ProcedureRecordImmutable record, int index, Animation<double> animation) {
     return SizeTransition(
+      key: ValueKey(record.id),
       sizeFactor: animation,
       child: BlocProvider(
         create: (context) => ProcedureRecordItemWidgetBloc(_bloc, record, index == 0),
         child: ProcedureRecordItemWidget(
-            const EdgeInsets.symmetric(horizontal: 15),
-            true
+          const EdgeInsets.symmetric(horizontal: 15),
+          true
         ),
       ),
     );
