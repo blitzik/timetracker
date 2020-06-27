@@ -38,11 +38,16 @@ class Summary extends StatelessWidget {
       itemCount: state.records.length,
       itemBuilder: (BuildContext context, int index) {
         var summary = state.records.elementAt(index);
+        int pos = index + 1;
         return Padding(
           padding: const EdgeInsets.all(15),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
+              SizedBox(
+                width: 25,
+                child: Text('$pos. '),
+              ),
               Expanded(
                 child: Text(
                   summary.name,
