@@ -51,15 +51,15 @@ class ProcedureRecordImmutable {
 
 
   int get hashCode => hashObjects([
-    procedureName.hashCode,
-    procedureType.hashCode,
-    start.hashCode,
-    finish.hashCode,
-    quantity.hashCode,
-    timeSpent.hashCode,
-    isBreak .hashCode,
-    isOpened.hashCode,
-    isClosed.hashCode,
+    procedureName,
+    procedureType,
+    start,
+    finish,
+    quantity,
+    timeSpent,
+    isBreak ,
+    isOpened,
+    isClosed,
   ]);
 
 
