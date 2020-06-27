@@ -1,4 +1,3 @@
-import 'package:app/screens/editable_overview/editable_overview_states.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/domain/procedure_immutable.dart';
 import 'dart:collection';
@@ -8,18 +7,6 @@ abstract class AddProcedureRecordState {
   final ProcedureRecordImmutable lastRecord;
 
   AddProcedureRecordState(this.lastRecord);
-}
-
-
-class AddProcedureRecordLoadInProgress extends AddProcedureRecordState {
-  AddProcedureRecordLoadInProgress(ProcedureRecordImmutable lastRecord) : super(lastRecord);
-}
-
-
-class AddProcedureRecordLoadFailed extends AddProcedureRecordState {
-  final String message;
-
-  AddProcedureRecordLoadFailed(ProcedureRecordImmutable lastRecord, this.message) : super(lastRecord);
 }
 
 

@@ -1,3 +1,4 @@
+import 'package:app/app_bloc.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_widget_bloc.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_widget.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
@@ -28,12 +29,14 @@ class EditableOverview extends StatefulWidget {
 class _EditableOverview extends State<EditableOverview> {
   GlobalKey<AnimatedListState> _animatedListKey;
   EditableOverviewBloc _bloc;
+  AppBloc _appBloc;
 
 
   @override
   void initState() {
     super.initState();
     _animatedListKey = GlobalKey();
+    _appBloc = BlocProvider.of<AppBloc>(context);
     _bloc = BlocProvider.of<EditableOverviewBloc>(context);
     _bloc.add(ProcedureRecordsLoaded());
   }
@@ -172,7 +175,7 @@ class _EditableOverview extends State<EditableOverview> {
       key: ValueKey(record.id),
       sizeFactor: animation,
       child: BlocProvider(
-        create: (context) => ProcedureRecordItemWidgetBloc(_bloc, record, index == 0),
+        create: (context) => ProcedureRecordItemWidgetBloc(_bloc, record, index == 0, (_appBloc.state as AppLoadSuccess).procedures),
         child: ProcedureRecordItemWidget(
           const EdgeInsets.symmetric(horizontal: 15),
           true

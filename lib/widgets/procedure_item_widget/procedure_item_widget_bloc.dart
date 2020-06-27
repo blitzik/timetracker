@@ -1,3 +1,4 @@
+import 'package:app/app_bloc.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_items_widget_events.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_states.dart';
 import 'package:app/widgets/procedure_form/procedure_form_states.dart';
@@ -10,6 +11,7 @@ import 'dart:async';
 
 class ProcedureItemWidgetBloc extends Bloc<ProcedureItemWidgetEvent, ProcedureItemState> {
   final ProcedureImmutable _procedure;
+  final AppBloc _appBloc;
 
 
   ProcedureFormBloc _formBloc;
@@ -35,7 +37,7 @@ class ProcedureItemWidgetBloc extends Bloc<ProcedureItemWidgetEvent, ProcedureIt
   ProcedureItemState get initialState => ProcedureItemDefaultState(_procedure);
 
 
-  ProcedureItemWidgetBloc(this._procedure);
+  ProcedureItemWidgetBloc(this._procedure, this._appBloc);
 
 
 
@@ -51,6 +53,8 @@ class ProcedureItemWidgetBloc extends Bloc<ProcedureItemWidgetEvent, ProcedureIt
     var update = await SQLiteDbProvider.db.updateProcedure(state.procedure, event.newName);
     if (update.isSuccess) {
       yield ProcedureItemUpdateSuccess(update.result);
+      _appBloc.add(AppProcedureUpdated(update.result));
+
     } else {
       yield ProcedureItemUpdateFailure(state.procedure, update.lastMessage);
     }

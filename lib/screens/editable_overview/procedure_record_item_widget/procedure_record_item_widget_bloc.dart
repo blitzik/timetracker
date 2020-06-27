@@ -1,3 +1,6 @@
+import 'dart:collection';
+
+import 'package:app/domain/procedure_immutable.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_events.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_states.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_states.dart';
@@ -14,6 +17,7 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
   final EditableOverviewBloc _editableOverviewBloc;
   final ProcedureRecordImmutable _procedureRecord;
   final bool _isLast;
+  final UnmodifiableListView<ProcedureImmutable> _procedures;
 
 
   StreamSubscription<ProcedureRecordEditFormState> _editFormSubscription;
@@ -23,7 +27,7 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
       _editFormBloc.close();
       _editFormSubscription.cancel();
     }
-    _editFormBloc = ProcedureRecordEditFormBloc(state.record);
+    _editFormBloc = ProcedureRecordEditFormBloc(state.record, _procedures);
     _editFormSubscription = _editFormBloc.listen((onDataState) {
       if (onDataState is EditFormProcessingSuccess) {
         this.add(ProcedureRecordUpdated(onDataState.quantity, onDataState.selectedProcedure));
@@ -40,10 +44,12 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
   ProcedureRecordItemWidgetBloc(
     this._editableOverviewBloc,
     this._procedureRecord,
-    this._isLast
+    this._isLast,
+    this._procedures
   ) : assert(_editableOverviewBloc != null),
       assert(_procedureRecord != null),
-      assert(_isLast != null);
+      assert(_isLast != null),
+      assert(_procedures != null);
 
 
   @override

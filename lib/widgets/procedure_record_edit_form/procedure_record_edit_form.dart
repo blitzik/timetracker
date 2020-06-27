@@ -1,8 +1,8 @@
-import 'package:app/domain/procedure.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_events.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_states.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:app/domain/procedure.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -52,20 +52,6 @@ class _ProcedureRecordEditFormState extends State<ProcedureRecordEditForm> {
         return true;
       },
       builder: (context, state) {
-        if (state is EditFormProceduresLoadInProgress) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-
-        if (state is EditFormProceduresLoadFailure) {
-          return Center(
-            child: ListTile(
-              title: Text(state.errorMessage, style: TextStyle(color: Colors.red)),
-            ),
-          );
-        }
-
         var st = (state as EditFormState);
         return Form(
           key: _formKey,
@@ -123,7 +109,7 @@ class _ProcedureRecordEditFormState extends State<ProcedureRecordEditForm> {
       onChanged: (v) {
         setState(() {
           _selectedProcedure = v;
-          _isQuantityFieldVisible = state.procedures[_selectedProcedure].type != ProcedureType.BREAK;
+          _isQuantityFieldVisible = state.procedures[_selectedProcedure].type != ProcedureType.BREAK && state.record.isClosed;
           _quantity = null;
         });
       },

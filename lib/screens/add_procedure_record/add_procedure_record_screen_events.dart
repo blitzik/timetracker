@@ -4,9 +4,6 @@ import 'package:app/domain/procedure_immutable.dart';
 abstract class AddProcedureRecordEvent {}
 
 
-class AddProcedureRecordFormProceduresLoaded extends AddProcedureRecordEvent {}
-
-
 class AddProcedureRecordFormSent extends AddProcedureRecordEvent {
   final int lastRecordQuantity;
   final DateTime start;

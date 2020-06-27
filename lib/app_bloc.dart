@@ -13,19 +13,47 @@ class AppBloc extends Bloc<AppEvent, AppState>{
   @override
   Stream<AppState> mapEventToState(AppEvent event) async*{
     if (event is InitializedApp) {
-      yield* _initializedAppToStat(event);
+      yield* _initializedAppToState(event);
+
+    } else if (event is AppProcedureAdded) {
+      yield* _appProcedureAddedToSTate(event);
+
+    } else if (event is AppProcedureUpdated) {
+      yield* _appProcedureUpdatedToSTate(event);
     }
   }
 
 
-  Stream<AppState> _initializedAppToStat(InitializedApp event) async*{
+  Stream<AppState> _initializedAppToState(InitializedApp event) async*{
     yield AppStateLoadInProgress();
     var proceduresSearch = await SQLiteDbProvider.db.findAllProcedures();
     if (proceduresSearch.isSuccess) {
-      yield AppLoadSuccessful(UnmodifiableListView(proceduresSearch.result));
+      yield AppLoadSuccess(UnmodifiableListView(proceduresSearch.result));
 
     } else {
       yield AppLoadFail(proceduresSearch.lastMessage);
+    }
+  }
+
+
+  Stream<AppState> _appProcedureAddedToSTate(AppProcedureAdded event) async*{
+    if (state is AppLoadSuccess) {
+      List<ProcedureImmutable> updatedList = List.from((state as AppLoadSuccess).procedures);
+      updatedList.insert(0, event.procedure);
+      yield AppLoadSuccess(UnmodifiableListView(updatedList));
+    }
+  }
+
+
+  Stream<AppState> _appProcedureUpdatedToSTate(AppProcedureUpdated event) async*{
+    if (state is AppLoadSuccess) {
+      List<ProcedureImmutable> updatedList = List.from((state as AppLoadSuccess).procedures);
+
+      int index = updatedList.indexWhere((element) => element.id == event.procedure.id);
+      updatedList.removeAt(index);
+      updatedList.insert(index, event.procedure);
+
+      yield AppLoadSuccess(UnmodifiableListView(updatedList));
     }
   }
 }
@@ -38,6 +66,18 @@ abstract class AppEvent {}
 
 class InitializedApp extends AppEvent {}
 
+class AppProcedureAdded extends AppEvent {
+  final ProcedureImmutable procedure;
+
+  AppProcedureAdded(this.procedure);
+}
+
+
+class AppProcedureUpdated extends AppEvent {
+  final ProcedureImmutable procedure;
+
+  AppProcedureUpdated(this.procedure);
+}
 
 
 // States
@@ -48,10 +88,20 @@ abstract class AppState {}
 class AppStateLoadInProgress extends AppState {}
 
 
-class AppLoadSuccessful extends AppState {
+class AppLoadSuccess extends AppState {
   final UnmodifiableListView<ProcedureImmutable> procedures;
 
-  AppLoadSuccessful(this.procedures);
+  AppLoadSuccess(this.procedures);
+}
+
+
+class AppProcedureCreationSuccess extends AppLoadSuccess {
+  AppProcedureCreationSuccess(UnmodifiableListView<ProcedureImmutable> procedures) : super(procedures);
+}
+
+
+class AppProcedureUpdateSuccess extends AppLoadSuccess {
+  AppProcedureUpdateSuccess(UnmodifiableListView<ProcedureImmutable> procedures) : super(procedures);
 }
 
 

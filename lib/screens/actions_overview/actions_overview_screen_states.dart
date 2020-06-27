@@ -5,9 +5,6 @@ import 'dart:collection';
 abstract class ActionsOverviewScreenState {}
 
 
-class ActionsOverviewLoadInProgress extends ActionsOverviewScreenState {}
-
-
 class ActionsOverviewLoadSuccess extends ActionsOverviewScreenState {
   UnmodifiableListView<ProcedureImmutable> procedures;
 

@@ -19,6 +19,13 @@ class MainScreen extends StatelessWidget {
         title: Text('TimeTracker'),
       ),
       body: BlocBuilder<AppBloc, AppState>(
+        condition: (oldState, newState) {
+          if (newState is AppProcedureCreationSuccess ||
+              newState is AppProcedureUpdateSuccess) {
+            return false;
+          }
+          return true;
+        },
         builder: (context, state) {
           if (state is AppStateLoadInProgress) {
             return Center(

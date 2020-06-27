@@ -2,47 +2,34 @@ import 'package:app/screens/add_procedure_record/add_procedure_record_screen_eve
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_states.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
+import 'package:app/domain/procedure_immutable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:collection';
 
 
 class AddProcedureRecordScreenBloc extends Bloc<AddProcedureRecordEvent, AddProcedureRecordState> {
   ProcedureRecordImmutable _lastRecord;
+  final UnmodifiableListView<ProcedureImmutable> _procedures;
 
 
   @override
-  AddProcedureRecordState get initialState => AddProcedureRecordLoadInProgress(_lastRecord);
+  AddProcedureRecordState get initialState => AddProcedureRecordFormState(
+      _lastRecord,
+      _procedures,
+      null, null, null
+  );
 
 
   @override
   Stream<AddProcedureRecordState> mapEventToState(AddProcedureRecordEvent event) async*{
-    if (event is AddProcedureRecordFormProceduresLoaded) {
-      yield* _addProcedureRecordFormProceduresLoadedToState(event);
-
-    } else if (event is AddProcedureRecordFormSent) {
+    if (event is AddProcedureRecordFormSent) {
       yield* _addProcedureRecordFormSentToState(event);
     }
   }
 
 
-  AddProcedureRecordScreenBloc(this._lastRecord);
+  AddProcedureRecordScreenBloc(this._lastRecord, this._procedures);
 
-
-  Stream<AddProcedureRecordState> _addProcedureRecordFormProceduresLoadedToState(AddProcedureRecordFormProceduresLoaded event) async*{
-    yield AddProcedureRecordLoadInProgress(_lastRecord);
-    var proceduresLoading = await SQLiteDbProvider.db.findAllProcedures();
-    if (proceduresLoading.isSuccess) {
-      yield AddProcedureRecordFormState(
-        _lastRecord,
-        proceduresLoading.result,
-        null,
-        null,
-        null
-      );
-
-    } else {
-      yield AddProcedureRecordLoadFailed(_lastRecord, proceduresLoading.lastMessage);
-    }
-  }
 
 
   Stream<AddProcedureRecordState> _addProcedureRecordFormSentToState(AddProcedureRecordFormSent event) async*{

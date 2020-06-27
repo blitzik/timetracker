@@ -5,11 +5,13 @@ import 'package:app/widgets/procedure_form/procedure_form_bloc.dart';
 import 'package:app/domain/procedure_immutable.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:app/app_bloc.dart';
 import 'dart:collection';
 import 'dart:async';
 
 
 class ActionsOverviewScreenBloc extends Bloc<ActionsOverviewScreenEvent, ActionsOverviewScreenState> {
+  final AppBloc _appBloc;
 
   ProcedureFormBloc _formBloc;
   StreamSubscription<ProcedureFormState> _creationFormSubscription;
@@ -28,29 +30,16 @@ class ActionsOverviewScreenBloc extends Bloc<ActionsOverviewScreenEvent, Actions
 
 
   @override
-  ActionsOverviewScreenState get initialState => ActionsOverviewLoadInProgress();
+  ActionsOverviewScreenState get initialState => ActionsOverviewLoadSuccess((_appBloc.state as AppLoadSuccess).procedures);
 
 
-  ActionsOverviewScreenBloc();
+  ActionsOverviewScreenBloc(this._appBloc);
 
 
   @override
   Stream<ActionsOverviewScreenState> mapEventToState(ActionsOverviewScreenEvent event) async*{
-    if (event is ActionsOverviewLoaded) {
-      yield* _actionsOverviewLoadedToState(event);
-
-    } else if (event is ActionsOverviewProcedureAdded) {
+    if (event is ActionsOverviewProcedureAdded) {
       yield* _actionsOverviewProcedureAdded(event);
-    }
-  }
-
-
-  Stream<ActionsOverviewScreenState> _actionsOverviewLoadedToState(ActionsOverviewLoaded event) async*{
-    var result = await SQLiteDbProvider.db.findAllProcedures();
-    if (!result.isSuccess) {
-      yield ActionsOverviewLoadFailure(result.lastMessage);
-    } else {
-      yield ActionsOverviewLoadSuccess(UnmodifiableListView(result.result));
     }
   }
 
@@ -66,6 +55,7 @@ class ActionsOverviewScreenBloc extends Bloc<ActionsOverviewScreenEvent, Actions
           (state as ActionsOverviewLoadSuccess).procedures
         )..insert(0, insertion.result);
         yield ActionsOverviewProcedureSaveSuccess(UnmodifiableListView(updatedList));
+        _appBloc.add(AppProcedureAdded(insertion.result));
       }
     }
   }

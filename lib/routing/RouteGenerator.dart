@@ -39,7 +39,7 @@ class RouteGenerator {
 
       case AddProcedureRecordScreen.routeName: return MaterialPageRoute(
         builder: (_) => BlocProvider(
-          create: (context) => AddProcedureRecordScreenBloc(args as ProcedureRecordImmutable),
+          create: (context) => AddProcedureRecordScreenBloc(args as ProcedureRecordImmutable, (_appBloc.state as AppLoadSuccess).procedures),
           child: AddProcedureRecordScreen(),
         )
       );
@@ -53,7 +53,7 @@ class RouteGenerator {
 
       case ActionsOverviewScreen.routeName: return MaterialPageRoute(
         builder: (_) => BlocProvider(
-          create: (context) => ActionsOverviewScreenBloc(),
+          create: (context) => ActionsOverviewScreenBloc(_appBloc),
           child: ActionsOverviewScreen(),
         )
       );

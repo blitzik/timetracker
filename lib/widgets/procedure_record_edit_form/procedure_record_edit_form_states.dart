@@ -10,11 +10,6 @@ abstract class ProcedureRecordEditFormState {
 }
 
 
-class EditFormProceduresLoadInProgress extends ProcedureRecordEditFormState {
-  EditFormProceduresLoadInProgress(ProcedureRecordImmutable record) : super(record);
-}
-
-
 class EditFormState extends ProcedureRecordEditFormState {
   Map<String, ProcedureImmutable> _procedures = Map();
   UnmodifiableMapView<String, ProcedureImmutable> get procedures => UnmodifiableMapView(_procedures);
@@ -49,15 +44,6 @@ class EditFormState extends ProcedureRecordEditFormState {
       quantity ?? this.quantity
     );
   }
-}
-
-
-class EditFormProceduresLoadFailure extends ProcedureRecordEditFormState {
-  final String errorMessage;
-
-  EditFormProceduresLoadFailure(
-    ProcedureRecordImmutable record, this.errorMessage
-  ) : super(record);
 }
 
 

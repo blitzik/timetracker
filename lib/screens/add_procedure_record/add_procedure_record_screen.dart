@@ -40,7 +40,6 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
     super.initState();
 
     _bloc = BlocProvider.of<AddProcedureRecordScreenBloc>(context);
-    _bloc.add(AddProcedureRecordFormProceduresLoaded());
 
     _titleTextStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
     _formKey = GlobalKey<FormState>();
@@ -121,21 +120,6 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                             return true;
                           },
                           builder: (context, state) {
-                            if (state is AddProcedureRecordLoadInProgress) {
-                              return Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-
-                            if (state is AddProcedureRecordLoadFailed) {
-                              return Center(
-                                child: ListTile(
-                                  leading: Icon(Icons.error, color: Colors.red),
-                                  title: Text(state.message, style: TextStyle(color: Colors.red)),
-                                )
-                              );
-                            }
-
                             var st = (state as AddProcedureRecordFormState);
                             return DropdownButtonFormField(
                               hint: Text('Zvolte akci'),
@@ -168,14 +152,6 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                           return true;
                         },
                         builder: (context, state) {
-                          if (state is AddProcedureRecordLoadInProgress) {
-                            return SizedBox(width: 0, height: 0);
-                          }
-
-                          if (state is AddProcedureRecordLoadFailed) {
-                            return SizedBox(width: 0, height: 0);
-                          }
-
                           return Container(
                             height: 150,
                             decoration: BoxDecoration(border: Border.all(width: 1, color: Colors.black)),
@@ -221,14 +197,6 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                               return true;
                             },
                             builder: (context, state) {
-                              if (state is AddProcedureRecordLoadInProgress) {
-                                return Container(width: 0, height: 0);
-                              }
-
-                              if (state is AddProcedureRecordLoadFailed) {
-                                return SizedBox(width: 0, height: 0);
-                              }
-
                               var st = (state as AddProcedureRecordFormState);
                               return RaisedButton(
                                 child: Text('START'),
@@ -271,14 +239,6 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
 
 
   Widget _getQuantityTextField(AddProcedureRecordState state) {
-    if (state is AddProcedureRecordLoadInProgress) {
-      return null;
-    }
-
-    if (state is AddProcedureRecordLoadFailed) {
-      return null;
-    }
-
     var lastRecord = state.lastRecord;
     if (lastRecord == null || lastRecord.procedureType == ProcedureType.BREAK) {
       return null;

@@ -1,5 +1,4 @@
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_bloc.dart';
-import 'package:app/screens/actions_overview/actions_overview_screen_events.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen_states.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen_bloc.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget.dart';
@@ -10,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
+import 'package:app/app_bloc.dart';
 
 
 class ActionsOverviewScreen extends StatefulWidget {
@@ -27,14 +27,15 @@ class _ActionsOverviewScreenState extends State<ActionsOverviewScreen> {
 
   GlobalKey<AnimatedListState> _animatedListKey;
   ActionsOverviewScreenBloc _bloc;
+  AppBloc _appBloc;
 
 
   @override
   void initState() {
     super.initState();
     _animatedListKey = GlobalKey();
+    _appBloc = BlocProvider.of<AppBloc>(context);
     _bloc = BlocProvider.of<ActionsOverviewScreenBloc>(context);
-    _bloc.add(ActionsOverviewLoaded());
   }
 
 
@@ -75,18 +76,6 @@ class _ActionsOverviewScreenState extends State<ActionsOverviewScreen> {
               );
             }
 
-            if (state is ActionsOverviewLoadInProgress) {
-              return Center(
-                child: Column(
-                  children: <Widget>[
-                    Text('Načítám data ...'),
-                    SizedBox(height: 25,),
-                    CircularProgressIndicator()
-                  ],
-                ),
-              );
-            }
-
             var st = (state as ActionsOverviewLoadSuccess);
             return AnimatedList(
               key: _animatedListKey,
@@ -115,7 +104,7 @@ class _ActionsOverviewScreenState extends State<ActionsOverviewScreen> {
       sizeFactor: animation,
       child: BlocProvider(
         key: ValueKey(procedure.id),
-        create: (context) => ProcedureItemWidgetBloc(procedure),
+        create: (context) => ProcedureItemWidgetBloc(procedure, _appBloc),
         child: ProcedureItemWidget(),
       ),
     );
