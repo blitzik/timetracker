@@ -12,11 +12,14 @@ import 'package:app/screens/summary/summary_screen.dart';
 import 'package:app/screens/main/main_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:app/app_bloc.dart';
 
 
 class RouteGenerator {
 
-  RouteGenerator();
+  final AppBloc _appBloc;
+
+  RouteGenerator(this._appBloc);
 
 
   Route<dynamic> generateRoute(RouteSettings settings) {

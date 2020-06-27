@@ -1,4 +1,3 @@
-import 'package:app/screens/editable_overview/editable_overview.dart';
 import 'package:app/screens/main/main_screen.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:app/routing/RouteGenerator.dart';
@@ -13,23 +12,26 @@ void main() {
   initializeDateFormatting();
 
 
-  RouteGenerator routeGenerator = RouteGenerator();
+  AppBloc appBloc = AppBloc();
+  appBloc.add(InitializedApp());
+  RouteGenerator routeGenerator = RouteGenerator(appBloc);
 
-  runApp(App(routeGenerator));
+  runApp(App(routeGenerator, appBloc));
 }
 
 
 class App extends StatelessWidget{
   final RouteGenerator _routeGenerator;
+  final AppBloc _bloc;
 
 
-  App(this._routeGenerator);
+  App(this._routeGenerator, this._bloc);
 
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (BuildContext context) => AppBloc(),
+    return BlocProvider.value(
+      value: _bloc,
       child: MaterialApp(
         title: 'TimeTracker',
         theme: ThemeData(

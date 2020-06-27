@@ -1,7 +1,9 @@
 import 'package:app/screens/actions_overview/actions_overview_screen.dart';
 import 'package:app/screens/editable_overview/editable_overview.dart';
 import 'package:app/screens/archive/archive_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:app/app_bloc.dart';
 
 
 class MainScreen extends StatelessWidget {
@@ -16,52 +18,91 @@ class MainScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('TimeTracker'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: Container(
-              color: Color(0xff2980b9),
-              child: FlatButton(
-                child: ListTile(
-                  leading: Icon(Icons.view_headline, size: 50, color: Colors.white),
-                  title: Text('Přehled akcí', style: btnTextStyle)
-                ),
-                onPressed: () {
-                  Navigator.pushNamed(context, ActionsOverviewScreen.routeName);
-                },
+      body: BlocBuilder<AppBloc, AppState>(
+        builder: (context, state) {
+          if (state is AppStateLoadInProgress) {
+            return Center(
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Text('Načítám data...', style: TextStyle(fontSize: 25)),
+                  ),
+                  SizedBox(height: 50),
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: CircularProgressIndicator()
+                  ),
+                ],
               ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              color: Color(0xff34495e),
-              child: FlatButton(
-                child: ListTile(
-                  leading: Icon(Icons.archive, size: 50, color: Colors.white),
-                  title: Text('Historické záznamy', style: btnTextStyle)
-                ),
-                onPressed: () {
-                  Navigator.pushNamed(context, ArchiveScreen.routeName);
-                },
+            );
+          }
+
+          if (state is AppLoadFail) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 50),
+              child: Column(
+                children: <Widget>[
+                  ListTile(
+                    title: Text('Při startu aplikace došlo k chybě', style: TextStyle(fontSize: 22)),
+                    subtitle: Text(state.errorMessage, style: TextStyle(color: Colors.red, fontSize: 16)),
+                  ),
+                  SizedBox(height: 50),
+                  Icon(Icons.error, size: 200, color: Colors.red,)
+                ],
               ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              color: Color(0xff27ae60),
-              child: FlatButton(
-                child: ListTile(
-                  leading: Icon(Icons.access_time, size: 50, color: Colors.white),
-                  title: Text('Spravovat dnešní záznamy', style: btnTextStyle)
+            );
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(
+                child: Container(
+                  color: Color(0xff2980b9),
+                  child: FlatButton(
+                    child: ListTile(
+                      leading: Icon(Icons.view_headline, size: 50, color: Colors.white),
+                      title: Text('Přehled akcí', style: btnTextStyle)
+                    ),
+                    onPressed: () {
+                      Navigator.pushNamed(context, ActionsOverviewScreen.routeName);
+                    },
+                  ),
                 ),
-                onPressed: () {
-                  Navigator.pushNamed(context, EditableOverview.routeName, arguments: DateTime.now());
-                },
               ),
-            ),
-          ),
-        ],
+              Expanded(
+                child: Container(
+                  color: Color(0xff34495e),
+                  child: FlatButton(
+                    child: ListTile(
+                      leading: Icon(Icons.archive, size: 50, color: Colors.white),
+                      title: Text('Historické záznamy', style: btnTextStyle)
+                    ),
+                    onPressed: () {
+                      Navigator.pushNamed(context, ArchiveScreen.routeName);
+                    },
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  color: Color(0xff27ae60),
+                  child: FlatButton(
+                    child: ListTile(
+                      leading: Icon(Icons.access_time, size: 50, color: Colors.white),
+                      title: Text('Spravovat dnešní záznamy', style: btnTextStyle)
+                    ),
+                    onPressed: () {
+                      Navigator.pushNamed(context, EditableOverview.routeName, arguments: DateTime.now());
+                    },
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
       ),
     );
   }

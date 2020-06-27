@@ -1,6 +1,3 @@
-import 'package:app/domain/procedure_immutable.dart';
-
-
 abstract class ActionsOverviewScreenEvent {}
 
 
