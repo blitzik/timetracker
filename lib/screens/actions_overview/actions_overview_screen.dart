@@ -1,3 +1,4 @@
+import 'package:app/utils/result_object/dialog_utils.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_bloc.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen_states.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen_bloc.dart';
@@ -112,22 +113,20 @@ class _ActionsOverviewScreenState extends State<ActionsOverviewScreen> {
 
 
   Future<ResultObject<ProcedureImmutable>> _openProcedureCreationDialog(BuildContext _context) async{
-    return await showDialog(
-        context: _context,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            title: const Text('Nová akce'),
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(25),
-                child: BlocProvider.value(
-                  value: _bloc.creationFormBloc,
-                  child: ProcedureForm(),
-                ),
-              )
-            ],
-          );
-        }
+    return await DialogUtils.showCustomGeneralDialog(
+      _context,
+      SimpleDialog(
+        title: const Text('Nová akce'),
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(25),
+            child: BlocProvider.value(
+              value: _bloc.creationFormBloc,
+              child: ProcedureForm(),
+            ),
+          )
+        ],
+      )
     );
   }
 

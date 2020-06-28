@@ -1,3 +1,4 @@
+import 'package:app/utils/result_object/dialog_utils.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_states.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_bloc.dart';
 import 'package:app/widgets/procedure_form/procedure_form.dart';
@@ -98,22 +99,20 @@ class _ProcedureItemWidgetState extends State<ProcedureItemWidget> {
 
 
   Future<ProcedureImmutable> _openEditDialog(BuildContext _context) async{
-    return showDialog(
-      context: _context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: const Text('Úprava záznamu'),
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(25),
-              child: BlocProvider.value(
-                value: _bloc.formBloc,
-                child: ProcedureForm(),
-              ),
-            )
-          ],
-        );
-      }
+    return await DialogUtils.showCustomGeneralDialog(
+      _context,
+      SimpleDialog(
+        title: const Text('Úprava záznamu'),
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(25),
+            child: BlocProvider.value(
+              value: _bloc.formBloc,
+              child: ProcedureForm(),
+            ),
+          )
+        ],
+      )
     );
   }
 }

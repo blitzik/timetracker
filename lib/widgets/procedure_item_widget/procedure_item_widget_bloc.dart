@@ -1,4 +1,3 @@
-import 'package:app/app_bloc.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_items_widget_events.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_states.dart';
 import 'package:app/widgets/procedure_form/procedure_form_states.dart';
@@ -6,6 +5,7 @@ import 'package:app/widgets/procedure_form/procedure_form_bloc.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:app/domain/procedure_immutable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:app/app_bloc.dart';
 import 'dart:async';
 
 

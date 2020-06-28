@@ -1,6 +1,7 @@
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_widget_bloc.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_events.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_states.dart';
+import 'package:app/utils/result_object/dialog_utils.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:app/screens/editable_overview/editable_overview_events.dart';
@@ -199,45 +200,45 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
 
 
   Future<void> _closeProcedureRecordDialog(BuildContext _context, ProcedureRecordImmutable record) async{
-    return await showDialog(
-        context: _context,
-        builder: (BuildContext context) => SimpleDialog(
-          contentPadding: EdgeInsets.all(25),
-          title: const Text('Uzavření záznamu'),
-          children: <Widget>[
-            _CloseProcedureForm(record, _context)
-          ],
-        )
+    return await DialogUtils.showCustomGeneralDialog(
+      _context,
+      SimpleDialog(
+        contentPadding: EdgeInsets.all(25),
+        title: const Text('Uzavření záznamu'),
+        children: <Widget>[
+          _CloseProcedureForm(record, _context)
+        ],
+      )
     );
   }
 
 
   Future<void> _openProcedureRecordDialog(BuildContext _context) async{
-    return await showDialog(
-        context: _context,
-        builder: (BuildContext context) => AlertDialog(
-          contentPadding: EdgeInsets.all(25),
-          content: SingleChildScrollView(
-            child: Text('Skutečně otevřít záznam?'),
+    return await DialogUtils.showCustomGeneralDialog(
+      _context,
+      AlertDialog(
+        contentPadding: EdgeInsets.all(25),
+        content: SingleChildScrollView(
+          child: Text('Skutečně otevřít záznam?'),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Ano'),
+            onPressed: () {
+              _bloc.add(ProcedureRecordOpened());
+              Navigator.pop(_context);
+            },
           ),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('Ano'),
-              onPressed: () {
-                _bloc.add(ProcedureRecordOpened());
-                Navigator.pop(_context);
-              },
-            ),
-          ],
-        )
+        ],
+      )
     );
   }
 
 
   Future<void> _deleteProcedureRecordDialog(BuildContext _context) async{
-    return await showDialog(
-      context: _context,
-      builder: (BuildContext context) => AlertDialog(
+    return await DialogUtils.showCustomGeneralDialog(
+      _context,
+      AlertDialog(
         contentPadding: EdgeInsets.all(25),
         content: SingleChildScrollView(
           child: Text('Skutečně chcete odstranit záznam?'),
@@ -257,21 +258,19 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
   }
 
 
-  Future<ResultObject<void>> _displayEditDialog(BuildContext _context, ProcedureRecordItemDefaultState state) {
-    return showDialog(
-        context: _context,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            contentPadding: EdgeInsets.all(25),
-            title: Text(state.record.procedureName),
-            children: <Widget>[
-              BlocProvider.value(
-                value: _bloc.editFormBloc,
-                child: ProcedureRecordEditForm(),
-              )
-            ],
-          );
-        }
+  Future<ResultObject<void>> _displayEditDialog(BuildContext _context, ProcedureRecordItemDefaultState state) async{
+    return await DialogUtils.showCustomGeneralDialog(
+      _context,
+      SimpleDialog(
+        contentPadding: EdgeInsets.all(25),
+        title: Text(state.record.procedureName),
+        children: <Widget>[
+          BlocProvider.value(
+            value: _bloc.editFormBloc,
+            child: ProcedureRecordEditForm(),
+          )
+        ],
+      )
     );
   }
 }
