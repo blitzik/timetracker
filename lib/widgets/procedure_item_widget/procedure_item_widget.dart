@@ -1,3 +1,4 @@
+import 'package:app/utils/result_object/animation_utils.dart';
 import 'package:app/utils/result_object/dialog_utils.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_states.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_bloc.dart';
@@ -81,7 +82,10 @@ class _ProcedureItemWidgetState extends State<ProcedureItemWidget> {
 
   Widget getBody(ProcedureImmutable procedure) {
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: AnimationUtils.updateItemDurationInMilliseconds),
+      transitionBuilder: (child, animation) {
+        return AnimationUtils.getUpdateItemAnimation(child, animation);
+      },
       child: Card(
         key: UniqueKey(),
         color: Color(0xffeceff1),

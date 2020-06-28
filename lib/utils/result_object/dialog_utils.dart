@@ -8,7 +8,7 @@ class DialogUtils {
         pageBuilder: (BuildContext context, Animation<double> a1, Animation<double> a2) {
           return dialog;
         },
-        transitionDuration: Duration(milliseconds: 750),
+        transitionDuration: Duration(milliseconds: 350),
         transitionBuilder: (BuildContext context, Animation<double> a1, Animation<double> a2, Widget child) {
           return SlideTransition(
               child: child,
@@ -16,7 +16,7 @@ class DialogUtils {
                   begin: Offset(-1, 0),
                   end: Offset(0, 0)
               ).animate(
-                  CurvedAnimation(curve: Curves.elasticInOut, parent: a1)
+                  CurvedAnimation(curve: Curves.easeInExpo, parent: a1)
               )
           );
         },

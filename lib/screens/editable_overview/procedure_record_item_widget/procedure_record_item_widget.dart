@@ -1,6 +1,7 @@
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_widget_bloc.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_events.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_states.dart';
+import 'package:app/utils/result_object/animation_utils.dart';
 import 'package:app/utils/result_object/dialog_utils.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
@@ -57,10 +58,10 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
       builder: (context, state) {
         var record = (state as ProcedureRecordItemDefaultState).record;
         return AnimatedSwitcher(
-          /*transitionBuilder: (child, animation) {
-            return ScaleTransition(scale: animation, child: child);
-          },*/
-          duration: const Duration(milliseconds: 500),
+          transitionBuilder: (child, animation) {
+            return AnimationUtils.getUpdateItemAnimation(child, animation);
+          },
+          duration: const Duration(milliseconds: AnimationUtils.updateItemDurationInMilliseconds),
           child: Card(
             key: ValueKey(record.hashCode),
             color: Color(0xffeceff1),
