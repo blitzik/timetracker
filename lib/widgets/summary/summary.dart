@@ -45,11 +45,10 @@ class Summary extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
               SizedBox(
-                width: 25,
+                width: 30,
                 child: Text('$pos. '),
               ),
               Expanded(
-                flex: 4,
                 child: Text(
                   summary.name,
                   style: TextStyle(
@@ -61,26 +60,29 @@ class Summary extends StatelessWidget {
                   )
                 ),
               ),
-              Expanded(
-                child: Text(
-                  summary.isBreak ? '-' : '${summary.quantity} ks',
-                  style: TextStyle(
-                    color: summary.type == ProcedureType.BREAK ?
-                      Colors.black45 :
-                      Colors.black,
-                  ),
-                  textAlign: TextAlign.center
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  '${summary.timeSpent} h',
-                  style: TextStyle(
-                    color: summary.type == ProcedureType.BREAK ?
-                      Colors.black45 :
-                      Colors.black,
-                  ),
-                  textAlign: TextAlign.right
+              SizedBox(
+                width: 75,
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      summary.isBreak ? '-' : '${summary.quantity} ks',
+                      style: TextStyle(
+                        color: summary.type == ProcedureType.BREAK ?
+                        Colors.black45 :
+                        Colors.black,
+                      ),
+                      textAlign: TextAlign.center
+                    ),
+                    Text(
+                      '${summary.timeSpent} h',
+                      style: TextStyle(
+                        color: summary.type == ProcedureType.BREAK ?
+                        Colors.black45 :
+                        Colors.black,
+                      ),
+                      textAlign: TextAlign.right
+                    ),
+                  ],
                 ),
               ),
             ],
