@@ -122,6 +122,7 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                           builder: (context, state) {
                             var st = (state as AddProcedureRecordFormState);
                             return DropdownButtonFormField(
+                              isExpanded: true,
                               hint: Text('Zvolte akci'),
                               value: _selectedProcedure,
                               items: st.procedures.map((k, v) {
@@ -161,8 +162,9 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                               is24HourMode: true,
                               isForce2Digits: true,
                               minutesInterval: 15,
-                              spacing: 75,
+                              spacing: 40,
                               itemHeight: 50,
+                              itemWidth: 50,
                               onTimeChange: (time) {
                                 _newActionStart = time;
                               },

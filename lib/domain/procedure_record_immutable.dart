@@ -65,13 +65,13 @@ class ProcedureRecordImmutable {
 
   bool operator ==(o) =>
     (o is ProcedureRecordImmutable) &&
-    o.procedureName == procedureName &&
-    o.procedureType == procedureType &&
-    o.start  == start &&
-    o.finish == finish &&
-    o.quantity == quantity &&
-    o.timeSpent == timeSpent &&
-    o.isBreak  == isBreak &&
-    o.isOpened == isOpened &&
-    o.isClosed == isClosed;
+    o.procedureName == this.procedureName &&
+    o.procedureType == this.procedureType &&
+    o.start  == this.start &&
+    o.finish == this.finish &&
+    o.quantity == this.quantity &&
+    o.timeSpent == this.timeSpent &&
+    o.isBreak  == this.isBreak &&
+    o.isOpened == this.isOpened &&
+    o.isClosed == this.isClosed;
 }

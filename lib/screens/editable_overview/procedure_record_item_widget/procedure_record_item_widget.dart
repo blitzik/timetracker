@@ -343,8 +343,9 @@ class __CloseProcedureFormState extends State<_CloseProcedureForm> {
               is24HourMode: true,
               isForce2Digits: true,
               minutesInterval: 15,
-              spacing: 75,
+              spacing: 40,
               itemHeight: 50,
+              itemWidth: 50,
               time: _getDefaultTime(widget.record),
               onTimeChange: (time) {
                 setState(() {

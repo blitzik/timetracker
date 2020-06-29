@@ -1,8 +1,8 @@
-import 'package:app/utils/result_object/animation_utils.dart';
-import 'package:app/utils/result_object/dialog_utils.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_states.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_bloc.dart';
 import 'package:app/widgets/procedure_form/procedure_form.dart';
+import 'package:app/utils/result_object/animation_utils.dart';
+import 'package:app/utils/result_object/dialog_utils.dart';
 import 'package:app/domain/procedure_immutable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app/domain/procedure.dart';
@@ -87,7 +87,7 @@ class _ProcedureItemWidgetState extends State<ProcedureItemWidget> {
         return AnimationUtils.getUpdateItemAnimation(child, animation);
       },
       child: Card(
-        key: UniqueKey(),
+        key: ValueKey(procedure.hashCode),
         color: Color(0xffeceff1),
         margin: const EdgeInsets.symmetric(vertical: 5),
         child: Container(

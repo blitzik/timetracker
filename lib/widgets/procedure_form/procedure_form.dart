@@ -71,7 +71,10 @@ class _ProcedureFormState extends State<ProcedureForm> {
     );
 
     if (state.procedure != null) {
-      body.add(Text('(${state.procedure.name})', textAlign: TextAlign.right));
+      body.add(Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: Text('(${state.procedure.name})', textAlign: TextAlign.right),
+      ));
     }
 
     body.add(SizedBox(height: 15));

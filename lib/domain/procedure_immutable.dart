@@ -1,4 +1,5 @@
 import 'package:app/domain/procedure.dart';
+import 'package:quiver/core.dart';
 
 
 class ProcedureImmutable {
@@ -12,4 +13,11 @@ class ProcedureImmutable {
   ProcedureType get type => _type;
 
   ProcedureImmutable(this._id, this._name, this._type);
+
+
+  int get hashCode => hashObjects([name]);
+
+
+  bool operator ==(o) =>
+      (o is ProcedureImmutable) && o.name == this.name;
 }

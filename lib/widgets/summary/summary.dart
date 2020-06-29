@@ -40,7 +40,7 @@ class Summary extends StatelessWidget {
         var summary = state.records.elementAt(index);
         int pos = index + 1;
         return Padding(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.symmetric(vertical: 15),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
@@ -49,6 +49,7 @@ class Summary extends StatelessWidget {
                 child: Text('$pos. '),
               ),
               Expanded(
+                flex: 4,
                 child: Text(
                   summary.name,
                   style: TextStyle(
@@ -60,8 +61,7 @@ class Summary extends StatelessWidget {
                   )
                 ),
               ),
-              SizedBox(
-                width: 70,
+              Expanded(
                 child: Text(
                   summary.isBreak ? '-' : '${summary.quantity} ks',
                   style: TextStyle(
@@ -72,8 +72,7 @@ class Summary extends StatelessWidget {
                   textAlign: TextAlign.center
                 ),
               ),
-              SizedBox(
-                width: 70,
+              Expanded(
                 child: Text(
                   '${summary.timeSpent} h',
                   style: TextStyle(
