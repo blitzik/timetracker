@@ -1,3 +1,4 @@
+import 'package:app/domain/procedure.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_widget_bloc.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_events.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_states.dart';
@@ -9,6 +10,7 @@ import 'package:app/utils/result_object/animation_utils.dart';
 import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/utils/result_object/dialog_utils.dart';
+import 'package:app/utils/result_object/style.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -63,7 +65,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
           duration: const Duration(milliseconds: AnimationUtils.updateItemDurationInMilliseconds),
           child: Card(
             key: ValueKey(record.hashCode),
-            color: Color(0xffeceff1),
+            color: record.procedureType == ProcedureType.BREAK ? Color(0xffefebe9) : Color(0xffeceff1),
             child: InkWell(
               child: ListTile(
                 contentPadding: widget._padding,
@@ -75,17 +77,20 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
                     Expanded(
                       flex: 2,
                       child: Text(
-                          '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
-                          style: TextStyle(fontSize: _fontSize)
+                        '${DateFormat('Hm').format(record.start)} - ${record.finish == null ? '' : DateFormat('Hm').format(record.finish)}',
+                        style: TextStyle(fontSize: _fontSize)
                       ),
                     ),
                     Expanded(
                       child: Text(
-                          record.timeSpent == null
-                              ? '-'
-                              : '${record.timeSpent.toString()}h',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: _fontSize),
+                        record.timeSpent == null
+                            ? '-'
+                            : '${record.timeSpent.toString()}h',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: _fontSize,
+                          color: record.timeSpent == null || record.timeSpent > 0 ? Colors.black54 : Style.COLOR_POMEGRANATE
+                        ),
                       ),
                     ),
                     Expanded(
