@@ -52,26 +52,20 @@ class ProcedureRecordImmutable {
 
   int get hashCode => hashObjects([
     procedureName,
-    procedureType,
     start,
     finish,
     quantity,
-    timeSpent,
-    isBreak ,
+    isBreak,
     isOpened,
-    isClosed,
   ]);
 
 
   bool operator ==(o) =>
     (o is ProcedureRecordImmutable) &&
     o.procedureName == this.procedureName &&
-    o.procedureType == this.procedureType &&
     o.start  == this.start &&
     o.finish == this.finish &&
     o.quantity == this.quantity &&
-    o.timeSpent == this.timeSpent &&
     o.isBreak  == this.isBreak &&
-    o.isOpened == this.isOpened &&
-    o.isClosed == this.isClosed;
+    o.isOpened == this.isOpened;
 }
