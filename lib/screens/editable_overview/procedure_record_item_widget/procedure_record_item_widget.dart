@@ -3,6 +3,7 @@ import 'package:app/screens/editable_overview/procedure_record_item_widget/proce
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_states.dart';
 import 'package:app/utils/result_object/animation_utils.dart';
 import 'package:app/utils/result_object/dialog_utils.dart';
+import 'package:app/utils/result_object/time_utils.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:app/screens/editable_overview/editable_overview_events.dart';
@@ -310,12 +311,12 @@ class __CloseProcedureFormState extends State<_CloseProcedureForm> {
 
 
   double _calcTime(DateTime start, DateTime finish) {
-    int t = (_getCleanDateTimeUTC(start, finish).millisecondsSinceEpoch - start.millisecondsSinceEpoch) ~/ 1000;
+    int t = (_getCleanDateTime(start, finish).millisecondsSinceEpoch - start.millisecondsSinceEpoch) ~/ 1000;
     return t / 3600;
   }
 
 
-  DateTime _getCleanDateTimeUTC(DateTime defaultTime, DateTime d) {
+  DateTime _getCleanDateTime(DateTime defaultTime, DateTime d) {
     return DateTime.utc(defaultTime.year, defaultTime.month, defaultTime.day, d.hour, d.minute, 0, 0, 0);
   }
 
@@ -426,11 +427,11 @@ class __CloseProcedureFormState extends State<_CloseProcedureForm> {
 
   DateTime _getDefaultTime(ProcedureRecordImmutable record) {
     var startTime = record.start;
-    var now = _getCleanDateTimeUTC(startTime, DateTime.now());
+    var now = _getCleanDateTime(startTime, DateTime.now());
     if (now.isBefore(startTime)) {
       return startTime;
     }
 
-    return now;
+    return TimeUtils.findClosestTime(now, 15);
   }
 }
