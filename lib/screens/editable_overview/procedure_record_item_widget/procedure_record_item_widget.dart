@@ -208,7 +208,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
         contentPadding: EdgeInsets.all(25),
         title: const Text('Uzavření záznamu'),
         children: <Widget>[
-          _CloseProcedureForm(record, _context)
+          _ProcedureRecordClosingForm(record, _context)
         ],
       )
     );
@@ -279,21 +279,21 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
 
 
 
-class _CloseProcedureForm extends StatefulWidget {
+class _ProcedureRecordClosingForm extends StatefulWidget {
 
   final ProcedureRecordImmutable record;
   final BuildContext originContext;
 
 
-  _CloseProcedureForm(this.record, this.originContext);
+  _ProcedureRecordClosingForm(this.record, this.originContext);
 
 
   @override
-  __CloseProcedureFormState createState() => __CloseProcedureFormState();
+  _ProcedureRecordClosingFormState createState() => _ProcedureRecordClosingFormState();
 }
 
 
-class __CloseProcedureFormState extends State<_CloseProcedureForm> {
+class _ProcedureRecordClosingFormState extends State<_ProcedureRecordClosingForm> {
   ProcedureRecordItemWidgetBloc _bloc;
   GlobalKey<FormState> _formKey;
   int _quantity;
