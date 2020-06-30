@@ -3,6 +3,7 @@ import 'package:app/screens/editable_overview/procedure_record_item_widget/proce
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/utils/result_object/time_utils.dart';
+import 'package:app/utils/result_object/style.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -29,10 +30,14 @@ class _ProcedureRecordClosingFormState extends State<ProcedureRecordClosingForm>
   DateTime _finish;
   double _timeSpent = 0.0;
 
+  Color _buttonColor;
+
 
   @override
   void initState() {
     super.initState();
+
+    _buttonColor = Style.COLOR_GREEN_SEA;
 
     _formKey = GlobalKey();
     _bloc = BlocProvider.of<ProcedureRecordItemWidgetBloc>(widget.originContext);
@@ -81,13 +86,19 @@ class _ProcedureRecordClosingFormState extends State<ProcedureRecordClosingForm>
                   setState(() {
                     _finish = time;
                     _timeSpent = _calcTime(widget.record.start, _finish);
+                    if (_timeSpent <= 0) {
+                      _buttonColor = Style.COLOR_POMEGRANATE;
+                    } else {
+                      _buttonColor = Style.COLOR_GREEN_SEA;
+                    }
                   });
                 },
               )
           ),
 
           RaisedButton(
-            child: Text('Uzavřít záznam'),
+            child: Text('Uzavřít záznam', style: TextStyle(color: Colors.white)),
+            color: _buttonColor,
             onPressed: () {
               if (!_formKey.currentState.validate()) {
                 return;
@@ -118,7 +129,7 @@ class _ProcedureRecordClosingFormState extends State<ProcedureRecordClosingForm>
               child: Text(
                 '${_timeSpent.toString()} h',
                 key: ValueKey(_timeSpent),
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 18, color: _timeSpent > 0 ? Colors.black87 : Style.COLOR_POMEGRANATE),
               )
           ),
         )

@@ -1,5 +1,7 @@
 import 'package:app/domain/procedure.dart';
+import 'package:app/domain/procedure_summary.dart';
 import 'package:app/screens/summary/summary_screen_states.dart';
+import 'package:app/utils/result_object/style.dart';
 import 'package:flutter/material.dart';
 
 
@@ -76,9 +78,7 @@ class Summary extends StatelessWidget {
                     Text(
                       '${summary.timeSpent} h',
                       style: TextStyle(
-                        color: summary.type == ProcedureType.BREAK ?
-                        Colors.black45 :
-                        Colors.black,
+                        color: _decideTimeSpentColor(summary),
                       ),
                       textAlign: TextAlign.right
                     ),
@@ -90,5 +90,18 @@ class Summary extends StatelessWidget {
         );
       },
     );
+  }
+
+
+  Color _decideTimeSpentColor(ProcedureSummary summary) {
+    if (summary.type == ProcedureType.BREAK) {
+      return Colors.black45;
+    }
+
+    if (summary.timeSpent <= 0) {
+      return Style.COLOR_POMEGRANATE;
+    }
+
+    return Colors.black;
   }
 }
