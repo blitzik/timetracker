@@ -1,6 +1,7 @@
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_events.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_states.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_bloc.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app/domain/procedure.dart';
 import 'package:flutter/material.dart';
@@ -98,35 +99,26 @@ class _ProcedureRecordEditFormState extends State<ProcedureRecordEditForm> {
       content.add(SizedBox(height: 15));
     }
 
-
-    content.add(DropdownButtonFormField(
-      isExpanded: true,
-      hint: Text('Zvolte akci'),
-      value: _selectedProcedure,
-      items: state.procedures.map((k, v) {
-        return MapEntry(k, DropdownMenuItem(value: k, child: Text(v.name, style: TextStyle(fontSize: 15))));
-      }).values.toList(),
-      onChanged: (v) {
-        setState(() {
-          _selectedProcedure = v;
-          _isQuantityFieldVisible = state.procedures[_selectedProcedure].type != ProcedureType.BREAK && state.record.isClosed;
-          _quantity = null;
-        });
-      },
-      validator: (value) {
-        if (value == null) {
-          return 'Zvolte prosím jakou akcí chcete pokračovat.';
+    content.add(
+      DropdownSearch<String>(
+        mode: Mode.BOTTOM_SHEET,
+        hint: 'Zvolte akci',
+        label: 'Akce',
+        showSelectedItem: true,
+        showSearchBox: true,
+        items: state.procedures.map((key, value) => MapEntry(key, value.name)).values.toList(),
+        selectedItem: _selectedProcedure,
+        onChanged: (v) {
+          setState(() {
+            _selectedProcedure = v;
+            _isQuantityFieldVisible = state.procedures[_selectedProcedure].type != ProcedureType.BREAK && state.record.isClosed;
+            _quantity = null;
+          });
         }
-        return null;
-      },
-      onSaved: (value) {
-        _selectedProcedure = value;
-      },
-    ));
-
+      )
+    );
 
     content.add(SizedBox(height: 15));
-
 
     content.add(RaisedButton(
       child: Text('Uložit'),

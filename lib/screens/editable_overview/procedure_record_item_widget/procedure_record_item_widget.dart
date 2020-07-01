@@ -268,7 +268,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
       _context,
       SimpleDialog(
         contentPadding: EdgeInsets.all(25),
-        title: Text(state.record.procedureName),
+        title: Text('Úprava záznamu'),
         children: <Widget>[
           BlocProvider.value(
             value: _bloc.editFormBloc,

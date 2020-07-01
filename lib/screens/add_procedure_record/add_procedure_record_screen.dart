@@ -1,6 +1,7 @@
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_events.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_states.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_bloc.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/utils/result_object/time_utils.dart';
@@ -121,25 +122,16 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                           },
                           builder: (context, state) {
                             var st = (state as AddProcedureRecordFormState);
-                            return DropdownButtonFormField(
-                              isExpanded: true,
-                              hint: Text('Zvolte akci'),
-                              value: _selectedProcedure,
-                              items: st.procedures.map((k, v) {
-                                return MapEntry(k, DropdownMenuItem(value: k, child: Text(v.name)));
-                              }).values.toList(),
+                            return DropdownSearch<String>(
+                              mode: Mode.BOTTOM_SHEET,
+                              hint: 'Zvolte akci',
+                              showSelectedItem: true,
+                              showSearchBox: true,
+                              items: st.procedures.map((key, value) => MapEntry(key, value.name)).values.toList(),
+                              selectedItem: _selectedProcedure,
                               onChanged: (v) {
                                 _selectedProcedure = v;
-                              },
-                              validator: (value) {
-                                if (value == null) {
-                                  return 'Zvolte prosím jakou akcí chcete pokračovat.';
-                                }
-                                return null;
-                              },
-                              onSaved: (value) {
-                                //_formDTO.newProcedure = model.getProcedure(value);
-                              },
+                              }
                             );
                           }
                         )
