@@ -134,7 +134,7 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                               },
                               validator: (s) {
                                 if (s == null) {
-                                  return 'Zvolte prosím jakou akcí chcete pokračovat.';
+                                  return 'Zvolte prosím, jakou akcí chcete pokračovat.';
                                 }
                                 return null;
                               },
