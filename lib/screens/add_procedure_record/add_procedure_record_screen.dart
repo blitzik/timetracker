@@ -131,7 +131,13 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                               selectedItem: _selectedProcedure,
                               onChanged: (v) {
                                 _selectedProcedure = v;
-                              }
+                              },
+                              validator: (s) {
+                                if (s == null) {
+                                  return 'Zvolte prosím jakou akcí chcete pokračovat.';
+                                }
+                                return null;
+                              },
                             );
                           }
                         )
