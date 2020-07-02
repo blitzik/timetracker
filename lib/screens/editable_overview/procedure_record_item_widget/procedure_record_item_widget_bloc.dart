@@ -1,6 +1,3 @@
-import 'dart:collection';
-
-import 'package:app/domain/procedure_immutable.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_events.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_states.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form_states.dart';
@@ -8,8 +5,10 @@ import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_for
 import 'package:app/screens/editable_overview/editable_overview_events.dart' as eoEvents;
 import 'package:app/screens/editable_overview/editable_overview_bloc.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
+import 'package:app/domain/procedure_immutable.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:collection';
 import 'dart:async';
 
 
@@ -85,6 +84,10 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
 
 
   Stream<ProcedureRecordItemState> _procedureRecordUpdatedToState(ProcedureRecordUpdated event) async*{
+    if (state.record.quantity == event.quantity && state.record.procedureName == event.procedure.name) {
+      return;
+    }
+
     var update = await SQLiteDbProvider.db.updateProcedureRecord(state.record, event.procedure, event.quantity);
     if (update.isSuccess) {
       yield ProcedureRecordItemDefaultState(update.result, _isLast);
