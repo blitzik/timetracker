@@ -1,4 +1,3 @@
-import 'package:app/app_bloc.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_widget_bloc.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_widget.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
@@ -6,11 +5,12 @@ import 'package:app/screens/editable_overview/editable_overview_states.dart';
 import 'package:app/screens/editable_overview/editable_overview_events.dart';
 import 'package:app/screens/editable_overview/editable_overview_bloc.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
+import 'package:app/screens/summary/summary_screen.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/extensions/string_extension.dart';
-import 'package:app/screens/summary/summary_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:app/app_bloc.dart';
 import 'package:intl/intl.dart';
 
 
