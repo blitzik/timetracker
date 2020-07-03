@@ -185,19 +185,37 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
     List<PopupMenuEntry<int>> list = List();
     if (/*!record.isBreak && */record.isOpened) {
       list.add(PopupMenuItem(
-          value: 1, child: Text('Uzavřít'))
+        value: 1, child: Row(
+          children: <Widget>[
+            Icon(Icons.update),
+            SizedBox(width: 10),
+            Text('Uzavřít'),
+          ],
+        ))
       );
     }
 
     if (record.isClosed) {
       list.add(PopupMenuItem(
-          value: 2, child: Text('Otevřít'))
+        value: 2, child: Row(
+          children: <Widget>[
+            Icon(Icons.restore),
+            SizedBox(width: 10),
+            Text('Otevřít'),
+          ],
+        ))
       );
     }
 
     list.add(PopupMenuItem(
       value: 3,
-      child: Text('Odstranit'),
+      child: Row(
+        children: <Widget>[
+          Icon(Icons.delete),
+          SizedBox(width: 10),
+          Text('Odstranit'),
+        ],
+      ),
     ));
 
     return list;
@@ -223,9 +241,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
       _context,
       AlertDialog(
         contentPadding: EdgeInsets.all(25),
-        content: SingleChildScrollView(
-          child: Text('Skutečně otevřít záznam?'),
-        ),
+        content: const Text('Skutečně chcete otevřít záznam?'),
         actions: <Widget>[
           FlatButton(
             child: Text('Ano'),
@@ -245,8 +261,15 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
       _context,
       AlertDialog(
         contentPadding: EdgeInsets.all(25),
-        content: SingleChildScrollView(
-          child: Text('Skutečně chcete odstranit záznam?'),
+        content: RichText(
+          text: TextSpan(
+            text: 'Skutečně chcete ',
+            style: TextStyle(color: Colors.black, fontSize: 18),
+            children: <TextSpan>[
+              TextSpan(text: 'ODSTRANIT ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+              TextSpan(text: 'záznam?')
+            ]
+          ),
         ),
         actions: <Widget>[
           FlatButton(
