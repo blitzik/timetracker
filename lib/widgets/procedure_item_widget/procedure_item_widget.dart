@@ -11,7 +11,9 @@ import 'package:flutter/material.dart';
 
 class ProcedureItemWidget extends StatefulWidget {
 
-  ProcedureItemWidget();
+  final int index;
+
+  ProcedureItemWidget(this.index);
 
   @override
   _ProcedureItemWidgetState createState() => _ProcedureItemWidgetState();
@@ -91,9 +93,19 @@ class _ProcedureItemWidgetState extends State<ProcedureItemWidget> {
         color: Color(0xffeceff1),
         margin: const EdgeInsets.symmetric(vertical: 5),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
           child: ListTile(
-            title: Text(procedure.name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+            title: Row(
+              children: <Widget>[
+                SizedBox(
+                  width: 50,
+                  child: Text('${widget.index}.', style: TextStyle(fontSize: 12)),
+                ),
+                Expanded(
+                  child: Text(procedure.name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                )
+              ],
+            ),
             trailing: procedure.type == ProcedureType.BREAK ? null : Icon(Icons.edit),
           )
         ),

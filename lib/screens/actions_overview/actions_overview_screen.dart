@@ -1,10 +1,10 @@
-import 'package:app/utils/result_object/dialog_utils.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget_bloc.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen_states.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen_bloc.dart';
 import 'package:app/widgets/procedure_item_widget/procedure_item_widget.dart';
 import 'package:app/widgets/procedure_form/procedure_form.dart';
 import 'package:app/utils/result_object/result_object.dart';
+import 'package:app/utils/result_object/dialog_utils.dart';
 import 'package:app/domain/procedure_immutable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
@@ -83,7 +83,7 @@ class _ActionsOverviewScreenState extends State<ActionsOverviewScreen> {
               initialItemCount: st.procedures.length,
               itemBuilder: (BuildContext context, int index, Animation<double> animation) {
                 ProcedureImmutable procedure = st.procedures.elementAt(index);
-                return _buildItem(procedure, animation);
+                return _buildItem(procedure, animation, index, st.procedures.length);
               }
           );
           },
@@ -100,13 +100,13 @@ class _ActionsOverviewScreenState extends State<ActionsOverviewScreen> {
   }
 
 
-  Widget _buildItem(ProcedureImmutable procedure, Animation<double> animation) {
+  Widget _buildItem(ProcedureImmutable procedure, Animation<double> animation, int index, int totalNumberOfProcedures) {
     return SizeTransition(
       sizeFactor: animation,
       child: BlocProvider(
         key: ValueKey(procedure.id),
         create: (context) => ProcedureItemWidgetBloc(procedure, _appBloc),
-        child: ProcedureItemWidget(),
+        child: ProcedureItemWidget(totalNumberOfProcedures - index),
       ),
     );
   }

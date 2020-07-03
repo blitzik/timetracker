@@ -8,7 +8,7 @@ abstract class ActionsOverviewScreenState {}
 class ActionsOverviewLoadSuccess extends ActionsOverviewScreenState {
   UnmodifiableListView<ProcedureImmutable> procedures;
 
-  ActionsOverviewLoadSuccess(this.procedures);
+  ActionsOverviewLoadSuccess(this.procedures) : assert (procedures != null);
 }
 
 
