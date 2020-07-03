@@ -83,7 +83,7 @@ class _ProcedureRecordEditFormState extends State<ProcedureRecordEditForm> {
           WhitelistingTextInputFormatter.digitsOnly
         ],
         decoration: InputDecoration(
-          labelText: 'počet',
+          labelText: 'Počet',
         ),
         validator: (s) {
           if (s.isEmpty) {
