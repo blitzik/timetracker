@@ -38,7 +38,6 @@ class ArchiveScreenBloc extends Bloc<ArchiveScreenEvent, ArchiveScreenState>{
   Stream<ArchiveScreenState> _fetchSummaryToState(FetchSummary event) async*{
     if (state is ArchiveScreenLoadSuccessful) {
       if ((state as ArchiveScreenLoadSuccessful).hasReachedMax) {
-        print('no data loaded');
         return;
       }
     }
