@@ -564,7 +564,7 @@ class SQLiteDbProvider {
   }
 
 
-  Future<ResultObject<UnmodifiableListView<DateTime>>> findHistoryData() async{
+  Future<ResultObject<UnmodifiableListView<DateTime>>> findHistoryData(int offset, [int limit = 15]) async{
     ResultObject<UnmodifiableListView<DateTime>> result = ResultObject();
     try {
       final db = await database;
@@ -573,7 +573,9 @@ class SQLiteDbProvider {
         SELECT DISTINCT pr.year, pr.month, pr.day
         FROM procedure_record pr
         ORDER BY pr.year DESC, pr.month DESC, pr.day DESC
-      ''');
+        LIMIT ?
+        OFFSET ?
+      ''', [limit, offset]);
       var dates = await futureResult;
       List<DateTime> data = List();
       dates.forEach((row) {

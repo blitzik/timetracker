@@ -1,8 +1,7 @@
+import 'package:app/screens/editable_overview/editable_overview.dart';
 import 'package:app/screens/archive/archive_screen_events.dart';
 import 'package:app/screens/archive/archive_screen_states.dart';
 import 'package:app/screens/archive/archive_screen_bloc.dart';
-import 'package:app/screens/editable_overview/editable_overview.dart';
-import 'package:app/screens/summary/summary_screen.dart';
 import 'package:app/extensions/datetime_extension.dart';
 import 'package:app/extensions/string_extension.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,14 +40,26 @@ class _List extends StatefulWidget {
 
 class _ListState extends State<_List> {
 
+  ScrollController _scrollController;
   ArchiveScreenBloc _bloc;
+  int _scrollThreshold = 200;
 
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      final maxScroll = _scrollController.position.maxScrollExtent;
+      final currentScroll = _scrollController.position.pixels;
+
+      if (maxScroll - currentScroll <= _scrollThreshold) {
+        _bloc.add(FetchSummary());
+      }
+    });
+
     _bloc = BlocProvider.of<ArchiveScreenBloc>(context);
-    _bloc.add(ArchiveScreenDaysLoaded());
+    _bloc.add(FetchSummary());
   }
 
 
@@ -63,7 +74,7 @@ class _ListState extends State<_List> {
   Widget build(BuildContext context) {
     return BlocBuilder<ArchiveScreenBloc, ArchiveScreenState>(
       builder: (context, state) {
-        if (state is ArchiveScreenLoadInProgress) {
+        if (state is ArchiveScreenLoadInProgress || state is ArchiveUninitialized) {
           return Center(
             child: Column(
               children: <Widget>[
@@ -91,8 +102,21 @@ class _ListState extends State<_List> {
         }
 
         return ListView.builder(
-          itemCount: st.days.length,
+          controller: _scrollController,
+          itemCount: st.days.length + 1,
           itemBuilder: (BuildContext context, int index) {
+            if (index == st.days.length) {
+              if (st.hasReachedMax) {
+                return SizedBox(width: 0, height: 0);
+              }
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  child: SizedBox(width: 25, height:25, child: CircularProgressIndicator())
+                )
+              );
+            }
+
             var historyDate = st.days.elementAt(index);
             return InkWell(
               child: Card(

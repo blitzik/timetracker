@@ -1,4 +1,5 @@
 abstract class ArchiveScreenEvent {}
 
 
-class ArchiveScreenDaysLoaded extends ArchiveScreenEvent {}
+class FetchSummary extends ArchiveScreenEvent {}
+
