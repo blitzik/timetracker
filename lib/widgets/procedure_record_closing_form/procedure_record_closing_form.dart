@@ -38,6 +38,7 @@ class _ProcedureRecordClosingFormState extends State<ProcedureRecordClosingForm>
   @override
   void initState() {
     super.initState();
+
     _finish = _getDefaultTime(widget.record);
     _buttonColor = Style.COLOR_GREEN_SEA;
 

@@ -35,6 +35,9 @@ class _TimePickerState extends State<TimePicker> {
   int _hour;
   int _minute;
 
+  SwiperController _hourController = SwiperController();
+  SwiperController _minuteController = SwiperController();
+
 
   @override
   void initState() {
@@ -60,6 +63,7 @@ class _TimePickerState extends State<TimePicker> {
           SizedBox(
             width: 50,
             child: Swiper(
+              controller: _hourController,
               index: widget.hours.indexWhere((element) => _hour == element),
               itemCount: widget.hours.length,
               scale: -0.2,
@@ -70,6 +74,9 @@ class _TimePickerState extends State<TimePicker> {
               },
               onIndexChanged: (index) {
                 _hour = widget.hours[index];
+                if (_hour == 0) {
+                  _minuteController.move(0);
+                }
 
                 var now = DateTime.now();
                 var selectedTime = DateTime(now.year, now.month, now.day, widget.hours[index], _minute, 0, 0, 0);
@@ -88,11 +95,13 @@ class _TimePickerState extends State<TimePicker> {
           SizedBox(
             width: 50,
             child: Swiper(
+              controller: _minuteController,
               index: widget.minutes.indexWhere((element) => _minute == element),
               itemCount: widget.minutes.length,
               scale: -0.2,
               scrollDirection: Axis.vertical,
               viewportFraction: 0.4,
+              physics: _hour == 0 ? NeverScrollableScrollPhysics() : null,
               itemBuilder: (context, index) {
                 return Center(child: Text(widget.minutes[index].toString().padLeft(2, '0'), style: TextStyle(fontSize: 18)));
               },
