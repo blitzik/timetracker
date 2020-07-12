@@ -120,7 +120,7 @@ class _EditableOverview extends State<EditableOverview> {
                     initialItemCount: records.length,
                     itemBuilder: (BuildContext context, int index, Animation<double> animation) {
                       var record = records.elementAt(index);
-                      return _buildItem(context, record, index, animation);
+                      return _buildItem(context, record, records.length, index, animation);
                     },
                   );
                 },
@@ -139,7 +139,7 @@ class _EditableOverview extends State<EditableOverview> {
           }
           if (state is ProcedureRecordDeletedSuccess) {
             if (_animatedListKey.currentState != null) {
-              _animatedListKey.currentState.removeItem(0, (context, animation) => _buildItem(context, state.deletedRecord, 0, animation));
+              _animatedListKey.currentState.removeItem(0, (context, animation) => _buildItem(context, state.deletedRecord, state.records.length, 0, animation));
               _showSnackBar(_context, 'Záznam byl úspěšně odstraněn.', Icons.check, Colors.green);
             }
           }
@@ -170,7 +170,7 @@ class _EditableOverview extends State<EditableOverview> {
   }
 
 
-  Widget _buildItem(BuildContext mainContext, ProcedureRecordImmutable record, int index, Animation<double> animation) {
+  Widget _buildItem(BuildContext mainContext, ProcedureRecordImmutable record, int recordsCount, int index, Animation<double> animation) {
     return SizeTransition(
       key: ValueKey(record.id),
       sizeFactor: animation,
@@ -178,6 +178,7 @@ class _EditableOverview extends State<EditableOverview> {
         create: (context) => ProcedureRecordItemWidgetBloc(_bloc, record, index == 0, (_appBloc.state as AppLoadSuccess).procedures),
         child: ProcedureRecordItemWidget(
           const EdgeInsets.symmetric(horizontal: 15),
+          index == recordsCount - 1,
           true
         ),
       ),

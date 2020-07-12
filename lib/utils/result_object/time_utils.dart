@@ -11,6 +11,6 @@ class TimeUtils {
           time.hour,  ((time.minute / step).round() * step), 0, 0, 0);
     }
 
-    return time;
+    return DateTime.utc(time.year, time.month, time.day, time.hour, time.minute, 0, 0, 0);
   }
 }

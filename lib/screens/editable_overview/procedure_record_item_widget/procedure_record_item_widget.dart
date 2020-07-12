@@ -1,4 +1,3 @@
-import 'package:app/domain/procedure.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_widget_bloc.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_events.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_states.dart';
@@ -12,6 +11,7 @@ import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/utils/result_object/dialog_utils.dart';
 import 'package:app/utils/result_object/style.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:app/domain/procedure.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -19,10 +19,12 @@ import 'package:intl/intl.dart';
 class ProcedureRecordItemWidget extends StatefulWidget {
   final bool _displayTrailing;
   final EdgeInsetsGeometry _padding;
+  final bool _isFirst;
 
 
   ProcedureRecordItemWidget(
     this._padding,
+    this._isFirst,
     this._displayTrailing,
   ) : assert(_padding != null),
       assert(_displayTrailing != null);
@@ -229,7 +231,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
         contentPadding: EdgeInsets.all(25),
         title: const Text('Uzavření záznamu'),
         children: <Widget>[
-          ProcedureRecordClosingForm(record, _context)
+          ProcedureRecordClosingForm(record, widget._isFirst, _context)
         ],
       )
     );

@@ -50,7 +50,7 @@ class ProcedureRecord {
     if (finish == null) {
       return;
     }
-    var cdt = _getCleanDateTimeUTC(finish);
+    var cdt = _getCleanDateTimeUTC(finish, finish.hour == 0);
     _finish = cdt.millisecondsSinceEpoch;
     _timeSpent = (_finish - _start) ~/ 1000;
   }
@@ -107,8 +107,12 @@ class ProcedureRecord {
   }
 
 
-  DateTime _getCleanDateTimeUTC(DateTime d) {
-    return DateTime.utc(_year, _month, _day, d.hour, d.minute, 0, 0, 0);
+  DateTime _getCleanDateTimeUTC(DateTime d, [bool isNextDay = false]) {
+    DateTime t = DateTime.utc(_year, _month, _day, d.hour, d.minute, 0, 0, 0);
+    if (isNextDay) {
+      t = t.add(const Duration(days: 1))..copyWithAsUTC(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
+    }
+    return t;
   }
 
 
