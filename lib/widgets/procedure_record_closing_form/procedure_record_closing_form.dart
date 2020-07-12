@@ -41,6 +41,8 @@ class _ProcedureRecordClosingFormState extends State<ProcedureRecordClosingForm>
     _finish = _getDefaultTime(widget.record);
     _buttonColor = Style.COLOR_GREEN_SEA;
 
+    _timeSpent = _calcTime(widget.record.start, _finish);
+
     _formKey = GlobalKey();
     _bloc = BlocProvider.of<ProcedureRecordItemWidgetBloc>(widget.originContext);
   }
@@ -95,7 +97,6 @@ class _ProcedureRecordClosingFormState extends State<ProcedureRecordClosingForm>
                 minutes: [0, 15, 30, 45],
                 time: _finish,
                 onTimeChanged: (time) {
-                  print(time);
                   setState(() {
                     if (time.hour == 0) {
                       time = time.copyWith(second: 0, millisecond: 0, microsecond: 0);
@@ -112,31 +113,6 @@ class _ProcedureRecordClosingFormState extends State<ProcedureRecordClosingForm>
                 },
               ),
             )
-            /*TimePickerSpinner(
-              isShowSeconds: false,
-              is24HourMode: true,
-              isForce2Digits: true,
-              minutesInterval: 15,
-              spacing: 40,
-              itemHeight: 50,
-              itemWidth: 50,
-              time: _finish,//_getDefaultTime(widget.record),
-              onTimeChange: (time) {
-                setState(() {
-                  if (time.hour == 0) {
-                    time = time.copyWith(second: 0, millisecond: 0, microsecond: 0);
-                  }
-                  _finish = time;
-                  _timeSpent = _calcTime(widget.record.start, _finish);
-
-                  if (_timeSpent <= 0) {
-                    _buttonColor = Style.COLOR_POMEGRANATE;
-                  } else {
-                    _buttonColor = Style.COLOR_GREEN_SEA;
-                  }
-                });
-              },
-            )*/
           ),
 
           RaisedButton(
