@@ -91,8 +91,8 @@ class _ProcedureRecordClosingFormState extends State<ProcedureRecordClosingForm>
             decoration: BoxDecoration(
                 border: Border.all(width: 1, color: Colors.black)
             ),
-            child: Align(
-              alignment: Alignment.center,
+            child: SizedBox(
+              width: 250,
               child: TimePicker(
                 hours: List.generate(24, (index) => index),
                 minutes: [0, 15, 30, 45],

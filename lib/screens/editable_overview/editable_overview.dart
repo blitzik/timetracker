@@ -1,6 +1,7 @@
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_widget_bloc.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_widget.dart';
-import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
+import 'package:app/widgets/procedure_record_creation_form/procedure_record_creation_form_bloc.dart';
+import 'package:app/widgets/procedure_record_creation_form/procedure_record_creation_form.dart';
 import 'package:app/screens/editable_overview/editable_overview_states.dart';
 import 'package:app/screens/editable_overview/editable_overview_events.dart';
 import 'package:app/screens/editable_overview/editable_overview_bloc.dart';
@@ -133,8 +134,13 @@ class _EditableOverview extends State<EditableOverview> {
         listener: (_context, state) {
           if (state is ProcedureRecordAddedSuccess) {
             if (_animatedListKey.currentState != null) {
+              if (state.addedRecord == null) {
+                _animatedListKey.currentState.removeItem(0, (context, animation) => _buildItem(context, state.lastProcedureRecord, state.records.length, 0, animation));
+                _showSnackBar(_context, 'Záznam byl úspěšně uzavřen.', Icons.check, Colors.green);
+              } else {
+                _showSnackBar(_context, 'Záznam byl úspěšně uložen.', Icons.check, Colors.green);
+              }
               _animatedListKey.currentState.insertItem(0);
-              _showSnackBar(_context, 'Záznam byl úspěšně uložen.', Icons.check, Colors.green);
             }
           }
           if (state is ProcedureRecordDeletedSuccess) {
@@ -145,27 +151,37 @@ class _EditableOverview extends State<EditableOverview> {
           }
         },
         builder: (context, state) {
-          if (state is ProcedureRecordsLoadInProgress) {
-            return Container(height: 0, width: 0);
-          }
-
-          if (state is ProcedureRecordsLoadingFailure) {
-            return Container(height: 0, width: 0);
-          }
-
-          var st = (state as ProcedureRecordsLoadSuccess);
-          return FloatingActionButton(
-            child: Icon(Icons.add),
-            backgroundColor: Color(0xff34495e),
-            onPressed: () async{
-              var insertionState = await Navigator.pushNamed(context, AddProcedureRecordScreen.routeName, arguments: st.lastProcedureRecord);
-              if (insertionState != null) {
-                _bloc.add(ProcedureRecordAdded(insertionState));
-              }
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return ScaleTransition(scale: animation, child: child);
             },
+            child: _buildFloatingButton(state)
           );
         },
       )
+    );
+  }
+
+
+  Widget _buildFloatingButton(ProcedureRecordsState state) {
+    if (state is ProcedureRecordsLoadInProgress ||
+        state is ProcedureRecordsLoadingFailure) {
+      return SizedBox(key: UniqueKey());
+    }
+
+    var st = (state as ProcedureRecordsLoadSuccess);
+    if (st.lastProcedureRecord != null && st.lastProcedureRecord.isOpened) {
+      return SizedBox(key: UniqueKey());
+    }
+
+    return FloatingActionButton(
+      key: UniqueKey(),
+      child: Icon(Icons.add),
+      backgroundColor: Color(0xff34495e),
+      onPressed: () async{
+        _createProcedureRecordDialog(context, st.lastProcedureRecord);
+      },
     );
   }
 
@@ -212,6 +228,23 @@ class _EditableOverview extends State<EditableOverview> {
       ),
       duration: const Duration(seconds: 1),
     ));
+  }
+
+
+  Future<ProcedureRecordImmutable> _createProcedureRecordDialog(BuildContext _context, ProcedureRecordImmutable lastRecord) async{
+    return await showModalBottomSheet(
+      context: context,
+      barrierColor: Colors.black38,
+      builder: (BuildContext context) {
+        return BlocProvider(
+          create: (context) => ProcedureRecordCreationFormBloc(
+            (_appBloc.state as AppLoadSuccess).procedures,
+            lastRecord
+          ),
+          child: ProcedureRecordCreationForm(),
+        );
+      }
+    );
   }
 
 

@@ -478,6 +478,12 @@ class SQLiteDbProvider {
             throw Failure('Při úpravě záznamu došlo k chybě.');
           }
           result['lastRecord'] = lastRecordEntity.toImmutable();
+
+          var d = lastRecordEntity.finish;
+          if (lastRecordEntity.finish.hour == 0) {
+            result['newRecord'] = null;
+            return result;
+          }
         }
 
         var procedureSearch = await _getProcedureById(procedure.id, txn);

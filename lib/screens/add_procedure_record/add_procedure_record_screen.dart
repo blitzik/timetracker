@@ -1,13 +1,12 @@
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_events.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_states.dart';
 import 'package:app/screens/add_procedure_record/add_procedure_record_screen_bloc.dart';
-import 'package:dropdown_search/dropdown_search.dart';
-import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
+import 'package:app/widgets/time_picker/time_picker.dart';
 import 'package:app/utils/result_object/time_utils.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app/domain/procedure.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -41,6 +40,8 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
     super.initState();
 
     _bloc = BlocProvider.of<AddProcedureRecordScreenBloc>(context);
+
+    _newActionStart = _setDefaultTime(_bloc.state.lastRecord);
 
     _titleTextStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
     _formKey = GlobalKey<FormState>();
@@ -122,6 +123,12 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                           },
                           builder: (context, state) {
                             var st = (state as AddProcedureRecordFormState);
+                            if (_newActionStart != null && _newActionStart.hour == 0 && _newActionStart.minute == 0) {
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 15),
+                                child: Text('Nový záznam již nebude přidán'),
+                              );
+                            }
                             return DropdownSearch<String>(
                               mode: Mode.BOTTOM_SHEET,
                               hint: 'Zvolte akci',
@@ -152,19 +159,16 @@ class _AddProcedureRecordScreenState extends State<AddProcedureRecordScreen> {
                         },
                         builder: (context, state) {
                           return Container(
-                            height: 150,
+                            height: 125,
                             decoration: BoxDecoration(border: Border.all(width: 1, color: Colors.black)),
-                            child: TimePickerSpinner(
+                            child: TimePicker(
+                              hours: List.generate(24, (index) => index),
+                              minutes: [0, 15, 30, 45],
                               time: _setDefaultTime((state as AddProcedureRecordFormState).lastRecord),
-                              isShowSeconds: false,
-                              is24HourMode: true,
-                              isForce2Digits: true,
-                              minutesInterval: 15,
-                              spacing: 40,
-                              itemHeight: 50,
-                              itemWidth: 50,
-                              onTimeChange: (time) {
-                                _newActionStart = time;
+                              onTimeChanged: (time) {
+                                setState(() {
+                                  _newActionStart = time;
+                                });
                               },
                             )
                           );

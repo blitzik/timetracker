@@ -1,9 +1,11 @@
+import 'file:///D:/dev/android_apps/app/lib/widgets/procedure_record_creation_form/procedure_record_creation_form_bloc.dart';
 import 'package:app/screens/editable_overview/editable_overview_events.dart';
 import 'package:app/screens/editable_overview/editable_overview_states.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/utils/result_object/result_object.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:app/app_bloc.dart';
 import 'dart:collection';
 import 'dart:async';
 
@@ -11,6 +13,7 @@ import 'dart:async';
 class EditableOverviewBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecordsState> {
 
   final DateTime date;
+
 
 
   EditableOverviewBloc(this.date);
@@ -54,7 +57,9 @@ class EditableOverviewBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecords
       updatedRecords.removeAt(0);
       updatedRecords.insert(0, event.formState.lastRecord);
     }
-    updatedRecords.insert(0, event.formState.newRecord);
+    if (event.formState.newRecord != null) {
+      updatedRecords.insert(0, event.formState.newRecord);
+    }
 
     yield ProcedureRecordAddedSuccess(date, event.formState.newRecord, UnmodifiableListView(updatedRecords));
   }

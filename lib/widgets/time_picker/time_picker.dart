@@ -60,8 +60,7 @@ class _TimePickerState extends State<TimePicker> {
     return Container(
       child: Row(
         children: <Widget>[
-          SizedBox(
-            width: 50,
+          Expanded(
             child: Swiper(
               controller: _hourController,
               index: widget.hours.indexWhere((element) => _hour == element),
@@ -70,13 +69,15 @@ class _TimePickerState extends State<TimePicker> {
               scrollDirection: Axis.vertical,
               viewportFraction: 0.4,
               itemBuilder: (context, index) {
-                return Center(child: Text(widget.hours[index].toString().padLeft(2, '0'), style: TextStyle(fontSize: 18)));
+                return Center(child: Text(widget.hours[index].toString().padLeft(2, '0'), style: TextStyle(fontSize: 25)));
               },
               onIndexChanged: (index) {
-                _hour = widget.hours[index];
-                if (_hour == 0) {
-                  _minuteController.move(0);
-                }
+                setState(() {
+                  _hour = widget.hours[index];
+                  if (_hour == 0) {
+                    _minuteController.move(0);
+                  }
+                });
 
                 var now = DateTime.now();
                 var selectedTime = DateTime(now.year, now.month, now.day, widget.hours[index], _minute, 0, 0, 0);
@@ -92,8 +93,7 @@ class _TimePickerState extends State<TimePicker> {
             ),
           ),
 
-          SizedBox(
-            width: 50,
+          Expanded(
             child: Swiper(
               controller: _minuteController,
               index: widget.minutes.indexWhere((element) => _minute == element),
@@ -103,7 +103,7 @@ class _TimePickerState extends State<TimePicker> {
               viewportFraction: 0.4,
               physics: _hour == 0 ? NeverScrollableScrollPhysics() : null,
               itemBuilder: (context, index) {
-                return Center(child: Text(widget.minutes[index].toString().padLeft(2, '0'), style: TextStyle(fontSize: 18)));
+                return Center(child: Text(widget.minutes[index].toString().padLeft(2, '0'), style: TextStyle(fontSize: 25)));
               },
               onIndexChanged: (index) {
                 _minute = widget.minutes[index];

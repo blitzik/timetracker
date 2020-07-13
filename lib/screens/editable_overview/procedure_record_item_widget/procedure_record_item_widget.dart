@@ -185,7 +185,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
 
   List<PopupMenuEntry<int>> _generateMenuItems(ProcedureRecordImmutable record) {
     List<PopupMenuEntry<int>> list = List();
-    if (/*!record.isBreak && */record.isOpened) {
+    if (record.isOpened) {
       list.add(PopupMenuItem(
         value: 1, child: Row(
           children: <Widget>[
