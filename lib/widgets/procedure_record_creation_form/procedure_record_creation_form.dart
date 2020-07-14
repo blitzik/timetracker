@@ -157,7 +157,7 @@ class _ProcedureRecordCreationFormState extends State<ProcedureRecordCreationFor
 
   @override
   void dispose() {
-
+    _bloc.dispose();
 
     super.dispose();
   }
