@@ -134,14 +134,12 @@ class _EditableOverview extends State<EditableOverview> {
         listener: (_context, state) {
           if (state is ProcedureRecordAddedSuccess) {
             if (_animatedListKey.currentState != null) {
-              _showSnackBar(_context, 'Záznam byl úspěšně uzavřen.', Icons.check, Colors.green);
               _animatedListKey.currentState.insertItem(0);
             }
           }
           if (state is ProcedureRecordDeletedSuccess) {
             if (_animatedListKey.currentState != null) {
               _animatedListKey.currentState.removeItem(0, (context, animation) => _buildItem(context, state.deletedRecord, state.records.length, 0, animation));
-              _showSnackBar(_context, 'Záznam byl úspěšně odstraněn.', Icons.check, Colors.green);
             }
           }
         },
