@@ -44,7 +44,7 @@ class SummaryScreenBloc extends Bloc<SummaryScreenEvent, SummaryScreenState> {
     yield SummaryScreenLoadInProgress();
     var result = await _loadData(event.summaryPeriod, _date);
     if (result.isSuccess) {
-      var summary =  SummaryScreenLoadSuccess(_date, event.summaryPeriod, UnmodifiableListView(result.result));
+      var summary =  SummaryScreenLoadSuccess(_date, event.summaryPeriod, UnmodifiableListView(result.value));
       yield summary;
       _summaryStates[event.summaryPeriod] = summary;
 

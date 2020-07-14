@@ -134,12 +134,7 @@ class _EditableOverview extends State<EditableOverview> {
         listener: (_context, state) {
           if (state is ProcedureRecordAddedSuccess) {
             if (_animatedListKey.currentState != null) {
-              if (state.addedRecord == null) {
-                _animatedListKey.currentState.removeItem(0, (context, animation) => _buildItem(context, state.lastProcedureRecord, state.records.length, 0, animation));
-                _showSnackBar(_context, 'Záznam byl úspěšně uzavřen.', Icons.check, Colors.green);
-              } else {
-                _showSnackBar(_context, 'Záznam byl úspěšně uložen.', Icons.check, Colors.green);
-              }
+              _showSnackBar(_context, 'Záznam byl úspěšně uzavřen.', Icons.check, Colors.green);
               _animatedListKey.currentState.insertItem(0);
             }
           }
@@ -180,7 +175,10 @@ class _EditableOverview extends State<EditableOverview> {
       child: Icon(Icons.add),
       backgroundColor: Color(0xff34495e),
       onPressed: () async{
-        _createProcedureRecordDialog(context, st.lastProcedureRecord);
+        var newRecord = await _createProcedureRecordDialog(context, st.lastProcedureRecord);
+        if (newRecord != null) {
+          _bloc.add(ProcedureRecordAdded(newRecord));
+        }
       },
     );
   }

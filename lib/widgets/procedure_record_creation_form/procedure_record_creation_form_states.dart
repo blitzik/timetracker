@@ -24,3 +24,18 @@ class ProcedureRecordCreationFormInitial extends ProcedureRecordCreationFormStat
 }
 
 
+class ProcedureRecordCreationInProgress extends ProcedureRecordCreationFormState {}
+
+
+class ProcedureRecordCreationSuccess extends ProcedureRecordCreationFormState {
+  final ProcedureRecordImmutable newRecord;
+
+  ProcedureRecordCreationSuccess(this.newRecord);
+}
+
+
+class ProcedureRecordCreationFailure extends ProcedureRecordCreationFormState {
+  final String errorMessage;
+
+  ProcedureRecordCreationFailure(this.errorMessage);
+}

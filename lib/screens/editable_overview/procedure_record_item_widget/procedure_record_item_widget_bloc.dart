@@ -68,8 +68,8 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
   Stream<ProcedureRecordItemState> _procedureRecordOpenedToState(ProcedureRecordOpened event) async*{
     var update = await SQLiteDbProvider.db.openProcedureRecord(state.record);
     if (update.isSuccess) {
-      yield ProcedureRecordItemDefaultState(update.result, _isLast);
-      _editableOverviewBloc.add(eoEvents.ProcedureRecordUpdated(update.result));
+      yield ProcedureRecordItemDefaultState(update.value, _isLast);
+      _editableOverviewBloc.add(eoEvents.ProcedureRecordUpdated(update.value));
     }
   }
 
@@ -77,8 +77,8 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
   Stream<ProcedureRecordItemState> _procedureRecordClosedToState(ProcedureRecordClosed event) async*{
     var update = await SQLiteDbProvider.db.closeProcedureRecord(state.record, event.finish, event.quantity);
     if (update.isSuccess) {
-      yield ProcedureRecordItemDefaultState(update.result, _isLast);
-      _editableOverviewBloc.add(eoEvents.ProcedureRecordUpdated(update.result));
+      yield ProcedureRecordItemDefaultState(update.value, _isLast);
+      _editableOverviewBloc.add(eoEvents.ProcedureRecordUpdated(update.value));
     }
   }
 
@@ -90,8 +90,8 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
 
     var update = await SQLiteDbProvider.db.updateProcedureRecord(state.record, event.procedure, event.quantity);
     if (update.isSuccess) {
-      yield ProcedureRecordItemDefaultState(update.result, _isLast);
-      _editableOverviewBloc.add(eoEvents.ProcedureRecordUpdated(update.result));
+      yield ProcedureRecordItemDefaultState(update.value, _isLast);
+      _editableOverviewBloc.add(eoEvents.ProcedureRecordUpdated(update.value));
     }
   }
 

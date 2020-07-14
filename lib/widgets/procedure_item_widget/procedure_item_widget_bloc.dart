@@ -52,8 +52,8 @@ class ProcedureItemWidgetBloc extends Bloc<ProcedureItemWidgetEvent, ProcedureIt
   Stream<ProcedureItemState> _procedureUpdatedToState(ProcedureUpdated event) async*{
     var update = await SQLiteDbProvider.db.updateProcedure(state.procedure, event.newName);
     if (update.isSuccess) {
-      yield ProcedureItemUpdateSuccess(update.result);
-      _appBloc.add(AppProcedureUpdated(update.result));
+      yield ProcedureItemUpdateSuccess(update.value);
+      _appBloc.add(AppProcedureUpdated(update.value));
 
     } else {
       yield ProcedureItemUpdateFailure(state.procedure, update.lastMessage);

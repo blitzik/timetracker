@@ -1,6 +1,6 @@
 class ResultObject<T> {
   T _result;
-  T get result => _result;
+  T get value => _result;
 
   List<String> _errorMessages = List();
   String get lastMessage => _errorMessages.last;

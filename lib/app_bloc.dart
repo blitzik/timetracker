@@ -28,7 +28,7 @@ class AppBloc extends Bloc<AppEvent, AppState>{
     yield AppStateLoadInProgress();
     var proceduresSearch = await SQLiteDbProvider.db.findAllProcedures();
     if (proceduresSearch.isSuccess) {
-      yield AppLoadSuccess(UnmodifiableListView(proceduresSearch.result));
+      yield AppLoadSuccess(UnmodifiableListView(proceduresSearch.value));
 
     } else {
       yield AppLoadFail(proceduresSearch.lastMessage);

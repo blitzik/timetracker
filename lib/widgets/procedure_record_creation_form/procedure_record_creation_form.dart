@@ -1,6 +1,8 @@
-import 'package:app/lib/widgets/procedure_record_creation_form/procedure_record_creation_form_bloc.dart';
+import 'package:app/utils/result_object/time_utils.dart';
+import 'package:app/widgets/procedure_record_creation_form/procedure_record_creation_form_events.dart';
 import 'package:app/widgets/procedure_record_creation_form/procedure_record_creation_form_states.dart';
 import 'package:app/widgets/procedure_record_creation_form/procedure_record_creation_form_bloc.dart';
+import 'package:app/widgets/time_picker/time_picker.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,7 @@ class _ProcedureRecordCreationFormState extends State<ProcedureRecordCreationFor
 
   ProcedureRecordCreationFormBloc _bloc;
   String _selectedProcedure;
+  DateTime _start;
 
 
   @override
@@ -28,15 +31,49 @@ class _ProcedureRecordCreationFormState extends State<ProcedureRecordCreationFor
     super.initState();
 
     _bloc = BlocProvider.of<ProcedureRecordCreationFormBloc>(context);
+    var lastRecord = (_bloc.state as ProcedureRecordCreationFormInitial).lastRecord;
+    if (lastRecord != null) {
+      _start = lastRecord.finish;
+
+    } else {
+      _start = TimeUtils.findClosestTime(DateTime.now(), 15);
+    }
   }
 
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ProcedureRecordCreationFormBloc, ProcedureRecordCreationFormState>(
+    return BlocConsumer<ProcedureRecordCreationFormBloc, ProcedureRecordCreationFormState>(
+      listener: (context, state) {
+        if (state is ProcedureRecordCreationSuccess) {
+          Navigator.pop(context, state.newRecord);
+        }
+      },
+      buildWhen: (oldState, newState) {
+        return !(newState is ProcedureRecordCreationSuccess);
+      },
       builder: (context, state) {
-        var st = (state as ProcedureRecordCreationFormInitial);
+        if (state is ProcedureRecordCreationInProgress) {
+          return Center(
+            child: Column(
+              children: <Widget>[
+                Text('Ukládám záznam ...'),
+                CircularProgressIndicator()
+              ],
+            ),
+          );
+        }
 
+        if (state is ProcedureRecordCreationFailure) {
+          return Container(
+            height: 300,
+            child: Center(
+              child: Text(state.errorMessage, style: TextStyle(color: Colors.red)),
+            ),
+          );
+        }
+
+        var st = (state as ProcedureRecordCreationFormInitial);
         return Container(
           padding: const EdgeInsets.all(15.0),
           child: Column(
@@ -45,18 +82,24 @@ class _ProcedureRecordCreationFormState extends State<ProcedureRecordCreationFor
               Text('Nový záznam', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
 
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15.0),
+                padding: const EdgeInsets.only(top: 30.0),
                 child: _createProceduresDropdown(state),
               ),
 
-              Expanded(child: Container()),
+              Expanded(
+                child: st.lastRecord == null
+                    ? _createTimePicker(st)
+                    : Container()
+              ),
+
               SizedBox(
-                height: 75,
+                height: 50,
                 child: RaisedButton(
-
+                  color: Color(0xff2980b9),
+                  textColor: Colors.white,
                   child: Text('Vytvořit záznam'),
-                  onPressed: () {
-
+                  onPressed: _selectedProcedure == null ? null : () {
+                    _bloc.add(ProcedureRecordCreated(st.procedures[_selectedProcedure], _start));
                   },
                 ),
               )
@@ -78,7 +121,9 @@ class _ProcedureRecordCreationFormState extends State<ProcedureRecordCreationFor
       items: st.procedures.map((key, value) => MapEntry(key, value.name)).values.toList(),
       selectedItem: _selectedProcedure,
       onChanged: (v) {
-        _selectedProcedure = v;
+        setState(() {
+          _selectedProcedure = v;
+        });
       },
       validator: (s) {
         if (s == null) {
@@ -86,6 +131,22 @@ class _ProcedureRecordCreationFormState extends State<ProcedureRecordCreationFor
         }
         return null;
       },
+    );
+  }
+
+
+  Widget _createTimePicker(ProcedureRecordCreationFormInitial st) {
+    return Container(
+      decoration: BoxDecoration(border: Border.all(width: 1, color: Colors.black12)),
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: TimePicker(
+        hours: List.generate(24, (index) => index),
+        minutes: [0, 15, 30, 45],
+        onTimeChanged: (time) {
+          _start = time;
+        },
+      ),
     );
   }
 

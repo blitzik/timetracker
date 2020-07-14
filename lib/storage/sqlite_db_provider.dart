@@ -169,7 +169,7 @@ class SQLiteDbProvider {
           throw Failure(procedureSearch.lastMessage);
         }
 
-        var procedureEntity = procedureSearch.result;
+        var procedureEntity = procedureSearch.value;
         procedureEntity.name = newName;
 
         var update = await _saveProcedure(procedureEntity, txn);
@@ -242,8 +242,8 @@ class SQLiteDbProvider {
           throw Failure(procedureSearch.lastMessage);
         }
 
-        var procedureRecordEntity = procedureRecordSearch.result;
-        var procedureEntity = procedureSearch.result;
+        var procedureRecordEntity = procedureRecordSearch.value;
+        var procedureEntity = procedureSearch.value;
 
         procedureRecordEntity.updateRecord(procedureEntity, newQuantity);
 
@@ -291,7 +291,7 @@ class SQLiteDbProvider {
           throw Failure(procedureRecordSearch.lastMessage);
         }
 
-        var procedureRecordEntity = procedureRecordSearch.result;
+        var procedureRecordEntity = procedureRecordSearch.value;
         procedureRecordEntity.openRecord();
 
         var update = await _saveProcedureRecord(procedureRecordEntity, txn);
@@ -326,7 +326,7 @@ class SQLiteDbProvider {
           throw Failure(procedureRecordSearch.lastMessage);
         }
 
-        var procedureRecordEntity = procedureRecordSearch.result;
+        var procedureRecordEntity = procedureRecordSearch.value;
         procedureRecordEntity.closeRecord(finishTime, quantity);
 
         var update = await _saveProcedureRecord(procedureRecordEntity, txn);
@@ -451,56 +451,29 @@ class SQLiteDbProvider {
   }
   
 
-  Future<ResultObject<Map<String, ProcedureRecordImmutable>>> startProcedureRecord(
-    ProcedureRecordImmutable lastRecord,
-    int lastProcedureQuantity,
+  Future<ResultObject<ProcedureRecordImmutable>> startProcedureRecord(
     ProcedureImmutable procedure,
     DateTime start
   ) async{
-    ResultObject<Map<String, ProcedureRecordImmutable>> result = ResultObject();
+    ResultObject<ProcedureRecordImmutable> result = ResultObject();
     try {
       final db = await database;
 
-      var resultMap = await db.transaction<Map<String, ProcedureRecordImmutable>>((txn) async {
-        Map<String, ProcedureRecordImmutable> result = Map();
-        result['lastRecord'] = null;
-        if (lastRecord != null) {
-          var lastRecordSearch = await _getProcedureRecordById(lastRecord.id, txn);
-          if (lastRecordSearch.isFailure) {
-            throw Failure('Záznam s ID#${lastRecord.id} nebyl nalezen.');
-          }
-
-          ProcedureRecord lastRecordEntity = lastRecordSearch.result;
-          lastRecordEntity.closeRecord(start, lastProcedureQuantity);
-
-          var procedureRecordUpdate = await _saveProcedureRecord(lastRecordEntity, txn);
-          if (procedureRecordUpdate.isFailure) {
-            throw Failure('Při úpravě záznamu došlo k chybě.');
-          }
-          result['lastRecord'] = lastRecordEntity.toImmutable();
-
-          var d = lastRecordEntity.finish;
-          if (lastRecordEntity.finish.hour == 0) {
-            result['newRecord'] = null;
-            return result;
-          }
-        }
-
+      var trxResult = await db.transaction<ProcedureRecordImmutable>((txn) async {
         var procedureSearch = await _getProcedureById(procedure.id, txn);
         if (procedureSearch.isFailure) {
           throw Failure('Akce s ID#${procedure.id} nebyla nalezena');
         }
 
-        Procedure procedureEntity = procedureSearch.result;
+        Procedure procedureEntity = procedureSearch.value;
         var newRecordInsertion = await _insertProcedureRecord(ProcedureRecord(procedureEntity, start), txn);
         if (newRecordInsertion.isFailure) {
           throw Failure('Při ukládání záznamu došlo k chybě');
         }
 
-        result['newRecord'] = newRecordInsertion.result.toImmutable();
-        return result;
+        return newRecordInsertion.value.toImmutable();
       });
-      result = ResultObject(resultMap);
+      result = ResultObject(trxResult);
 
     } on Failure catch (e) {
       result.addErrorMessage(e.message);

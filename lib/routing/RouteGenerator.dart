@@ -1,12 +1,9 @@
-import 'package:app/screens/add_procedure_record/add_procedure_record_screen_bloc.dart';
-import 'package:app/screens/add_procedure_record/add_procedure_record_screen.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen_bloc.dart';
 import 'package:app/screens/actions_overview/actions_overview_screen.dart';
 import 'package:app/screens/editable_overview/editable_overview_bloc.dart';
 import 'package:app/screens/editable_overview/editable_overview.dart';
 import 'package:app/screens/archive/archive_screen_bloc.dart';
 import 'package:app/screens/summary/summary_screen_bloc.dart';
-import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/screens/archive/archive_screen.dart';
 import 'package:app/screens/summary/summary_screen.dart';
 import 'package:app/screens/main/main_screen.dart';
@@ -34,13 +31,6 @@ class RouteGenerator {
         builder: (_) => BlocProvider(
           create: (context) => EditableOverviewBloc(args as DateTime),
           child: EditableOverview(),
-        )
-      );
-
-      case AddProcedureRecordScreen.routeName: return MaterialPageRoute(
-        builder: (_) => BlocProvider(
-          create: (context) => AddProcedureRecordScreenBloc(args as ProcedureRecordImmutable, (_appBloc.state as AppLoadSuccess).procedures),
-          child: AddProcedureRecordScreen(),
         )
       );
 

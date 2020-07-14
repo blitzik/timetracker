@@ -45,7 +45,7 @@ class ArchiveScreenBloc extends Bloc<ArchiveScreenEvent, ArchiveScreenState>{
     if (state is ArchiveUninitialized) {
       final historySearch = await SQLiteDbProvider.db.findHistoryData(0);
       if (historySearch.isSuccess) {
-        yield ArchiveScreenLoadSuccessful(historySearch.result, false);
+        yield ArchiveScreenLoadSuccessful(historySearch.value, false);
       } else {
 
         yield ArchiveScreenLoadFailure(historySearch.lastMessage);
@@ -56,11 +56,11 @@ class ArchiveScreenBloc extends Bloc<ArchiveScreenEvent, ArchiveScreenState>{
       var st = state as ArchiveScreenLoadSuccessful;
       final historySearch = await SQLiteDbProvider.db.findHistoryData(st.days.length);
       if (historySearch.isSuccess) {
-        if (historySearch.result.isEmpty) {
+        if (historySearch.value.isEmpty) {
           yield st.copyWith(hasReachedMax: true);
 
         } else {
-          List<DateTime> updatedItems = List.from(st.days)..addAll(historySearch.result);
+          List<DateTime> updatedItems = List.from(st.days)..addAll(historySearch.value);
           yield ArchiveScreenLoadSuccessful(UnmodifiableListView(updatedItems), false);
         }
 

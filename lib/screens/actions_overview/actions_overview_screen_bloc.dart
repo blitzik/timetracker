@@ -53,9 +53,9 @@ class ActionsOverviewScreenBloc extends Bloc<ActionsOverviewScreenEvent, Actions
       } else {
         List<ProcedureImmutable> updatedList = List.from(
           (state as ActionsOverviewLoadSuccess).procedures
-        )..insert(0, insertion.result);
+        )..insert(0, insertion.value);
         yield ActionsOverviewProcedureSaveSuccess(UnmodifiableListView(updatedList));
-        _appBloc.add(AppProcedureAdded(insertion.result));
+        _appBloc.add(AppProcedureAdded(insertion.value));
       }
     }
   }
