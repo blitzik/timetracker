@@ -55,11 +55,15 @@ class _ProcedureRecordCreationFormState extends State<ProcedureRecordCreationFor
       builder: (context, state) {
         if (state is ProcedureRecordCreationInProgress) {
           return Center(
-            child: Column(
-              children: <Widget>[
-                Text('Ukládám záznam ...'),
-                CircularProgressIndicator()
-              ],
+            child: Padding(
+              padding: const EdgeInsets.only(top: 25),
+              child: Column(
+                children: <Widget>[
+                  Text('Ukládám záznam ...'),
+                  SizedBox(height: 25),
+                  CircularProgressIndicator()
+                ],
+              ),
             ),
           );
         }
