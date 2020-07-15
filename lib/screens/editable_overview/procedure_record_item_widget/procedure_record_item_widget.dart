@@ -1,6 +1,7 @@
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_widget_bloc.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_events.dart';
 import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_states.dart';
+import 'package:app/widgets/procedure_record_closing_form/procedure_record_closing_form_bloc.dart';
 import 'package:app/widgets/procedure_record_closing_form/procedure_record_closing_form.dart';
 import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_form.dart';
 import 'package:app/screens/editable_overview/editable_overview_events.dart';
@@ -19,12 +20,12 @@ import 'package:intl/intl.dart';
 class ProcedureRecordItemWidget extends StatefulWidget {
   final bool _displayTrailing;
   final EdgeInsetsGeometry _padding;
-  final bool _isFirst;
+  final bool _isFirstRecordOfDay;
 
 
   ProcedureRecordItemWidget(
     this._padding,
-    this._isFirst,
+    this._isFirstRecordOfDay,
     this._displayTrailing,
   ) : assert(_padding != null),
       assert(_displayTrailing != null);
@@ -162,7 +163,10 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
       onSelected: (v) async{
         switch (v) {
           case 1: {
-            await _closeProcedureRecordDialog(context, record);
+            var resultRecord = await _closeProcedureRecordDialog(context, record);
+            if (resultRecord != null) {
+              _bloc.add(ProcedureRecordClosed(resultRecord));
+            }
             break;
           }
           case 2: {
@@ -224,14 +228,17 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
   }
 
 
-  Future<void> _closeProcedureRecordDialog(BuildContext _context, ProcedureRecordImmutable record) async{
+  Future<ProcedureRecordImmutable> _closeProcedureRecordDialog(BuildContext _context, ProcedureRecordImmutable record) async{
     return await DialogUtils.showCustomGeneralDialog(
       _context,
       SimpleDialog(
         contentPadding: EdgeInsets.all(25),
         title: const Text('Uzavření záznamu'),
         children: <Widget>[
-          ProcedureRecordClosingForm(record, widget._isFirst, _context)
+          BlocProvider(
+            create: (context) => ProcedureRecordClosingFormBloc(record, widget._isFirstRecordOfDay),
+            child: ProcedureRecordClosingForm(),
+          )
         ],
       )
     );

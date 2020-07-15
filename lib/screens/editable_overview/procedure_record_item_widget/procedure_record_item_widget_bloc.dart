@@ -75,11 +75,7 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
 
 
   Stream<ProcedureRecordItemState> _procedureRecordClosedToState(ProcedureRecordClosed event) async*{
-    var update = await SQLiteDbProvider.db.closeProcedureRecord(state.record, event.finish, event.quantity);
-    if (update.isSuccess) {
-      yield ProcedureRecordItemDefaultState(update.value, _isLast);
-      _editableOverviewBloc.add(eoEvents.ProcedureRecordUpdated(update.value));
-    }
+    yield ProcedureRecordItemDefaultState(event.record, _isLast);
   }
 
 

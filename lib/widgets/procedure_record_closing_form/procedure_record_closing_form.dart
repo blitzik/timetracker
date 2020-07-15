@@ -1,5 +1,6 @@
-import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_widget_bloc.dart';
-import 'package:app/screens/editable_overview/procedure_record_item_widget/procedure_record_item_events.dart';
+import 'package:app/widgets/procedure_record_closing_form/procedure_record_closing_form_events.dart';
+import 'package:app/widgets/procedure_record_closing_form/procedure_record_closing_form_states.dart';
+import 'package:app/widgets/procedure_record_closing_form/procedure_record_closing_form_bloc.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
 import 'package:app/widgets/time_picker/time_picker.dart';
 import 'package:app/utils/result_object/time_utils.dart';
@@ -12,12 +13,7 @@ import 'package:flutter/material.dart';
 
 class ProcedureRecordClosingForm extends StatefulWidget {
 
-  final ProcedureRecordImmutable record;
-  final BuildContext originContext;
-  final bool isMidnightForToday;
-
-
-  ProcedureRecordClosingForm(this.record, this.isMidnightForToday, this.originContext);
+  ProcedureRecordClosingForm();
 
 
   @override
@@ -26,7 +22,7 @@ class ProcedureRecordClosingForm extends StatefulWidget {
 
 
 class _ProcedureRecordClosingFormState extends State<ProcedureRecordClosingForm> {
-  ProcedureRecordItemWidgetBloc _bloc;
+  ProcedureRecordClosingFormBloc _bloc;
   GlobalKey<FormState> _formKey;
   int _quantity;
   DateTime _finish;
@@ -34,18 +30,22 @@ class _ProcedureRecordClosingFormState extends State<ProcedureRecordClosingForm>
 
   Color _buttonColor;
 
+  ProcedureRecordImmutable _record;
+
 
   @override
   void initState() {
     super.initState();
 
-    _finish = _getDefaultTime(widget.record);
+    _bloc = BlocProvider.of<ProcedureRecordClosingFormBloc>(context);
+    _record = (_bloc.state as ProcedureRecordClosingFormDefault).record;
+
+    _finish = _getDefaultTime(_record);
     _buttonColor = Style.COLOR_GREEN_SEA;
 
-    _timeSpent = _calcTime(widget.record.start, _finish);
+    _timeSpent = _calcTime(_record.start, _finish);
 
     _formKey = GlobalKey();
-    _bloc = BlocProvider.of<ProcedureRecordItemWidgetBloc>(widget.originContext);
   }
 
 
@@ -75,67 +75,103 @@ class _ProcedureRecordClosingFormState extends State<ProcedureRecordClosingForm>
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Row(
-            children: _getFormTopRowContent(widget.record)
-          ),
+    return BlocConsumer<ProcedureRecordClosingFormBloc, ProcedureRecordClosingFormState>(
+      listener: (context, state) {
+        if (state is ProcedureRecordClosingSuccess) {
+          Navigator.pop(context, state.record);
+        }
+      },
 
-          SizedBox(height: 15),
+      buildWhen: (oldState, newState) {
+        if (newState is ProcedureRecordClosingSuccess) {
+          return false;
+        }
+        return true;
+      },
 
-          Container(
-            height: 150,
-            decoration: BoxDecoration(
-                border: Border.all(width: 1, color: Colors.black)
+      builder: (context, state) {
+        if (state is ProcedureRecordClosingInProgress) {
+          return Center(
+            child: Column(
+              children: <Widget>[
+                Text('Probíhá uzavírání záznamu...'),
+                CircularProgressIndicator()
+              ],
             ),
-            child: SizedBox(
-              width: 250,
-              child: TimePicker(
-                hours: List.generate(24, (index) => index),
-                minutes: [0, 15, 30, 45],
-                time: _finish,
-                onTimeChanged: (time) {
-                  setState(() {
-                    if (time.hour == 0) {
-                      time = time.copyWith(second: 0, millisecond: 0, microsecond: 0);
-                    }
-                    _finish = time;
-                    _timeSpent = _calcTime(widget.record.start, _finish);
+          );
+        }
 
-                    if (_timeSpent <= 0) {
-                      _buttonColor = Style.COLOR_POMEGRANATE;
-                    } else {
-                      _buttonColor = Style.COLOR_GREEN_SEA;
-                    }
-                  });
-                },
+        if (state is ProcedureRecordClosingFailure) {
+          return Center(
+            child: Text(
+              state.errorMessage,
+              style: TextStyle(color: Style.COLOR_POMEGRANATE),
+            ),
+          );
+        }
+
+        var st = (state as ProcedureRecordClosingFormDefault);
+        return Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Row(
+                children: _getFormTopRowContent(_record)
               ),
-            )
+
+              SizedBox(height: 15),
+
+              Container(
+                height: 150,
+                decoration: BoxDecoration(
+                    border: Border.all(width: 1, color: Colors.black)
+                ),
+                child: SizedBox(
+                  width: 250,
+                  child: TimePicker(
+                    hours: List.generate(24, (index) => index),
+                    minutes: [0, 15, 30, 45],
+                    time: _finish,
+                    onTimeChanged: (time) {
+                      setState(() {
+                        if (time.hour == 0) {
+                          time = time.copyWith(second: 0, millisecond: 0, microsecond: 0);
+                        }
+                        _finish = time;
+                        _timeSpent = _calcTime(st.record.start, _finish);
+
+                        if (_timeSpent <= 0) {
+                          _buttonColor = Style.COLOR_POMEGRANATE;
+                        } else {
+                          _buttonColor = Style.COLOR_GREEN_SEA;
+                        }
+                      });
+                    },
+                  ),
+                )
+              ),
+
+              RaisedButton(
+                child: Text('Uzavřít záznam', style: TextStyle(color: Colors.white)),
+                color: _buttonColor,
+                onPressed: () {
+                  if (!_formKey.currentState.validate()) {
+                    return;
+                  }
+                  _formKey.currentState.save();
+
+                  DateTime finish = _finish;
+                  if (st.isFirstRecordOfDay == false) {
+                    finish = _finish.add(const Duration(days: 1))..copyWith(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
+                  }
+                  _bloc.add(ProcedureRecordClosed(finish, _quantity));
+                },
+              )
+            ],
           ),
-
-          RaisedButton(
-            child: Text('Uzavřít záznam', style: TextStyle(color: Colors.white)),
-            color: _buttonColor,
-            onPressed: () {
-              if (!_formKey.currentState.validate()) {
-                return;
-              }
-              _formKey.currentState.save();
-
-              DateTime finish = _finish;
-              if (widget.isMidnightForToday == false) {
-                finish = _finish.add(const Duration(days: 1))..copyWith(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
-              }
-              _bloc.add(ProcedureRecordClosed(finish, _quantity));
-
-              Navigator.pop(context);
-            },
-          )
-        ],
-      ),
+        );
+      }
     );
   }
 

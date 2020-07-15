@@ -1,9 +1,10 @@
-import 'package:app/utils/result_object/time_utils.dart';
 import 'package:app/widgets/procedure_record_creation_form/procedure_record_creation_form_events.dart';
 import 'package:app/widgets/procedure_record_creation_form/procedure_record_creation_form_states.dart';
 import 'package:app/widgets/procedure_record_creation_form/procedure_record_creation_form_bloc.dart';
 import 'package:app/widgets/time_picker/time_picker.dart';
+import 'package:app/utils/result_object/time_utils.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:app/utils/result_object/style.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
@@ -72,7 +73,7 @@ class _ProcedureRecordCreationFormState extends State<ProcedureRecordCreationFor
           return Container(
             height: 300,
             child: Center(
-              child: Text(state.errorMessage, style: TextStyle(color: Colors.red)),
+              child: Text(state.errorMessage, style: TextStyle(color: Style.COLOR_POMEGRANATE)),
             ),
           );
         }
