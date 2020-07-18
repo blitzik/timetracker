@@ -148,6 +148,7 @@ class _ProcedureRecordCreationFormState extends State<ProcedureRecordCreationFor
       child: TimePicker(
         hours: List.generate(24, (index) => index),
         minutes: [0, 15, 30, 45],
+        time: _start,
         onTimeChanged: (time) {
           _start = time;
         },
