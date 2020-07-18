@@ -5,18 +5,16 @@ import 'package:app/widgets/procedure_record_edit_form/procedure_record_edit_for
 import 'package:app/screens/editable_overview/editable_overview_events.dart' as eoEvents;
 import 'package:app/screens/editable_overview/editable_overview_bloc.dart';
 import 'package:app/domain/procedure_record_immutable.dart';
-import 'package:app/domain/procedure_immutable.dart';
 import 'package:app/storage/sqlite_db_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:collection';
+import 'package:app/app_bloc.dart';
 import 'dart:async';
 
 
 class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, ProcedureRecordItemState> {
   final EditableOverviewBloc _editableOverviewBloc;
   final ProcedureRecordImmutable _procedureRecord;
-  final bool _isLast;
-  final UnmodifiableListView<ProcedureImmutable> _procedures;
+  final AppBloc _appBloc;
 
 
   StreamSubscription<ProcedureRecordEditFormState> _editFormSubscription;
@@ -26,7 +24,7 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
       _editFormBloc.close();
       _editFormSubscription.cancel();
     }
-    _editFormBloc = ProcedureRecordEditFormBloc(state.record, _procedures);
+    _editFormBloc = ProcedureRecordEditFormBloc(state.record, (_appBloc.state as AppLoadSuccess).procedures);
     _editFormSubscription = _editFormBloc.listen((onDataState) {
       if (onDataState is EditFormProcessingSuccess) {
         this.add(ProcedureRecordUpdated(onDataState.quantity, onDataState.selectedProcedure));
@@ -37,18 +35,16 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
 
 
   @override
-  ProcedureRecordItemState get initialState => ProcedureRecordItemDefaultState(_procedureRecord, _isLast);
+  ProcedureRecordItemState get initialState => ProcedureRecordItemDefaultState(_procedureRecord);
 
 
   ProcedureRecordItemWidgetBloc(
     this._editableOverviewBloc,
     this._procedureRecord,
-    this._isLast,
-    this._procedures
+    this._appBloc
   ) : assert(_editableOverviewBloc != null),
       assert(_procedureRecord != null),
-      assert(_isLast != null),
-      assert(_procedures != null);
+      assert(_appBloc != null);
 
 
   @override
@@ -68,14 +64,15 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
   Stream<ProcedureRecordItemState> _procedureRecordOpenedToState(ProcedureRecordOpened event) async*{
     var update = await SQLiteDbProvider.db.openProcedureRecord(state.record);
     if (update.isSuccess) {
-      yield ProcedureRecordItemDefaultState(update.value, _isLast);
+      yield ProcedureRecordItemDefaultState(update.value);
       _editableOverviewBloc.add(eoEvents.ProcedureRecordUpdated(update.value));
     }
   }
 
 
   Stream<ProcedureRecordItemState> _procedureRecordClosedToState(ProcedureRecordClosed event) async*{
-    yield ProcedureRecordItemDefaultState(event.record, _isLast);
+    yield ProcedureRecordItemDefaultState(event.record);
+    _editableOverviewBloc.add(eoEvents.ProcedureRecordUpdated(event.record));
   }
 
 
@@ -86,7 +83,7 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
 
     var update = await SQLiteDbProvider.db.updateProcedureRecord(state.record, event.procedure, event.quantity);
     if (update.isSuccess) {
-      yield ProcedureRecordItemDefaultState(update.value, _isLast);
+      yield ProcedureRecordItemDefaultState(update.value);
       _editableOverviewBloc.add(eoEvents.ProcedureRecordUpdated(update.value));
     }
   }

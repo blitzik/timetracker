@@ -9,11 +9,9 @@ abstract class ProcedureRecordItemState {
 
 
 class ProcedureRecordItemDefaultState extends ProcedureRecordItemState {
-  final bool isLast;
 
   ProcedureRecordItemDefaultState(
     ProcedureRecordImmutable record,
-    this.isLast
   ) : assert(record != null),
       super(record);
 }

@@ -18,17 +18,22 @@ import 'package:intl/intl.dart';
 
 
 class ProcedureRecordItemWidget extends StatefulWidget {
-  final bool _displayTrailing;
-  final EdgeInsetsGeometry _padding;
-  final bool _isFirstRecordOfDay;
+  final bool displayTrailing;
+  final EdgeInsetsGeometry padding;
+  final bool isFirstRecordOfDay;
+  final bool isLastRecordOfDay;
 
 
   ProcedureRecordItemWidget(
-    this._padding,
-    this._isFirstRecordOfDay,
-    this._displayTrailing,
-  ) : assert(_padding != null),
-      assert(_displayTrailing != null);
+    this.padding,
+    this.isFirstRecordOfDay,
+    this.isLastRecordOfDay,
+    this.displayTrailing,
+  ) : assert(padding != null),
+      assert(isFirstRecordOfDay != null),
+      assert(isLastRecordOfDay != null),
+      assert(displayTrailing != null);
+
 
   @override
   _ProcedureRecordItemWidgetState createState() => _ProcedureRecordItemWidgetState();
@@ -51,7 +56,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
 
   @override
   void dispose() {
-    _bloc.dispose();
+    // do not close _bloc here!
     super.dispose();
   }
 
@@ -71,7 +76,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
             color: record.procedureType == ProcedureType.BREAK ? Color(0xffefebe9) : Color(0xffeceff1),
             child: InkWell(
               child: ListTile(
-                contentPadding: widget._padding,
+                contentPadding: widget.padding,
                 title: Text(record.procedureName,
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)
                 ),
@@ -153,8 +158,8 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
 
   Widget _displayMenu(BuildContext context, ProcedureRecordItemDefaultState state) {
     var record = state.record;
-    if (widget._displayTrailing == false) return null;
-    if (!state.isLast) {
+    if (widget.displayTrailing == false) return null;
+    if (!widget.isLastRecordOfDay) {
       return SizedBox(width: 50, height: 50);
     }
 
@@ -163,18 +168,18 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
       onSelected: (v) async{
         switch (v) {
           case 1: {
-            var resultRecord = await _closeProcedureRecordDialog(context, record);
+            var resultRecord = await _displayCloseProcedureRecordDialog(context, record);
             if (resultRecord != null) {
               _bloc.add(ProcedureRecordClosed(resultRecord));
             }
             break;
           }
           case 2: {
-            await _openProcedureRecordDialog(context);
+            await _displayOpenProcedureRecordDialog(context);
             break;
           }
           case 3: {
-            await _deleteProcedureRecordDialog(context);
+            await _displayDeleteProcedureRecordDialog(context);
             break;
           }
           default:
@@ -228,7 +233,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
   }
 
 
-  Future<ProcedureRecordImmutable> _closeProcedureRecordDialog(BuildContext _context, ProcedureRecordImmutable record) async{
+  Future<ProcedureRecordImmutable> _displayCloseProcedureRecordDialog(BuildContext _context, ProcedureRecordImmutable record) async{
     return await DialogUtils.showCustomGeneralDialog(
       _context,
       SimpleDialog(
@@ -236,7 +241,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
         title: const Text('Uzavření záznamu'),
         children: <Widget>[
           BlocProvider(
-            create: (context) => ProcedureRecordClosingFormBloc(record, widget._isFirstRecordOfDay),
+            create: (context) => ProcedureRecordClosingFormBloc(record, widget.isFirstRecordOfDay),
             child: ProcedureRecordClosingForm(),
           )
         ],
@@ -245,7 +250,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
   }
 
 
-  Future<void> _openProcedureRecordDialog(BuildContext _context) async{
+  Future<void> _displayOpenProcedureRecordDialog(BuildContext _context) async{
     return await DialogUtils.showCustomGeneralDialog(
       _context,
       AlertDialog(
@@ -265,7 +270,7 @@ class _ProcedureRecordItemWidgetState extends State<ProcedureRecordItemWidget> {
   }
 
 
-  Future<void> _deleteProcedureRecordDialog(BuildContext _context) async{
+  Future<void> _displayDeleteProcedureRecordDialog(BuildContext _context) async{
     return await DialogUtils.showCustomGeneralDialog(
       _context,
       AlertDialog(
