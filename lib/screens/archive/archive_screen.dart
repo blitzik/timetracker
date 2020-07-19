@@ -79,6 +79,7 @@ class _ListState extends State<_List> {
             child: Column(
               children: <Widget>[
                 Text('Načítám data...'),
+                SizedBox(height: 15),
                 CircularProgressIndicator(),
               ],
             ),
