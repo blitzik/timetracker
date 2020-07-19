@@ -7,15 +7,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProcedureRecordClosingFormBloc extends Bloc<ProcedureRecordClosingEvent, ProcedureRecordClosingFormState> {
 
-  final ProcedureRecordImmutable _record;
-  final bool _isFirstRecordOfDay;
 
-
-  @override
-  ProcedureRecordClosingFormState get initialState => ProcedureRecordClosingFormDefault(_record, _isFirstRecordOfDay);
-
-
-  ProcedureRecordClosingFormBloc(this._record, this._isFirstRecordOfDay);
+  ProcedureRecordClosingFormBloc(
+    ProcedureRecordImmutable record,
+    bool isFirstRecordOfDay
+  ) : super(ProcedureRecordClosingFormDefault(record, isFirstRecordOfDay));
 
 
   @override

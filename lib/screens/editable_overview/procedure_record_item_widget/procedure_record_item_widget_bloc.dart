@@ -13,7 +13,6 @@ import 'dart:async';
 
 class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, ProcedureRecordItemState> {
   final EditableOverviewBloc _editableOverviewBloc;
-  final ProcedureRecordImmutable _procedureRecord;
   final AppBloc _appBloc;
 
 
@@ -34,17 +33,14 @@ class ProcedureRecordItemWidgetBloc extends Bloc<ProcedureRecordItemEvent, Proce
   }
 
 
-  @override
-  ProcedureRecordItemState get initialState => ProcedureRecordItemDefaultState(_procedureRecord);
-
-
   ProcedureRecordItemWidgetBloc(
     this._editableOverviewBloc,
-    this._procedureRecord,
+    ProcedureRecordImmutable record,
     this._appBloc
   ) : assert(_editableOverviewBloc != null),
-      assert(_procedureRecord != null),
-      assert(_appBloc != null);
+      assert(record != null),
+      assert(_appBloc != null),
+      super(ProcedureRecordItemDefaultState(record));
 
 
   @override

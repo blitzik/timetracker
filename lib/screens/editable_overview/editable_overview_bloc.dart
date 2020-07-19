@@ -13,12 +13,7 @@ class EditableOverviewBloc extends Bloc<ProcedureRecordsEvents, ProcedureRecords
   final DateTime date;
 
 
-
-  EditableOverviewBloc(this.date);
-
-
-  @override
-  ProcedureRecordsState get initialState => ProcedureRecordsLoadInProgress(date);
+  EditableOverviewBloc(this.date) : super(ProcedureRecordsLoadInProgress(date));
 
 
   @override

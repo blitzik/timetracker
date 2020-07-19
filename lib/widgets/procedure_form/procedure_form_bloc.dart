@@ -5,14 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 
 class ProcedureFormBloc extends Bloc<ProcedureFormEvent, ProcedureFormState> {
-  final ProcedureImmutable _procedure;
 
 
-  @override
-  ProcedureFormState get initialState => ProcedureFormDefault(_procedure);
-
-
-  ProcedureFormBloc(this._procedure);
+  ProcedureFormBloc(ProcedureImmutable procedure) : super(ProcedureFormDefault(procedure));
 
 
   @override

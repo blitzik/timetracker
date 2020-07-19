@@ -10,7 +10,6 @@ import 'dart:async';
 
 
 class ProcedureItemWidgetBloc extends Bloc<ProcedureItemWidgetEvent, ProcedureItemState> {
-  final ProcedureImmutable _procedure;
   final AppBloc _appBloc;
 
 
@@ -33,12 +32,10 @@ class ProcedureItemWidgetBloc extends Bloc<ProcedureItemWidgetEvent, ProcedureIt
   }
 
 
-  @override
-  ProcedureItemState get initialState => ProcedureItemDefaultState(_procedure);
-
-
-  ProcedureItemWidgetBloc(this._procedure, this._appBloc);
-
+  ProcedureItemWidgetBloc(
+    ProcedureImmutable procedure,
+    this._appBloc
+  ) : super(ProcedureItemDefaultState(procedure));
 
 
   @override

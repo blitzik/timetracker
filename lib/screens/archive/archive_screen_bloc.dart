@@ -9,11 +9,8 @@ import 'dart:async';
 
 class ArchiveScreenBloc extends Bloc<ArchiveScreenEvent, ArchiveScreenState>{
 
-  @override
-  ArchiveScreenState get initialState => ArchiveUninitialized();
 
-
-  ArchiveScreenBloc();
+  ArchiveScreenBloc() : super(ArchiveUninitialized());
 
 
   Stream<Transition<ArchiveScreenEvent, ArchiveScreenState>> transformEvents(

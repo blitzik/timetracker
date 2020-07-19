@@ -7,15 +7,12 @@ import 'dart:collection';
 
 
 class ProcedureRecordEditFormBloc extends Bloc<ProcedureRecordEditFormEvent, ProcedureRecordEditFormState> {
-  final ProcedureRecordImmutable _record;
-  final UnmodifiableListView<ProcedureImmutable> _procedures;
 
 
-  @override
-  ProcedureRecordEditFormState get initialState => EditFormState(_procedures, _record, null, null);
-
-
-  ProcedureRecordEditFormBloc(this._record, this._procedures);
+  ProcedureRecordEditFormBloc(
+    ProcedureRecordImmutable record,
+    UnmodifiableListView<ProcedureImmutable> procedures
+  ) : super(EditFormState(procedures, record, null, null));
 
 
   @override

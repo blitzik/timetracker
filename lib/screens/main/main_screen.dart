@@ -19,7 +19,7 @@ class MainScreen extends StatelessWidget {
         title: Text('TimeTracker'),
       ),
       body: BlocBuilder<AppBloc, AppState>(
-        condition: (oldState, newState) {
+        buildWhen: (oldState, newState) {
           if (newState is AppProcedureCreationSuccess ||
               newState is AppProcedureUpdateSuccess) {
             return false;

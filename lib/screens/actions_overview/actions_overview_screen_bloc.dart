@@ -29,11 +29,7 @@ class ActionsOverviewScreenBloc extends Bloc<ActionsOverviewScreenEvent, Actions
   }
 
 
-  @override
-  ActionsOverviewScreenState get initialState => ActionsOverviewLoadSuccess((_appBloc.state as AppLoadSuccess).procedures);
-
-
-  ActionsOverviewScreenBloc(this._appBloc);
+  ActionsOverviewScreenBloc(this._appBloc) : super(ActionsOverviewLoadSuccess((_appBloc.state as AppLoadSuccess).procedures));
 
 
   @override

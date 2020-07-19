@@ -15,13 +15,11 @@ enum SummaryType {
 
 
 class SummaryScreenBloc extends Bloc<SummaryScreenEvent, SummaryScreenState> {
-
   final DateTime _date;
   Map<SummaryType, SummaryScreenLoadSuccess> _summaryStates = Map();
 
 
-  @override
-  SummaryScreenState get initialState => SummaryScreenLoadInProgress();
+  SummaryScreenBloc(this._date) : super(SummaryScreenLoadInProgress());
 
 
   @override
@@ -30,9 +28,6 @@ class SummaryScreenBloc extends Bloc<SummaryScreenEvent, SummaryScreenState> {
       yield* _summaryScreenLoadedToState(event);
     }
   }
-
-
-  SummaryScreenBloc(this._date);
 
 
   Stream<SummaryScreenState> _summaryScreenLoadedToState(SummaryScreenLoaded event) async*{

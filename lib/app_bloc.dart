@@ -6,8 +6,8 @@ import 'dart:collection';
 
 class AppBloc extends Bloc<AppEvent, AppState>{
 
-  @override
-  AppState get initialState => AppStateLoadInProgress();
+
+  AppBloc() : super(AppStateLoadInProgress());
 
 
   @override
