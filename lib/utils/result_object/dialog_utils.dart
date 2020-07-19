@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 
 class DialogUtils {
-  static Future<T> showCustomGeneralDialog<T>(BuildContext _context, Widget dialog) async{
+  static Future<T> showCustomGeneralDialog<T>(BuildContext _context, Widget dialog, [bool barrierDismissible = true]) async{
     return showGeneralDialog(
         context: _context,
         pageBuilder: (BuildContext context, Animation<double> a1, Animation<double> a2) {
@@ -20,7 +20,7 @@ class DialogUtils {
               )
           );
         },
-        barrierDismissible: true,
+        barrierDismissible: barrierDismissible,
         barrierLabel: '',
         barrierColor: Colors.black54
     );
